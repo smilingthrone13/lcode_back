@@ -1,0 +1,13 @@
+isDebug: true
+corsOrigins: [ "*" ]
+http:
+  host: 192.168.7.47
+  port: 5000
+  maxHeaderBytes: 1
+  readTimeout: 600s
+  writeTimeout: 600s
+tls:
+  enabled: false
+  cert: C:\Users\l.konstantin\Documents\Projects\!ssl_certs\cert.pem
+  key: C:\Users\l.konstantin\Documents\Projects\!ssl_certs\key.pem
+searchCoefficient: 0.3
