@@ -12,9 +12,6 @@ create table "user"
     is_admin      boolean default false             not null
 );
 
-alter table "user"
-    owner to postgres;
-
 create table user_progress
 (
     user_id uuid not null
@@ -23,9 +20,6 @@ create table user_progress
     task_id uuid not null,
     status  text not null
 );
-
-alter table user_progress
-    owner to postgres;
 
 create unique index user_progress_user_id_task_id_uindex
     on user_progress (user_id, task_id);
@@ -41,9 +35,6 @@ create table task
     difficulty  text                           not null,
     category    text                           not null
 );
-
-alter table task
-    owner to postgres;
 
 CREATE OR REPLACE FUNCTION update_task_number()
     RETURNS TRIGGER AS $$
@@ -93,9 +84,6 @@ create table task_template
     wrapper  text                           not null
 );
 
-alter table task_template
-    owner to postgres;
-
 create table submission
 (
     user_id          uuid             not null
@@ -110,9 +98,6 @@ create table submission
     memory           double precision not null
 );
 
-alter table submission
-    owner to postgres;
-
 create table test_case
 (
     id      uuid default gen_random_uuid() not null
@@ -125,9 +110,6 @@ create table test_case
     input   json                           not null,
     output  json                           not null
 );
-
-alter table test_case
-    owner to postgres;
 
 CREATE OR REPLACE FUNCTION update_test_case_number()
 RETURNS TRIGGER AS $$
@@ -165,11 +147,23 @@ create trigger update_test_case_number_trigger
 on test_case
     for each row
 execute procedure update_test_case_number();
-
-
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-SELECT 'down SQL query';
+DROP TABLE user_progress;
+
+DROP TABLE submission;
+
+DROP TABLE "user";
+
+DROP TABLE task_template;
+
+DROP TABLE test_case;
+
+DROP TABLE task;
+
+DROP FUNCTION update_task_number();
+
+DROP FUNCTION update_test_case_number();
 -- +goose StatementEnd
