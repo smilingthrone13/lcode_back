@@ -19,7 +19,7 @@ import (
 const (
 	logBufferSize    = 1024 * 200
 	logBufferTimeout = time.Second * 3
-	logFilePath      = "./pm_back.log"
+	logFilePath      = "./lcode.log"
 )
 
 type App struct {
