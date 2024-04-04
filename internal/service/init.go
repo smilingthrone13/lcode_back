@@ -4,6 +4,7 @@ import (
 	"lcode/config"
 	"lcode/internal/infra/repository"
 	"lcode/internal/service/authorization"
+	"lcode/pkg/postgres"
 	"log/slog"
 )
 

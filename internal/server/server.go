@@ -1,11 +1,14 @@
 package server
 
 import (
+	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
 	"lcode/config"
 	"lcode/internal/handler"
-	"log"
+	"lcode/internal/handler/http/general"
+	"lcode/internal/handler/middleware"
 	"log/slog"
 	"net/http"
 	"time"
@@ -71,15 +74,6 @@ func NewServer(
 
 	router.Use(requestid.New())
 
-	//router.Use(
-	//	requestid.New(
-	//		requestid.WithGenerator(func() string {
-	//			return "test"
-	//		}),
-	//		requestid.WithCustomHeaderStrKey("CJVFX-PM"),
-	//	),
-	//)
-
 	router.Use(loggerMiddleware(logger))
 
 	pprof.Register(router)
@@ -88,38 +82,8 @@ func NewServer(
 		c.JSON(http.StatusTeapot, gin.H{"code": "URL IS INVALID", "message": "URL IS INVALID"})
 	})
 
-	wsServer := socketio.NewServer(&engineio.Options{
-		Transports: []transport.Transport{
-			&polling.Transport{
-				CheckOrigin: allowOriginFunc,
-			},
-			&websocket.Transport{
-				CheckOrigin: allowOriginFunc,
-			},
-		},
-	})
-
-	router.GET("/socket.io/*any", gin.WrapH(wsServer))
-	router.POST("/socket.io/*any", gin.WrapH(wsServer))
-
-	// ws handlers
-	h.WS.General.Register(wsServer)
-	h.WS.Comment.Register(wsServer)
-	h.WS.Version.Register(wsServer)
-	h.WS.Activity.Register(wsServer)
-
 	// http handlers
-	h.HTTP.General.Register(&general.Middlewares{Access: middlewares.Access, General: middlewares.General}, router)
-	h.HTTP.Version.Register(&version.Middlewares{Access: middlewares.Access, Version: middlewares.Version}, router)
-	h.HTTP.Comment.Register(&comment.Middlewares{Access: middlewares.Access, Comment: middlewares.Comment}, router)
-	h.HTTP.Pipeline.Register(&pipeline.Middlewares{Access: middlewares.Access, Pipeline: middlewares.Pipeline}, router)
-	h.HTTP.Activity.Register(middlewares.Access, router)
-
-	go func() {
-		if err := wsServer.Serve(); err != nil {
-			log.Fatalf("socketio listen error: %s\n", err)
-		}
-	}()
+	h.HTTP.General.Register(&general.Middlewares{General: middlewares.General}, router)
 
 	return &Server{
 		config:    config,

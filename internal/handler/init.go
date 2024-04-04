@@ -4,6 +4,7 @@ import (
 	"lcode/config"
 	generalH "lcode/internal/handler/http/general"
 	"lcode/internal/service"
+	"lcode/pkg/postgres"
 	"log/slog"
 )
 
@@ -12,7 +13,6 @@ type (
 		Config             *config.Config
 		Logger             *slog.Logger
 		TransactionManager *postgres.TransactionProvider
-		ConnectionPool     *connection.Pool
 	}
 
 	HTTPHandlers struct {
@@ -25,9 +25,7 @@ type (
 )
 
 func New(p *InitParams, services *service.Services) *Handlers {
-	generalHandler := generalH.New(p.Config, p.Logger, &generalH.Services{
-		Auth: services.Auth,
-	})
+	generalHandler := generalH.New(p.Config, p.Logger, &generalH.Services{})
 
 	return &Handlers{
 		&HTTPHandlers{
