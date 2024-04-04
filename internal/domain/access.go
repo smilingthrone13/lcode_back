@@ -6,6 +6,6 @@ type (
 		Login     string
 		FirstName string
 		LastName  string
-		isAdmin   bool
+		IsAdmin   bool
 	}
 )
