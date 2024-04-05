@@ -13,6 +13,10 @@ const (
 
 	defaultPage       = 1
 	defaultLimitCount = 30
+
+	defaultAccessTokenExpTime  = time.Second * 300
+	defaultRefreshTokenExpTime = time.Hour * 24 * 30
+	defaultSecretKey           = "secret"
 )
 
 type (
@@ -21,6 +25,7 @@ type (
 		CorsOrigins       []string
 		SearchCoefficient float32
 		HTTP              HTTPConfig
+		Auth              AuthConfig
 		TLS               TLSConfig
 		DBConfig          DBConfig
 		QueryParams       QueryParams
@@ -38,6 +43,12 @@ type (
 		Enabled  bool
 		CertFile string `mapstructure:"cert"`
 		KeyFile  string `mapstructure:"key"`
+	}
+
+	AuthConfig struct {
+		AccessTokenExpTime  time.Duration
+		RefreshTokenExpTime time.Duration
+		Secret              string
 	}
 
 	DBConfig struct {
@@ -92,6 +103,10 @@ func parseYml(configDir string, cfg *Config) error {
 		return err
 	}
 
+	if err := viper.UnmarshalKey("auth", &cfg.Auth); err != nil {
+		return err
+	}
+
 	if err := viper.UnmarshalKey("tls", &cfg.TLS); err != nil {
 		return err
 	}
@@ -139,5 +154,8 @@ func InitDefault() {
 	viper.SetDefault("http.timeouts.read", defaultHTTPRWTimeout)
 	viper.SetDefault("http.timeouts.write", defaultHTTPRWTimeout)
 	viper.SetDefault("query_params.page", defaultPage)
-	viper.SetDefault("query_params.limit", defaultLimitCount)
+
+	viper.SetDefault("auth.access_token_exp_time", defaultAccessTokenExpTime)
+	viper.SetDefault("auth.refresh_token_exp_time", defaultRefreshTokenExpTime)
+	viper.SetDefault("auth.secret", defaultSecretKey)
 }

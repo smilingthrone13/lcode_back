@@ -21,7 +21,7 @@ type (
 )
 
 func New(p *InitParams, repos *repository.Repositories) *Services {
-	authService := authorization.NewService(p.Config)
+	authService := authorization.NewService(p.Config, repos.Auth)
 
 	return &Services{
 		Auth: authService,

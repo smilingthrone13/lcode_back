@@ -7,7 +7,7 @@ create table "user"
             primary key,
     first_name    varchar(50)                       not null,
     last_name     varchar(50)                       not null,
-    username      varchar(50)                       not null,
+    username      varchar(50)                       not null unique,
     password_hash text                              not null,
     is_admin      boolean default false             not null
 );

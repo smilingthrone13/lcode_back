@@ -2,6 +2,7 @@ package handler
 
 import (
 	"lcode/config"
+	authH "lcode/internal/handler/http/auth"
 	generalH "lcode/internal/handler/http/general"
 	"lcode/internal/service"
 	"lcode/pkg/postgres"
@@ -17,6 +18,7 @@ type (
 
 	HTTPHandlers struct {
 		General *generalH.Handler
+		Auth    *authH.Handler
 	}
 
 	Handlers struct {
@@ -26,10 +28,14 @@ type (
 
 func New(p *InitParams, services *service.Services) *Handlers {
 	generalHandler := generalH.New(p.Config, p.Logger, &generalH.Services{})
+	authHandler := authH.New(p.Config, p.Logger, &authH.Services{
+		Auth: services.Auth,
+	})
 
 	return &Handlers{
 		&HTTPHandlers{
 			General: generalHandler,
+			Auth:    authHandler,
 		},
 	}
 }

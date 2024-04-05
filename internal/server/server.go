@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"lcode/config"
 	"lcode/internal/handler"
+	"lcode/internal/handler/http/auth"
 	"lcode/internal/handler/http/general"
 	"lcode/internal/handler/middleware"
 	"log/slog"
@@ -84,6 +85,7 @@ func NewServer(
 
 	// http handlers
 	h.HTTP.General.Register(&general.Middlewares{General: middlewares.General}, router)
+	h.HTTP.Auth.Register(&auth.Middlewares{Access: middlewares.Access}, router)
 
 	return &Server{
 		config:    config,
