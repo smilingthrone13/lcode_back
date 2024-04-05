@@ -14,15 +14,20 @@ create table "user"
 
 create table task
 (
-    id          uuid default gen_random_uuid() not null
+    id            uuid             default gen_random_uuid() not null
         constraint task_pk
             primary key,
-    number      bigint                         not null,
-    name        text                           not null,
-    description text default ''::text          not null,
-    difficulty  text                           not null,
-    category    text                           not null
+    number        bigint                                     not null,
+    name          text                                       not null,
+    description   text             default ''::text          not null,
+    difficulty    text                                       not null,
+    category      text                                       not null,
+    runtime_limit double precision default 5.0               not null,
+    memory_limit  bigint           default 128000            not null
 );
+
+create unique index task_name_uindex
+    on task (name);
 
 CREATE FUNCTION update_task_number() RETURNS TRIGGER
     LANGUAGE plpgsql
