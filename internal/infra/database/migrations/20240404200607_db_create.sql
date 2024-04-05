@@ -1,14 +1,5 @@
 -- +goose Up
 -- +goose StatementBegin
-create table goose_db_version
-(
-    id         serial
-        primary key,
-    version_id bigint  not null,
-    is_applied boolean not null,
-    tstamp     timestamp default now()
-);
-
 create table "user"
 (
     id            uuid    default gen_random_uuid() not null
@@ -33,7 +24,7 @@ create table task
     category    text                           not null
 );
 
-CREATE OR REPLACE FUNCTION update_task_number() RETURNS TRIGGER
+CREATE FUNCTION update_task_number() RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
 $$
@@ -125,7 +116,7 @@ create table test_case
     output  json                           not null
 );
 
-CREATE OR REPLACE FUNCTION update_test_case_number() RETURNS TRIGGER
+CREATE FUNCTION update_test_case_number() RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
 $$
@@ -176,21 +167,21 @@ create unique index solution_result_solution_id_test_case_id_uindex
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE user_progress;
+drop table user_progress;
 
-DROP TABLE solution;
+drop table task_template;
 
-DROP TABLE solution_result;
+drop table solution_result;
 
-DROP TABLE "user";
+drop table solution;
 
-DROP TABLE task_template;
+drop table "user";
 
-DROP TABLE test_case;
+drop table test_case;
 
-DROP TABLE task;
+drop table task;
 
-DROP FUNCTION update_task_number() CASCADE;
+drop function update_task_number();
 
-DROP FUNCTION update_test_case_number() CASCADE;
+drop function update_test_case_number();
 -- +goose StatementEnd
