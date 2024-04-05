@@ -21,7 +21,7 @@ type (
 	}
 )
 
-func NewService(conf *config.Config, repository AuthorizationRepo) *Service {
+func New(conf *config.Config, repository AuthorizationRepo) *Service {
 	authorizer := simple_auth.NewAuthorizer(
 		conf.Auth.AccessTokenExpTime,
 		conf.Auth.RefreshTokenExpTime,

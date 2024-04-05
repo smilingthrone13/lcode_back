@@ -2,6 +2,7 @@ package task_template
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"lcode/internal/domain"
 	"log/slog"
 )
@@ -19,26 +20,46 @@ func New(
 }
 
 func (s Service) Create(ctx context.Context, dto domain.TaskTemplateCreate) (domain.TaskTemplate, error) {
-	//TODO implement me
-	panic("implement me")
+	tt, err := s.repository.Create(ctx, dto)
+	if err != nil {
+		return domain.TaskTemplate{}, errors.Wrap(err, "Create TaskTemplate service:")
+	}
+
+	return tt, nil
 }
 
 func (s Service) Update(ctx context.Context, id string, dto domain.TaskTemplateUpdate) (domain.TaskTemplate, error) {
-	//TODO implement me
-	panic("implement me")
+	tt, err := s.repository.Update(ctx, id, dto)
+	if err != nil {
+		return domain.TaskTemplate{}, errors.Wrap(err, "Update TaskTemplate service:")
+	}
+
+	return tt, nil
 }
 
 func (s Service) Delete(ctx context.Context, id string) (domain.TaskTemplate, error) {
-	//TODO implement me
-	panic("implement me")
+	tt, err := s.repository.Delete(ctx, id)
+	if err != nil {
+		return domain.TaskTemplate{}, errors.Wrap(err, "Delete TaskTemplate service:")
+	}
+
+	return tt, nil
 }
 
 func (s Service) GetByID(ctx context.Context, id string) (domain.TaskTemplate, error) {
-	//TODO implement me
-	panic("implement me")
+	tt, err := s.repository.GetByID(ctx, id)
+	if err != nil {
+		return domain.TaskTemplate{}, errors.Wrap(err, "GetByID TaskTemplate service:")
+	}
+
+	return tt, nil
 }
 
 func (s Service) GetAllByTaskID(ctx context.Context, id string) ([]domain.TaskTemplate, error) {
-	//TODO implement me
-	panic("implement me")
+	tts, err := s.repository.GetAllByTaskID(ctx, id)
+	if err != nil {
+		return []domain.TaskTemplate{}, errors.Wrap(err, "GetAllByTaskID TaskTemplate service:")
+	}
+
+	return tts, nil
 }

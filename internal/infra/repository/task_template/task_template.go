@@ -24,7 +24,7 @@ func (r *Repository) Create(ctx context.Context, dto domain.TaskTemplateCreate) 
 
 	sq.Add(
 		`
-	INSERT INTO task_template(task_id, language_id, template, wrapper)
+	INSERT INTO task_template (task_id, language_id, template, wrapper)
 	VALUES (?, ?, ?, ?)
 	RETURNING id, task_id, language_id, template, wrapper
 	`,
@@ -111,7 +111,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (tt domain.TaskTemp
 	return tt, nil
 }
 
-func (r *Repository) GetAllByTaskID(ctx context.Context, id string) (tt []domain.TaskTemplate, err error) {
+func (r *Repository) GetAllByTaskID(ctx context.Context, id string) (tts []domain.TaskTemplate, err error) {
 	sq := sql_query_maker.NewQueryMaker(1)
 
 	sq.Add(
@@ -123,10 +123,10 @@ func (r *Repository) GetAllByTaskID(ctx context.Context, id string) (tt []domain
 
 	query, args := sq.Make()
 
-	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &tt, query, args...)
+	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &tts, query, args...)
 	if err != nil {
-		return tt, errors.Wrap(err, "GetAllByTaskID TaskTemplate repo:")
+		return tts, errors.Wrap(err, "GetAllByTaskID TaskTemplate repo:")
 	}
 
-	return tt, nil
+	return tts, nil
 }
