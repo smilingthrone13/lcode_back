@@ -1,5 +1,14 @@
 -- +goose Up
 -- +goose StatementBegin
+create table goose_db_version
+(
+    id         serial
+        primary key,
+    version_id bigint  not null,
+    is_applied boolean not null,
+    tstamp     timestamp default now()
+);
+
 create table "user"
 (
     id            uuid    default gen_random_uuid() not null
@@ -12,90 +21,94 @@ create table "user"
     is_admin      boolean default false             not null
 );
 
-create table user_progress
-(
-    user_id uuid not null
-        constraint user_progress_user_id_fk
-            references "user",
-    task_id uuid not null,
-    status  text not null
-);
-
-create unique index user_progress_user_id_task_id_uindex
-    on user_progress (user_id, task_id);
-
 create table task
 (
     id          uuid default gen_random_uuid() not null
         constraint task_pk
             primary key,
-    number      bigserial,
+    number      bigint                         not null,
     name        text                           not null,
     description text default ''::text          not null,
     difficulty  text                           not null,
     category    text                           not null
 );
 
-CREATE OR REPLACE FUNCTION update_task_number()
-    RETURNS TRIGGER AS $$
-DECLARE
-max_number BIGINT;
-    deleted_row RECORD; -- объявляем переменную для хранения удаленной строки
+CREATE OR REPLACE FUNCTION update_task_number() RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
 BEGIN
     IF TG_OP = 'INSERT' THEN
-        -- Ищем максимальный номер для задачи с таким же task_id
-SELECT COALESCE(MAX(number), 0) + 1 INTO max_number
-FROM task;
+        SELECT (COALESCE(MAX(number), 0) + 1) INTO NEW.number FROM task;
+        RETURN NEW;
 
--- Устанавливаем номер
-NEW.number := max_number;
     ELSIF TG_OP = 'DELETE' THEN
-        -- Получаем номер удаляемой записи
-SELECT number INTO deleted_row
-FROM task
-WHERE id = OLD.id;
+        UPDATE task
+        SET number = number - 1
+        WHERE number > (SELECT number FROM task WHERE id = OLD.id);
+        RETURN OLD;
 
--- Уменьшаем номера последующих записей
-UPDATE task
-SET number = number - 1
-WHERE number > deleted_row;
-END IF;
-
-RETURN NEW;
+    END IF;
 END;
-$$ LANGUAGE plpgsql;
+$$;
+
+create table user_progress
+(
+    user_id uuid not null
+        constraint user_progress_user_id_fk
+            references "user"
+            on delete cascade,
+    task_id uuid not null
+        constraint user_progress_task_id_fk
+            references task
+            on delete cascade,
+    status  text not null
+);
+
+create unique index user_progress_user_id_task_id_uindex
+    on user_progress (user_id, task_id);
 
 create trigger update_task_number_trigger
-    after insert or delete
-on task
+    before insert or delete
+    on task
     for each row
 execute procedure update_task_number();
 
 create table task_template
 (
-    id       uuid default gen_random_uuid() not null
+    id          uuid default gen_random_uuid() not null
         constraint task_template_pk
             primary key,
-    task_id  uuid                           not null
+    task_id     uuid                           not null
         constraint task_template_task_id_fk
-            references task,
-    language text                           not null,
-    template text                           not null,
-    wrapper  text                           not null
+            references task
+            on delete cascade,
+    language_id integer                        not null,
+    template    text                           not null,
+    wrapper     text                           not null
 );
 
-create table submission
+create unique index task_template__index
+    on task_template (task_id, language_id);
+
+create table solution
 (
-    user_id          uuid             not null
-        constraint submission_user_id_fk
-            references "user",
-    task_template_id uuid             not null
-        constraint submission_task_template_id_fk
-            references task_template,
-    solution         text             not null,
-    status           text             not null,
-    runtime          bigint           not null,
-    memory           double precision not null
+    user_id     uuid             not null
+        constraint solution_user_id_fk
+            references "user"
+            on delete cascade,
+    code        text             not null,
+    status      text             not null,
+    runtime     bigint           not null,
+    memory      double precision not null,
+    task_id     uuid             not null
+        constraint solution_task_id_fk
+            references task
+            on delete cascade,
+    id          uuid             not null
+        constraint solution_pk
+            primary key,
+    language_id integer
 );
 
 create table test_case
@@ -105,55 +118,69 @@ create table test_case
             primary key,
     task_id uuid                           not null
         constraint test_case_task_id_fk
-            references task,
-    number  bigserial,
+            references task
+            on delete cascade,
+    number  bigint                         not null,
     input   json                           not null,
     output  json                           not null
 );
 
-CREATE OR REPLACE FUNCTION update_test_case_number()
-RETURNS TRIGGER AS $$
-DECLARE
-max_number BIGINT;
-    deleted_row RECORD; -- объявляем переменную для хранения удаленной строки
+CREATE OR REPLACE FUNCTION update_test_case_number() RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
 BEGIN
     IF TG_OP = 'INSERT' THEN
-        -- Ищем максимальный номер для задачи с таким же task_id
-SELECT COALESCE(MAX(number), 0) + 1 INTO max_number
-FROM test_case
-WHERE task_id = NEW.task_id;
+        SELECT (COALESCE(MAX(number), 0) + 1)
+        INTO NEW.number
+        FROM test_case
+        WHERE task_id = NEW.task_id;
+        RETURN NEW;
 
--- Устанавливаем номер
-NEW.number := max_number;
     ELSIF TG_OP = 'DELETE' THEN
-        -- Получаем номер удаляемой записи
-SELECT number INTO deleted_row
-FROM test_case
-WHERE id = OLD.id;
+        UPDATE test_case
+        SET number = number - 1
+        WHERE task_id = OLD.task_id
+          AND number > (SELECT number FROM test_case WHERE id = OLD.id);
+        RETURN OLD;
 
--- Уменьшаем номера последующих записей
-UPDATE test_case
-SET number = number - 1
-WHERE task_id = OLD.task_id
-  AND number > deleted_row;
-END IF;
-
-RETURN NEW;
+    END IF;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 create trigger update_test_case_number_trigger
-    after insert or delete
-on test_case
+    before insert or delete
+    on test_case
     for each row
 execute procedure update_test_case_number();
+
+create table solution_result
+(
+    solution_id      uuid             not null
+        constraint solution_result_solution_id_fk
+            references solution
+            on delete cascade,
+    test_case_id     uuid             not null
+        constraint solution_result_test_case_id_fk
+            references test_case
+            on delete cascade,
+    submission_token uuid             not null,
+    status           integer          not null,
+    runtime          double precision not null,
+    memory           bigint           not null
+);
+
+create unique index solution_result_solution_id_test_case_id_uindex
+    on solution_result (solution_id, test_case_id);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE user_progress;
 
-DROP TABLE submission;
+DROP TABLE solution;
+
+DROP TABLE solution_result;
 
 DROP TABLE "user";
 
@@ -163,7 +190,7 @@ DROP TABLE test_case;
 
 DROP TABLE task;
 
-DROP FUNCTION update_task_number();
+DROP FUNCTION update_task_number() CASCADE;
 
-DROP FUNCTION update_test_case_number();
+DROP FUNCTION update_test_case_number() CASCADE;
 -- +goose StatementEnd
