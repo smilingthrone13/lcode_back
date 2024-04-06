@@ -21,7 +21,7 @@ func New(cfg *config.Config, db *postgres.DbManager) *Repository {
 	return &Repository{cfg: cfg, db: db}
 }
 
-func (r *Repository) Create(ctx context.Context, dto domain.TaskCreate) (t domain.Task, err error) {
+func (r *Repository) Create(ctx context.Context, dto domain.TaskCreateInput) (t domain.Task, err error) {
 	sq := sql_query_maker.NewQueryMaker(6)
 
 	sq.Add(
@@ -43,7 +43,7 @@ func (r *Repository) Create(ctx context.Context, dto domain.TaskCreate) (t domai
 	return t, nil
 }
 
-func (r *Repository) Update(ctx context.Context, id string, dto domain.TaskUpdate) (t domain.Task, err error) {
+func (r *Repository) Update(ctx context.Context, id string, dto domain.TaskUpdateInput) (t domain.Task, err error) {
 	sq := sql_query_maker.NewQueryMaker(7)
 
 	sq.Add("UPDATE task SET")
@@ -85,24 +85,25 @@ func (r *Repository) Update(ctx context.Context, id string, dto domain.TaskUpdat
 	return t, nil
 }
 
-func (r *Repository) Delete(ctx context.Context, id string) (t domain.Task, err error) {
+func (r *Repository) Delete(ctx context.Context, id string) error {
 	sq := sql_query_maker.NewQueryMaker(1)
 
-	sq.Add(
-		`
-	DELETE FROM task WHERE id = ?
-	RETURNING id, number, name, description, category, difficulty, runtime_limit, memory_limit
-	`,
-		id)
+	sq.Add("DELETE FROM task WHERE id = ?", id)
 
 	query, args := sq.Make()
 
-	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &t, query, args...)
+	res, err := r.db.TxOrDB(ctx).Exec(ctx, query, args...)
 	if err != nil {
-		return t, errors.Wrap(err, "Delete Task repo:")
+		return errors.Wrap(err, "Delete Task repo:")
 	}
 
-	return t, nil
+	if res.RowsAffected() == 0 {
+		err = errors.New("Task not found!")
+
+		return errors.Wrap(err, "Delete Task repo:")
+	}
+
+	return nil
 }
 
 func (r *Repository) GetByID(ctx context.Context, id string) (t domain.Task, err error) {

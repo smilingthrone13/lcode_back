@@ -19,7 +19,7 @@ func New(cfg *config.Config, db *postgres.DbManager) *Repository {
 	return &Repository{cfg: cfg, db: db}
 }
 
-func (r *Repository) Create(ctx context.Context, dto domain.TestCaseCreate) (tc domain.TestCase, err error) {
+func (r *Repository) Create(ctx context.Context, dto domain.TestCaseCreateInput) (tc domain.TestCase, err error) {
 	sq := sql_query_maker.NewQueryMaker(3)
 
 	sq.Add(
@@ -41,7 +41,7 @@ func (r *Repository) Create(ctx context.Context, dto domain.TestCaseCreate) (tc 
 	return tc, nil
 }
 
-func (r *Repository) Update(ctx context.Context, id string, dto domain.TestCaseUpdate) (tc domain.TestCase, err error) {
+func (r *Repository) Update(ctx context.Context, id string, dto domain.TestCaseUpdateInput) (tc domain.TestCase, err error) {
 	sq := sql_query_maker.NewQueryMaker(3)
 
 	sq.Add("UPDATE test_case SET")
@@ -66,19 +66,25 @@ func (r *Repository) Update(ctx context.Context, id string, dto domain.TestCaseU
 	return tc, nil
 }
 
-func (r *Repository) Delete(ctx context.Context, id string) (tc domain.TestCase, err error) {
+func (r *Repository) Delete(ctx context.Context, id string) error {
 	sq := sql_query_maker.NewQueryMaker(1)
 
 	sq.Add("DELETE FROM test_case WHERE id = ?", id)
 
 	query, args := sq.Make()
 
-	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &tc, query, args...)
+	res, err := r.db.TxOrDB(ctx).Exec(ctx, query, args...)
 	if err != nil {
-		return tc, errors.Wrap(err, "Delete TestCase repo:")
+		return errors.Wrap(err, "Delete TestCase repo:")
 	}
 
-	return tc, nil
+	if res.RowsAffected() == 0 {
+		err = errors.New("TestCase not found!")
+
+		return err
+	}
+
+	return nil
 }
 
 func (r *Repository) GetByID(ctx context.Context, id string) (tc domain.TestCase, err error) {

@@ -8,7 +8,7 @@ import (
 	"lcode/config"
 	"lcode/internal/handler"
 	"lcode/internal/handler/http/auth"
-	"lcode/internal/handler/http/general"
+	"lcode/internal/handler/http/problem"
 	"lcode/internal/handler/middleware"
 	"log/slog"
 	"net/http"
@@ -84,8 +84,15 @@ func NewServer(
 	})
 
 	// http handlers
-	h.HTTP.General.Register(&general.Middlewares{General: middlewares.General}, router)
 	h.HTTP.Auth.Register(&auth.Middlewares{Access: middlewares.Access}, router)
+	h.HTTP.Problem.Register(
+		&problem.Middlewares{
+			Problem: middlewares.Problem,
+			Access:  middlewares.Access,
+			Auth:    middlewares.Auth,
+		},
+		router,
+	)
 
 	return &Server{
 		config:    config,

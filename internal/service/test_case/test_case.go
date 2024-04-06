@@ -19,7 +19,7 @@ func New(
 	return &Service{logger: logger, repository: repository}
 }
 
-func (s *Service) Create(ctx context.Context, dto domain.TestCaseCreate) (domain.TestCase, error) {
+func (s *Service) Create(ctx context.Context, dto domain.TestCaseCreateInput) (domain.TestCase, error) {
 	tc, err := s.repository.Create(ctx, dto)
 	if err != nil {
 		return domain.TestCase{}, errors.Wrap(err, "Create TestCase service:")
@@ -28,7 +28,7 @@ func (s *Service) Create(ctx context.Context, dto domain.TestCaseCreate) (domain
 	return tc, nil
 }
 
-func (s *Service) Update(ctx context.Context, id string, dto domain.TestCaseUpdate) (domain.TestCase, error) {
+func (s *Service) Update(ctx context.Context, id string, dto domain.TestCaseUpdateInput) (domain.TestCase, error) {
 	tc, err := s.repository.Update(ctx, id, dto)
 	if err != nil {
 		return domain.TestCase{}, errors.Wrap(err, "Update TestCase service:")
@@ -37,13 +37,13 @@ func (s *Service) Update(ctx context.Context, id string, dto domain.TestCaseUpda
 	return tc, nil
 }
 
-func (s *Service) Delete(ctx context.Context, id string) (domain.TestCase, error) {
-	tc, err := s.repository.Delete(ctx, id)
+func (s *Service) Delete(ctx context.Context, id string) error {
+	err := s.repository.Delete(ctx, id)
 	if err != nil {
-		return domain.TestCase{}, errors.Wrap(err, "Delete TestCase service:")
+		return errors.Wrap(err, "Delete TestCase service:")
 	}
 
-	return tc, nil
+	return nil
 }
 
 func (s *Service) GetByID(ctx context.Context, id string) (domain.TestCase, error) {

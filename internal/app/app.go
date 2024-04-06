@@ -7,6 +7,7 @@ import (
 	"lcode/internal/handler/middleware"
 	"lcode/internal/infra/database"
 	"lcode/internal/infra/repository"
+	"lcode/internal/manager"
 	"lcode/internal/server"
 	"lcode/internal/service"
 	"lcode/pkg/logger"
@@ -59,8 +60,8 @@ func Init(cfg *config.Config) *App {
 		repos,
 	)
 
-	handlers := handler.New(
-		&handler.InitParams{
+	managers := manager.New(
+		&manager.InitParams{
 			Config:             cfg,
 			Logger:             l,
 			TransactionManager: transactionProvider,
@@ -68,7 +69,17 @@ func Init(cfg *config.Config) *App {
 		services,
 	)
 
-	middlewares := middleware.New(&middleware.InitParams{Config: cfg, Logger: l}, services)
+	handlers := handler.New(
+		&handler.InitParams{
+			Config:             cfg,
+			Logger:             l,
+			TransactionManager: transactionProvider,
+		},
+		services,
+		managers,
+	)
+
+	middlewares := middleware.New(&middleware.InitParams{Config: cfg, Logger: l}, services, managers)
 
 	s := server.NewServer(cfg, l, handlers, middlewares)
 

@@ -11,15 +11,30 @@ type (
 )
 
 type (
-	TaskTemplateCreate struct {
+	TaskTemplateCreateInput struct {
 		TaskID     string `json:"task_id" db:"task_id"`
 		LanguageID int    `json:"language_id" db:"language_id"`
 		Template   string `json:"template" db:"template"`
 		Wrapper    string `json:"wrapper" db:"wrapper"`
 	}
 
-	TaskTemplateUpdate struct {
+	TaskTemplateUpdateInput struct {
 		Template *string `json:"template" db:"template"`
 		Wrapper  *string `json:"wrapper" db:"wrapper"`
+	}
+)
+
+type (
+	TaskTemplateCreateDTO struct {
+		Input TaskTemplateCreateInput
+	}
+
+	TaskTemplateUpdateDTO struct {
+		TemplateID string
+		Input      TaskTemplateUpdateInput
+	}
+
+	TaskTemplateDeleteDTO struct {
+		TemplateID string
 	}
 )

@@ -19,7 +19,7 @@ func New(
 	return &Service{logger: logger, repository: repository}
 }
 
-func (s Service) Create(ctx context.Context, dto domain.TaskTemplateCreate) (domain.TaskTemplate, error) {
+func (s Service) Create(ctx context.Context, dto domain.TaskTemplateCreateInput) (domain.TaskTemplate, error) {
 	tt, err := s.repository.Create(ctx, dto)
 	if err != nil {
 		return domain.TaskTemplate{}, errors.Wrap(err, "Create TaskTemplate service:")
@@ -28,7 +28,7 @@ func (s Service) Create(ctx context.Context, dto domain.TaskTemplateCreate) (dom
 	return tt, nil
 }
 
-func (s Service) Update(ctx context.Context, id string, dto domain.TaskTemplateUpdate) (domain.TaskTemplate, error) {
+func (s Service) Update(ctx context.Context, id string, dto domain.TaskTemplateUpdateInput) (domain.TaskTemplate, error) {
 	tt, err := s.repository.Update(ctx, id, dto)
 	if err != nil {
 		return domain.TaskTemplate{}, errors.Wrap(err, "Update TaskTemplate service:")
@@ -37,13 +37,13 @@ func (s Service) Update(ctx context.Context, id string, dto domain.TaskTemplateU
 	return tt, nil
 }
 
-func (s Service) Delete(ctx context.Context, id string) (domain.TaskTemplate, error) {
-	tt, err := s.repository.Delete(ctx, id)
+func (s Service) Delete(ctx context.Context, id string) error {
+	err := s.repository.Delete(ctx, id)
 	if err != nil {
-		return domain.TaskTemplate{}, errors.Wrap(err, "Delete TaskTemplate service:")
+		return errors.Wrap(err, "Delete TaskTemplate service:")
 	}
 
-	return tt, nil
+	return nil
 }
 
 func (s Service) GetByID(ctx context.Context, id string) (domain.TaskTemplate, error) {

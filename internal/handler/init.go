@@ -3,7 +3,8 @@ package handler
 import (
 	"lcode/config"
 	authH "lcode/internal/handler/http/auth"
-	generalH "lcode/internal/handler/http/general"
+	problemH "lcode/internal/handler/http/problem"
+	"lcode/internal/manager"
 	"lcode/internal/service"
 	"lcode/pkg/postgres"
 	"log/slog"
@@ -17,8 +18,8 @@ type (
 	}
 
 	HTTPHandlers struct {
-		General *generalH.Handler
 		Auth    *authH.Handler
+		Problem *problemH.Handler
 	}
 
 	Handlers struct {
@@ -26,16 +27,27 @@ type (
 	}
 )
 
-func New(p *InitParams, services *service.Services) *Handlers {
-	generalHandler := generalH.New(p.Config, p.Logger, &generalH.Services{})
-	authHandler := authH.New(p.Config, p.Logger, &authH.Services{
-		Auth: services.Auth,
-	})
+func New(p *InitParams, services *service.Services, managers *manager.Managers) *Handlers {
+	authHandler := authH.New(
+		p.Config,
+		p.Logger,
+		&authH.Services{
+			Auth: services.Auth,
+		},
+	)
+
+	problemHandler := problemH.New(
+		p.Config,
+		p.Logger,
+		&problemH.Managers{
+			Problem: managers.ProblemManager,
+		},
+	)
 
 	return &Handlers{
 		&HTTPHandlers{
-			General: generalHandler,
 			Auth:    authHandler,
+			Problem: problemHandler,
 		},
 	}
 }

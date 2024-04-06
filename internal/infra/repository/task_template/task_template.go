@@ -19,7 +19,7 @@ func New(cfg *config.Config, db *postgres.DbManager) *Repository {
 	return &Repository{cfg: cfg, db: db}
 }
 
-func (r *Repository) Create(ctx context.Context, dto domain.TaskTemplateCreate) (tt domain.TaskTemplate, err error) {
+func (r *Repository) Create(ctx context.Context, dto domain.TaskTemplateCreateInput) (tt domain.TaskTemplate, err error) {
 	sq := sql_query_maker.NewQueryMaker(4)
 
 	sq.Add(
@@ -44,7 +44,7 @@ func (r *Repository) Create(ctx context.Context, dto domain.TaskTemplateCreate) 
 func (r *Repository) Update(
 	ctx context.Context,
 	id string,
-	dto domain.TaskTemplateUpdate,
+	dto domain.TaskTemplateUpdateInput,
 ) (tt domain.TaskTemplate, err error) {
 	sq := sql_query_maker.NewQueryMaker(3)
 
@@ -71,24 +71,25 @@ func (r *Repository) Update(
 	return tt, nil
 }
 
-func (r *Repository) Delete(ctx context.Context, id string) (tt domain.TaskTemplate, err error) {
+func (r *Repository) Delete(ctx context.Context, id string) error {
 	sq := sql_query_maker.NewQueryMaker(1)
 
-	sq.Add(
-		`
-	DELETE FROM task_template WHERE id = ?
-	RETURNING id, task_id, language_id, template, wrapper
-	`,
-		id)
+	sq.Add("DELETE FROM task_template WHERE id = ?", id)
 
 	query, args := sq.Make()
 
-	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &tt, query, args...)
+	res, err := r.db.TxOrDB(ctx).Exec(ctx, query, args...)
 	if err != nil {
-		return tt, errors.Wrap(err, "Delete TaskTemplate repo:")
+		return errors.Wrap(err, "Delete TaskTemplate repo:")
 	}
 
-	return tt, nil
+	if res.RowsAffected() == 0 {
+		err = errors.New("TaskTemplate not found!")
+
+		return err
+	}
+
+	return nil
 }
 
 func (r *Repository) GetByID(ctx context.Context, id string) (tt domain.TaskTemplate, err error) {

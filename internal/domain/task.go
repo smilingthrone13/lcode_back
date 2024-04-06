@@ -45,7 +45,7 @@ type (
 )
 
 type (
-	TaskCreate struct {
+	TaskCreateInput struct {
 		Name         string  `json:"name" db:"name"`
 		Description  *string `json:"description" db:"description"`
 		Category     string  `json:"category" db:"category"`
@@ -54,12 +54,28 @@ type (
 		MemoryLimit  *string `json:"memory_limit" db:"memory_limit"`
 	}
 
-	TaskUpdate struct {
+	TaskUpdateInput struct {
 		Name         *string `json:"name" db:"name"`
 		Description  *string `json:"description" db:"description"`
 		Category     *string `json:"category" db:"category"`
 		Difficulty   *string `json:"difficulty" db:"difficulty"`
 		RuntimeLimit *string `json:"runtime_limit" db:"runtime_limit"`
 		MemoryLimit  *string `json:"memory_limit" db:"memory_limit"`
+	}
+
+	TaskParamsInput struct {
+		Sort       TaskSort           `json:"sort"`
+		Pagination IdPaginationParams `json:"pagination"`
+	}
+)
+
+type (
+	TaskUpdateDTO struct {
+		TaskID string
+		Input  TaskUpdateInput
+	}
+
+	TaskParamsDTO struct {
+		Input TaskParams
 	}
 )
