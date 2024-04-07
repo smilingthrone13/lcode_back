@@ -6,12 +6,12 @@ const (
 )
 
 type User struct {
-	ID           string `json:"id" mapstructure:"id"`
-	Username     string `json:"username" mapstructure:"username"`
-	FirstName    string `json:"first_name" mapstructure:"first_name"`
-	LastName     string `json:"last_name" mapstructure:"last_name"`
-	IsAdmin      bool   `json:"is_admin" mapstructure:"is_admin"`
-	PasswordHash string `json:"-"`
+	ID           string `json:"id" db:"id" mapstructure:"id"`
+	Username     string `json:"username" db:"username" mapstructure:"username"`
+	FirstName    string `json:"first_name" db:"first_name" mapstructure:"first_name"`
+	LastName     string `json:"last_name" db:"last_name" mapstructure:"last_name"`
+	IsAdmin      bool   `json:"is_admin" db:"is_admin" mapstructure:"is_admin"`
+	PasswordHash string `json:"-" db:"password_hash"`
 }
 
 // entity for input for repository

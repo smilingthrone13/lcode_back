@@ -3,6 +3,7 @@ package repository
 import (
 	"lcode/config"
 	"lcode/internal/infra/repository/auth"
+	solutionResult "lcode/internal/infra/repository/solution_result"
 	"lcode/internal/infra/repository/task"
 	taskTemplate "lcode/internal/infra/repository/task_template"
 	testCase "lcode/internal/infra/repository/test_case"
@@ -16,18 +17,20 @@ type (
 	}
 
 	Repositories struct {
-		Auth         *auth.Repository
-		Task         *task.Repository
-		TaskTemplate *taskTemplate.Repository
-		TestCase     *testCase.Repository
+		Auth           *auth.Repository
+		Task           *task.Repository
+		TaskTemplate   *taskTemplate.Repository
+		TestCase       *testCase.Repository
+		SolutionResult *solutionResult.Repository
 	}
 )
 
 func New(p *InitParams) *Repositories {
 	return &Repositories{
-		Auth:         auth.New(p.DB),
-		Task:         task.New(p.Config, p.DB),
-		TaskTemplate: taskTemplate.New(p.Config, p.DB),
-		TestCase:     testCase.New(p.Config, p.DB),
+		Auth:           auth.New(p.DB),
+		Task:           task.New(p.Config, p.DB),
+		TaskTemplate:   taskTemplate.New(p.Config, p.DB),
+		TestCase:       testCase.New(p.Config, p.DB),
+		SolutionResult: solutionResult.New(p.DB),
 	}
 }
