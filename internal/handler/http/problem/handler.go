@@ -2,6 +2,7 @@ package problem
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"lcode/config"
 	"lcode/internal/domain"
 	accessMiddleware "lcode/internal/handler/middleware/access"
@@ -10,6 +11,7 @@ import (
 	"lcode/internal/manager/problem_manager"
 	"lcode/pkg/gin_helpers"
 	"lcode/pkg/http_lib/http_helper"
+	"lcode/pkg/struct_errors"
 	"log/slog"
 	"net/http"
 )
@@ -41,10 +43,10 @@ func New(cfg *config.Config, logger *slog.Logger, managers *Managers) *Handler {
 }
 
 func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
-	problemGroup := httpServer.Group("/problem", middlewares.Access.UserIdentity)
+	problemGroup := httpServer.Group("/problems", middlewares.Access.UserIdentity)
 	{
 		problemGroup.GET(
-			"/",
+			"/:task_id",
 			middlewares.Problem.ValidateFullProblemByTaskIDInput,
 			h.getProblem,
 		)
@@ -54,62 +56,62 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 			h.getTasksList,
 		)
 
-		problemGroup.POST(
-			"/",
-			middlewares.Auth.CheckAdminAccess,
-			middlewares.Problem.ValidateCreateProblemInput,
-			h.createProblem,
-		)
-		problemGroup.PATCH(
-			"/",
-			middlewares.Auth.CheckAdminAccess,
-			middlewares.Problem.ValidateUpdateProblemTaskInput,
-			h.updateProblemTask,
-		)
-		problemGroup.DELETE(
-			"/",
-			middlewares.Auth.CheckAdminAccess,
-			middlewares.Problem.ValidateDeleteProblemInput,
-			h.deleteProblem,
-		)
+		taskGroup := problemGroup.Group("/", middlewares.Auth.CheckAdminAccess)
+		{
+			taskGroup.POST(
+				"",
+				middlewares.Problem.ValidateCreateProblemInput,
+				h.createProblem,
+			)
+			taskGroup.PATCH(
+				":task_id",
+				middlewares.Problem.ValidateUpdateProblemTaskInput,
+				h.updateProblemTask,
+			)
+			taskGroup.DELETE(
+				":task_id",
+				middlewares.Problem.ValidateDeleteProblemInput,
+				h.deleteProblem,
+			)
+		}
 
-		problemGroup.POST(
-			"/template",
-			middlewares.Auth.CheckAdminAccess,
-			middlewares.Problem.ValidateCreateProblemTaskTemplateInput,
-			h.createProblemTaskTemplate,
-		)
-		problemGroup.PATCH(
-			"/template",
-			middlewares.Auth.CheckAdminAccess,
-			middlewares.Problem.ValidateUpdateProblemTaskTemplateInput,
-			h.updateProblemTaskTemplate,
-		)
-		problemGroup.DELETE(
-			"/template",
-			middlewares.Auth.CheckAdminAccess,
-			middlewares.Problem.ValidateDeleteProblemTaskTemplateInput,
-			h.deleteProblemTaskTemplate,
-		)
+		templateGroup := problemGroup.Group("/template", middlewares.Auth.CheckAdminAccess)
+		{
+			templateGroup.POST(
+				"/",
+				middlewares.Problem.ValidateCreateProblemTaskTemplateInput,
+				h.createProblemTaskTemplate,
+			)
+			templateGroup.PATCH(
+				"/:template_id",
+				middlewares.Problem.ValidateUpdateProblemTaskTemplateInput,
+				h.updateProblemTaskTemplate,
+			)
+			templateGroup.DELETE(
+				"/:template_id",
+				middlewares.Problem.ValidateDeleteProblemTaskTemplateInput,
+				h.deleteProblemTaskTemplate,
+			)
+		}
 
-		problemGroup.POST(
-			"/testcase",
-			middlewares.Auth.CheckAdminAccess,
-			middlewares.Problem.ValidateCreateProblemTestCaseInput,
-			h.createProblemTestCase,
-		)
-		problemGroup.PATCH(
-			"/testcase",
-			middlewares.Auth.CheckAdminAccess,
-			middlewares.Problem.ValidateUpdateProblemTestCaseInput,
-			h.updateProblemTestCase,
-		)
-		problemGroup.DELETE(
-			"/testcase",
-			middlewares.Auth.CheckAdminAccess,
-			middlewares.Problem.ValidateDeleteProblemTestCaseInput,
-			h.deleteProblemTestCase,
-		)
+		testCaseGroup := problemGroup.Group("/testcase", middlewares.Auth.CheckAdminAccess)
+		{
+			testCaseGroup.POST(
+				"/",
+				middlewares.Problem.ValidateCreateProblemTestCaseInput,
+				h.createProblemTestCase,
+			)
+			testCaseGroup.PATCH(
+				"/:case_id",
+				middlewares.Problem.ValidateUpdateProblemTestCaseInput,
+				h.updateProblemTestCase,
+			)
+			testCaseGroup.DELETE(
+				"/:case_id",
+				middlewares.Problem.ValidateDeleteProblemTestCaseInput,
+				h.deleteProblemTestCase,
+			)
+		}
 	}
 }
 
@@ -123,6 +125,13 @@ func (h *Handler) createProblem(c *gin.Context) {
 
 	problem, err := h.managers.Problem.CreateProblem(c.Request.Context(), dto.Input)
 	if err != nil {
+		var errExist *struct_errors.ErrExist
+		if errors.As(err, &errExist) {
+			http_helper.NewErrorResponse(c, http.StatusConflict, errExist.Msg)
+
+			return
+		}
+
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
 		return

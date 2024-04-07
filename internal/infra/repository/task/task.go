@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/georgysavva/scany/v2/pgxscan"
+	"github.com/jackc/pgx/v5/pgconn"
 	sql_query_maker "github.com/m-a-r-a-t/sql-query-maker"
 	"github.com/pkg/errors"
 	"lcode/config"
 	"lcode/internal/domain"
 	"lcode/pkg/db"
 	"lcode/pkg/postgres"
+	"lcode/pkg/struct_errors"
 )
 
 type Repository struct {
@@ -36,11 +38,22 @@ func (r *Repository) Create(ctx context.Context, dto domain.TaskCreateInput) (t 
 	query, args := sq.Make()
 
 	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &t, query, args...)
-	if err != nil {
+	if err == nil {
+		return t, nil
+	}
+
+	var pgError *pgconn.PgError
+	if ok := errors.As(err, &pgError); !ok {
 		return t, errors.Wrap(err, "Create Task repo:")
 	}
 
-	return t, nil
+	switch pgError.Code {
+	case postgres.ERRCODE_UNIQUE_VIOLATION:
+		err = &struct_errors.ErrExist{Err: err, Msg: "Name already exist"}
+	}
+
+	return t, errors.Wrap(err, "Create Task repo:")
+
 }
 
 func (r *Repository) Update(ctx context.Context, id string, dto domain.TaskUpdateInput) (t domain.Task, err error) {

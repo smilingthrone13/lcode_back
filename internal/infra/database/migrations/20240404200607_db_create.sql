@@ -117,8 +117,8 @@ create table test_case
             references task
             on delete cascade,
     number  bigint                         not null,
-    input   json                           not null,
-    output  json                           not null
+    input   text                           not null,
+    output  text                           not null
 );
 
 CREATE FUNCTION update_test_case_number() RETURNS TRIGGER
