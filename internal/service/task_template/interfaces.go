@@ -6,7 +6,7 @@ import (
 )
 
 type TaskTemplate interface {
-	Create(ctx context.Context, dto domain.TaskTemplateCreateInput) (domain.TaskTemplate, error)
+	Create(ctx context.Context, taskID string, dto domain.TaskTemplateCreateInput) (domain.TaskTemplate, error)
 	Update(ctx context.Context, id string, dto domain.TaskTemplateUpdateInput) (domain.TaskTemplate, error)
 	Delete(ctx context.Context, id string) error
 
@@ -15,7 +15,7 @@ type TaskTemplate interface {
 }
 
 type TaskTemplateRepo interface {
-	Create(ctx context.Context, dto domain.TaskTemplateCreateInput) (domain.TaskTemplate, error)
+	Create(ctx context.Context, taskID string, dto domain.TaskTemplateCreateInput) (domain.TaskTemplate, error)
 	Update(ctx context.Context, id string, dto domain.TaskTemplateUpdateInput) (domain.TaskTemplate, error)
 	Delete(ctx context.Context, id string) error
 

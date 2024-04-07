@@ -19,8 +19,8 @@ func New(
 	return &Service{logger: logger, repository: repository}
 }
 
-func (s Service) Create(ctx context.Context, dto domain.TaskTemplateCreateInput) (domain.TaskTemplate, error) {
-	tt, err := s.repository.Create(ctx, dto)
+func (s Service) Create(ctx context.Context, taskID string, dto domain.TaskTemplateCreateInput) (domain.TaskTemplate, error) {
+	tt, err := s.repository.Create(ctx, taskID, dto)
 	if err != nil {
 		return domain.TaskTemplate{}, errors.Wrap(err, "Create TaskTemplate service:")
 	}

@@ -19,7 +19,7 @@ func New(cfg *config.Config, db *postgres.DbManager) *Repository {
 	return &Repository{cfg: cfg, db: db}
 }
 
-func (r *Repository) Create(ctx context.Context, dto domain.TestCaseCreateInput) (tc domain.TestCase, err error) {
+func (r *Repository) Create(ctx context.Context, taskID string, dto domain.TestCaseCreateInput) (tc domain.TestCase, err error) {
 	sq := sql_query_maker.NewQueryMaker(3)
 
 	sq.Add(
@@ -28,7 +28,7 @@ func (r *Repository) Create(ctx context.Context, dto domain.TestCaseCreateInput)
 	VALUES (?, ?, ?)
 	RETURNING id, task_id, number, input, output
 	`,
-		dto.TaskID, dto.Input, dto.Output,
+		taskID, dto.Input, dto.Output,
 	)
 
 	query, args := sq.Make()

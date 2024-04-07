@@ -19,7 +19,7 @@ func New(cfg *config.Config, db *postgres.DbManager) *Repository {
 	return &Repository{cfg: cfg, db: db}
 }
 
-func (r *Repository) Create(ctx context.Context, dto domain.TaskTemplateCreateInput) (tt domain.TaskTemplate, err error) {
+func (r *Repository) Create(ctx context.Context, taskID string, dto domain.TaskTemplateCreateInput) (tt domain.TaskTemplate, err error) {
 	sq := sql_query_maker.NewQueryMaker(4)
 
 	sq.Add(
@@ -28,7 +28,7 @@ func (r *Repository) Create(ctx context.Context, dto domain.TaskTemplateCreateIn
 	VALUES (?, ?, ?, ?)
 	RETURNING id, task_id, language_id, template, wrapper
 	`,
-		dto.TaskID, dto.LanguageID, dto.Template, dto.Wrapper,
+		taskID, dto.LanguageID, dto.Template, dto.Wrapper,
 	)
 
 	query, args := sq.Make()

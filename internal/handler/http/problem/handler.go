@@ -75,7 +75,7 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 			)
 		}
 
-		templateGroup := problemGroup.Group("/template", middlewares.Auth.CheckAdminAccess)
+		templateGroup := problemGroup.Group("/:task_id/template", middlewares.Auth.CheckAdminAccess)
 		{
 			templateGroup.POST(
 				"/",
@@ -94,7 +94,7 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 			)
 		}
 
-		testCaseGroup := problemGroup.Group("/testcase", middlewares.Auth.CheckAdminAccess)
+		testCaseGroup := problemGroup.Group("/:task_id/testcase", middlewares.Auth.CheckAdminAccess)
 		{
 			testCaseGroup.POST(
 				"/",
@@ -185,7 +185,7 @@ func (h *Handler) createProblemTaskTemplate(c *gin.Context) {
 		return
 	}
 
-	problem, err := h.managers.Problem.CreateProblemTaskTemplate(c.Request.Context(), dto.Input)
+	problem, err := h.managers.Problem.CreateProblemTaskTemplate(c.Request.Context(), dto.TaskID, dto.Input)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -239,7 +239,7 @@ func (h *Handler) createProblemTestCase(c *gin.Context) {
 		return
 	}
 
-	problem, err := h.managers.Problem.CreateProblemTestCase(c.Request.Context(), dto.Input)
+	problem, err := h.managers.Problem.CreateProblemTestCase(c.Request.Context(), dto.TaskID, dto.Input)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 

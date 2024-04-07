@@ -12,7 +12,6 @@ type (
 
 type (
 	TestCaseCreateInput struct {
-		TaskID string `json:"task_id" db:"task_id"`
 		Input  string `json:"input" db:"input"`
 		Output string `json:"output" db:"output"`
 	}
@@ -25,7 +24,8 @@ type (
 
 type (
 	TestCaseCreateDTO struct {
-		Input TestCaseCreateInput
+		TaskID string
+		Input  TestCaseCreateInput
 	}
 
 	TestCaseUpdateDTO struct {

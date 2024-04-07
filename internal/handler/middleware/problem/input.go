@@ -39,6 +39,14 @@ func (m *Middleware) ValidateCreateProblemInput(c *gin.Context) {
 		return
 	}
 
+	if dto.Input.Task.Name == "" ||
+		dto.Input.Task.Category == "" ||
+		dto.Input.Task.Difficulty == "" {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Invalid input")
+
+		return
+	}
+
 	c.Set(domain.DtoCtxKey, dto)
 }
 
@@ -85,6 +93,13 @@ func (m *Middleware) ValidateCreateProblemTaskTemplateInput(c *gin.Context) {
 		return
 	}
 
+	dto.TaskID = c.Param("task_id")
+	if dto.TaskID == "" {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Task ID is required")
+
+		return
+	}
+
 	c.Set(domain.DtoCtxKey, dto)
 }
 
@@ -126,6 +141,13 @@ func (m *Middleware) ValidateCreateProblemTestCaseInput(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&dto.Input); err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	dto.TaskID = c.Param("task_id")
+	if dto.TaskID == "" {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Task ID is required")
 
 		return
 	}

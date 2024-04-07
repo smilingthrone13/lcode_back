@@ -19,8 +19,8 @@ func New(
 	return &Service{logger: logger, repository: repository}
 }
 
-func (s *Service) Create(ctx context.Context, dto domain.TestCaseCreateInput) (domain.TestCase, error) {
-	tc, err := s.repository.Create(ctx, dto)
+func (s *Service) Create(ctx context.Context, taskID string, dto domain.TestCaseCreateInput) (domain.TestCase, error) {
+	tc, err := s.repository.Create(ctx, taskID, dto)
 	if err != nil {
 		return domain.TestCase{}, errors.Wrap(err, "Create TestCase service:")
 	}

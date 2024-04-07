@@ -6,7 +6,7 @@ import (
 )
 
 type TestCase interface {
-	Create(ctx context.Context, dto domain.TestCaseCreateInput) (domain.TestCase, error)
+	Create(ctx context.Context, taskID string, dto domain.TestCaseCreateInput) (domain.TestCase, error)
 	Update(ctx context.Context, id string, dto domain.TestCaseUpdateInput) (domain.TestCase, error)
 	Delete(ctx context.Context, id string) error
 
@@ -15,7 +15,7 @@ type TestCase interface {
 }
 
 type TestCaseRepo interface {
-	Create(ctx context.Context, dto domain.TestCaseCreateInput) (domain.TestCase, error)
+	Create(ctx context.Context, taskID string, dto domain.TestCaseCreateInput) (domain.TestCase, error)
 	Update(ctx context.Context, id string, dto domain.TestCaseUpdateInput) (domain.TestCase, error)
 	Delete(ctx context.Context, id string) error
 
