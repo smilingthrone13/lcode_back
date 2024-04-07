@@ -154,6 +154,7 @@ func InitDefault() {
 	viper.SetDefault("http.timeouts.read", defaultHTTPRWTimeout)
 	viper.SetDefault("http.timeouts.write", defaultHTTPRWTimeout)
 	viper.SetDefault("query_params.page", defaultPage)
+	viper.SetDefault("query_params.limit", defaultLimitCount)
 
 	viper.SetDefault("auth.access_token_exp_time", defaultAccessTokenExpTime)
 	viper.SetDefault("auth.refresh_token_exp_time", defaultRefreshTokenExpTime)

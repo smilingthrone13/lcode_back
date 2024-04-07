@@ -174,7 +174,7 @@ func (h *Handler) deleteProblem(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, map[string]string{"message": "Successful operation"})
 }
 
 func (h *Handler) createProblemTaskTemplate(c *gin.Context) {
@@ -228,7 +228,7 @@ func (h *Handler) deleteProblemTaskTemplate(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, map[string]string{"message": "Successful operation"})
 }
 
 func (h *Handler) createProblemTestCase(c *gin.Context) {
@@ -282,7 +282,7 @@ func (h *Handler) deleteProblemTestCase(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, map[string]string{"message": "Successful operation"})
 }
 
 func (h *Handler) getProblem(c *gin.Context) {

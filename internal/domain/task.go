@@ -4,14 +4,14 @@ import "lcode/pkg/db"
 
 type (
 	Task struct {
-		ID           string `json:"id" db:"id"`
-		Number       string `json:"number" db:"number"`
-		Name         string `json:"name" db:"name"`
-		Description  string `json:"description" db:"description"`
-		Category     string `json:"category" db:"category"`
-		Difficulty   string `json:"difficulty" db:"difficulty"`
-		RuntimeLimit string `json:"runtime_limit" db:"runtime_limit"`
-		MemoryLimit  string `json:"memory_limit" db:"memory_limit"`
+		ID           string  `json:"id" db:"id"`
+		Number       string  `json:"number" db:"number"`
+		Name         string  `json:"name" db:"name"`
+		Description  string  `json:"description" db:"description"`
+		Category     string  `json:"category" db:"category"`
+		Difficulty   string  `json:"difficulty" db:"difficulty"`
+		RuntimeLimit float64 `json:"runtime_limit" db:"runtime_limit"`
+		MemoryLimit  int     `json:"memory_limit" db:"memory_limit"`
 	}
 
 	TaskList struct {

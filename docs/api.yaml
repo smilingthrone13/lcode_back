@@ -1,0 +1,1048 @@
+openapi: 3.0.3
+info:
+  title: LeetCode Clone API
+  description: TODO
+  version: 0.1.0
+servers:
+  - url: http://localhost:5000
+  - url: http://192.168.7.38:5000
+  - url: http://192.168.7.47:5000
+
+paths:
+  /auth/register:
+    post:
+      tags: [ Authorization ]
+      summary: Register new user
+      description: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserInput'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /auth/login:
+    post:
+      tags: [ Authorization ]
+      summary: Login a user
+      description: Login a user and return a JWT tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tokens'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /auth/refresh_tokens:
+    post:
+      tags: [ Authorization ]
+      summary: Refresh tokens
+      description: Get a new JWT tokens with a refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tokens'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /auth/users:
+    get:
+      tags: [ Authorization ]
+      summary: Get all users
+      description: Admin only. Get list of users.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /auth/user/{user_id}/change_password:
+    patch:
+      tags: [ Authorization ]
+      summary: Change password
+      description: Admin only. Change user password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - password
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                password:
+                  type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /auth/user/{user_id}/change_admin_permission:
+    patch:
+      tags: [ Authorization ]
+      summary: Change user permissions
+      description: Admin only. Set/revoke user admin permission.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+                - is_admin
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                is_admin:
+                  type: boolean
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /problems/list:
+    get:
+      tags: [ Problems ]
+      summary: Get problems list
+      description: Authenticated users only. Get problems list (sorted and/or filtered) with pagination.
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search query string
+        - in: query
+          name: categories
+          schema:
+            type: array
+            items:
+              type: string
+          description: List of categories separated by comma
+        - in: query
+          name: difficulties
+          schema:
+            type: array
+            items:
+              type: string
+          description: List of difficulties separated by comma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskListParams'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - tasks
+                  - pagination
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+                  pagination:
+                    type: object
+                    required:
+                      - after_id
+                    properties:
+                      after_id:
+                        type: string
+                        format: uuid
+                        description: Last task ID from given page
+                        example: 5c7f8d0d-5a1e-4b7d-a1b9-d2b0a2c3c4d2
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /problems/:
+    post:
+      tags: [ Problems ]
+      summary: Create new problem
+      description: Admin only. Create new problem.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - task
+              properties:
+                task:
+                  $ref: '#/components/schemas/TaskInput'
+                task_templates:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CreateTaskTemplateInput'
+                test_cases:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TestCaseInput'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /problems/{task_id}:
+    get:
+      tags: [ Problems ]
+      summary: Get problem details
+      description: Authenticated users only. Get full problem details.
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Task ID
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    patch:
+      tags: [ Problems ]
+      summary: Update problem task
+      description: Admins only. Update problem task.
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Task ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    delete:
+      tags: [ Problems ]
+      summary: Delete problem
+      description: Admins only. Delete problem completely (including all users statistics).
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Task ID
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /problems/{task_id}/template/:
+    post:
+      tags: [ Problems ]
+      summary: Create new task code template
+      description: Admins only. Create new code template for existing problem.
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Task ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskTemplateInput'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /problems/{task_id}/template/{template_id}:
+    patch:
+      tags: [ Problems ]
+      summary: Update task code template
+      description: Admins only. Update task code template for existing problem.
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Task ID
+        - in: path
+          name: template_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Template ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskTemplateInput'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    delete:
+      tags: [ Problems ]
+      summary: Delete task code template
+      description: Admins only. Delete task code template for existing problem.
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Task ID
+        - in: path
+          name: template_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Template ID
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /problems/{task_id}/testcase/:
+    post:
+      tags: [ Problems ]
+      summary: Create new test case
+      description: Admins only. Create new test case for existing problem.
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Task ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCaseInput'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /problems/{task_id}/testcase/{case_id}:
+    patch:
+      tags: [ Problems ]
+      summary: Update test case
+      description: Admins only. Update test case for existing problem.
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Task ID
+        - in: path
+          name: case_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Test case ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestCaseInput'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    delete:
+      tags: [ Problems ]
+      summary: Delete test case
+      description: Admins only. Delete test case for existing problem.
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Task ID
+        - in: path
+          name: case_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Test case ID
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+components:
+  schemas:
+    StatusResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+
+    CreateUserInput:
+      type: object
+      required:
+        - username
+        - password
+        - first_name
+        - last_name
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+
+    User:
+      type: object
+      required:
+        - id
+        - username
+        - first_name
+        - last_name
+        - is_admin
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        is_admin:
+          type: boolean
+
+    Tokens:
+      type: object
+      required:
+        - access_token
+        - access_token_exp
+        - refresh_token
+        - refresh_token_exp
+      properties:
+        access_token:
+          type: string
+        access_token_exp:
+          type: integer
+        refresh_token:
+          type: string
+        refresh_token_exp:
+          type: integer
+
+    TaskInput:
+      type: object
+      required:
+        - name
+        - category
+        - difficulty
+      properties:
+        name:
+          type: string
+          description: Task name
+          example: Bubble Sort
+        description:
+          type: string
+          description: Task long description
+          example: Create a simple bubble sorting algorithm
+        category:
+          type: string
+          description: Task category
+          example: Sorting
+        difficulty:
+          type: string
+          description: Task difficulty
+          example: Easy
+        runtime_limit:
+          type: integer
+          format: float
+          description: Runtime limit in seconds
+          example: 10.0
+          default: 5.0
+        memory_limit:
+          type: integer
+          format: int
+          description: Memory limit in kilobytes
+          example: 256000
+          default: 128000
+
+    Task:
+      type: object
+      required:
+        - id
+        - number
+        - name
+        - description
+        - category
+        - difficulty
+        - runtime_limit
+        - memory_limit
+      properties:
+        allOf:
+          $ref: '#/components/schemas/TaskInput'
+        id:
+          type: string
+          format: uuid
+          description: Task ID
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+        number:
+          type: integer
+          description: Task index
+          example: 5
+
+    CreateTaskTemplateInput:
+      type: object
+      required:
+        - language_id
+        - template
+        - wrapper
+      properties:
+        allOf:
+          $ref: '#/components/schemas/UpdateTaskTemplateInput'
+        language_id:
+          type: integer
+          description: Programming language ID. 63 for JS, 74 for TS
+          enum: [ 63, 74 ]
+          example: 74
+
+    UpdateTaskTemplateInput:
+      type: object
+      required:
+        - template
+        - wrapper
+      properties:
+        template:
+          type: string
+          description: Task template in given programming language
+          example: TODO
+        wrapper:
+          type: string
+          description: Task wrapper in given programming language
+          example: TODO
+
+    TaskTemplate:
+      type: object
+      required:
+        - id
+        - task_id
+        - language_id
+        - template
+        - wrapper
+      properties:
+        allOf:
+          $ref: '#/components/schemas/CreateTaskTemplateInput'
+        id:
+          type: string
+          format: uuid
+          description: Task template ID
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+        task_id:
+          type: string
+          format: uuid
+          description: Parent task ID
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+
+    TestCaseInput:
+      type: object
+      required:
+        - input
+        - output
+      properties:
+        input:
+          type: string
+          description: Test case input as string
+          example: TODO
+        output:
+          type: string
+          description: Test case output as string
+          example: TODO
+
+    TaskTestCase:
+      type: object
+      required:
+        - id
+        - number
+        - task_id
+        - input
+        - output
+      properties:
+        allOf:
+          $ref: '#/components/schemas/TestCaseInput'
+        id:
+          type: string
+          format: uuid
+          description: Test case ID
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+        number:
+          type: integer
+          description: Test case index (grouped by problem)
+          example: 3
+        task_id:
+          type: string
+          format: uuid
+          description: Parent task ID
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+
+    Problem:
+      type: object
+      required:
+        - task
+        - task_templates
+        - test_cases
+      properties:
+        task:
+          $ref: '#/components/schemas/Task'
+        task_templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskTemplate'
+        test_cases:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskTestCase'
+
+    TaskListParams:
+      type: object
+      properties:
+        sort:
+          type: object
+          required:
+            - "number"
+          properties:
+            "number":
+              type: string
+              enum: [ asc, desc ]
+          default: desc
+          description: Sort by task index
+        pagination:
+          type: object
+          required:
+            - limit
+          properties:
+            limit:
+              type: integer
+              example: 15
+              default: 30
+              description: Number of tasks per page
+            after_id:
+              type: string
+              format: uuid
+              description: ID of the last received task
+              example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+security:
+  - BearerAuth: []
