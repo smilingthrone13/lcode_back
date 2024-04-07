@@ -56,20 +56,20 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 			h.getTasksList,
 		)
 
-		taskGroup := problemGroup.Group("/", middlewares.Auth.CheckAdminAccess)
+		taskGroup := problemGroup.Group("", middlewares.Auth.CheckAdminAccess)
 		{
 			taskGroup.POST(
-				"",
+				"/",
 				middlewares.Problem.ValidateCreateProblemInput,
 				h.createProblem,
 			)
 			taskGroup.PATCH(
-				":task_id",
+				"/:task_id",
 				middlewares.Problem.ValidateUpdateProblemTaskInput,
 				h.updateProblemTask,
 			)
 			taskGroup.DELETE(
-				":task_id",
+				"/:task_id",
 				middlewares.Problem.ValidateDeleteProblemInput,
 				h.deleteProblem,
 			)
