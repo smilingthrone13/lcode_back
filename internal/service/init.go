@@ -3,7 +3,7 @@ package service
 import (
 	"lcode/config"
 	"lcode/internal/infra/repository"
-	"lcode/internal/service/authorization"
+	"lcode/internal/service/auth"
 	"lcode/internal/service/task"
 	taskTemplate "lcode/internal/service/task_template"
 	testCase "lcode/internal/service/test_case"
@@ -19,7 +19,7 @@ type (
 	}
 
 	Services struct {
-		Auth         *authorization.Service
+		Auth         *auth.Service
 		Task         *task.Service
 		TaskTemplate *taskTemplate.Service
 		TestCase     *testCase.Service
@@ -27,7 +27,7 @@ type (
 )
 
 func New(p *InitParams, repos *repository.Repositories) *Services {
-	authService := authorization.New(p.Config, repos.Auth)
+	authService := auth.New(p.Config, repos.Auth)
 	taskService := task.New(p.Logger, repos.Task)
 	taskTemplateService := taskTemplate.New(p.Logger, repos.TaskTemplate)
 	testCaseService := testCase.New(p.Logger, repos.TestCase)

@@ -68,11 +68,11 @@ func (m *Middleware) ValidateRefreshTokenInput(c *gin.Context) {
 }
 
 type changeUserAdminPermissionInput struct {
-	IsAdmin bool `json:"is_admin"`
+	IsAdmin *bool `json:"is_admin"`
 }
 
 func (m *Middleware) ValidateChangeUserPermissionInput(c *gin.Context) {
-	dto := domain.ChangeUserAdminPermissionDTO{
+	dto := domain.UpdateUserDTO{
 		UserID: c.Param("user_id"),
 	}
 
@@ -85,7 +85,42 @@ func (m *Middleware) ValidateChangeUserPermissionInput(c *gin.Context) {
 		return
 	}
 
+	if inp.IsAdmin == nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "is_admin is required")
+
+		return
+	}
+
 	dto.IsAdmin = inp.IsAdmin
+
+	c.Set(domain.DtoCtxKey, dto)
+}
+
+type changeUserPasswordInput struct {
+	Password *string `json:"password"`
+}
+
+func (m *Middleware) ValidateChangeUserPasswordInput(c *gin.Context) {
+	dto := domain.UpdateUserDTO{
+		UserID: c.Param("user_id"),
+	}
+
+	var inp changeUserPasswordInput
+
+	err := c.ShouldBindJSON(&inp)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	if inp.Password == nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "password is required")
+
+		return
+	}
+
+	dto.Password = inp.Password
 
 	c.Set(domain.DtoCtxKey, dto)
 }

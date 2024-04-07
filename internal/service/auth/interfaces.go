@@ -1,4 +1,4 @@
-package authorization
+package auth
 
 import (
 	"context"
@@ -16,12 +16,12 @@ type (
 
 		UserByID(ctx context.Context, id string) (user domain.User, err error)
 		Users(ctx context.Context) ([]domain.User, error)
-		ChangeUserAdminStatus(ctx context.Context, dto domain.ChangeUserAdminPermissionDTO) error
+		UpdateUser(ctx context.Context, dto domain.UpdateUserDTO) (user domain.User, err error)
 	}
 
 	AuthorizationRepo interface {
 		CreateUser(ctx context.Context, dto domain.CreateUserEntity) (user domain.User, err error)
-		ChangeUserAdminStatus(ctx context.Context, dto domain.ChangeUserAdminPermissionDTO) error
+		UpdateUser(ctx context.Context, dto domain.UpdateUserEntity) (user domain.User, err error)
 
 		UserByUsername(ctx context.Context, username string) (user domain.User, err error)
 		UserByID(ctx context.Context, id string) (user domain.User, err error)

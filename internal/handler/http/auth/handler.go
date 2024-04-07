@@ -6,7 +6,7 @@ import (
 	"lcode/internal/domain"
 	accessMiddleware "lcode/internal/handler/middleware/access"
 	authMiddleware "lcode/internal/handler/middleware/auth"
-	"lcode/internal/service/authorization"
+	"lcode/internal/service/auth"
 	"lcode/pkg/gin_helpers"
 	"lcode/pkg/http_lib/http_helper"
 	"log/slog"
@@ -20,7 +20,7 @@ type (
 	}
 
 	Services struct {
-		Auth authorization.Authorization
+		Auth auth.Authorization
 	}
 
 	Handler struct {
@@ -45,10 +45,8 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 		authGroup.POST("/login", middlewares.Auth.ValidateLoginInput, h.login)
 		authGroup.POST("/refresh_tokens", middlewares.Auth.ValidateRefreshTokenInput, h.refreshToken)
 
-		// todo: add middleware for admin
 		authGroup.GET("/users", middlewares.Access.UserIdentity, middlewares.Auth.CheckAdminAccess, h.users)
 
-		// todo: add middleware for admin
 		usersGroup := authGroup.Group("/user", middlewares.Access.UserIdentity, middlewares.Auth.CheckAdminAccess)
 		{
 
@@ -56,6 +54,12 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 				"/:user_id/change_admin_permission",
 				middlewares.Auth.ValidateChangeUserPermissionInput,
 				h.changeAdminPermission,
+			)
+
+			usersGroup.PATCH(
+				"/:user_id/change_password",
+				middlewares.Auth.ValidateChangeUserPasswordInput,
+				h.changeUserPass,
 			)
 
 		}
@@ -128,19 +132,37 @@ func (h *Handler) users(c *gin.Context) {
 }
 
 func (h *Handler) changeAdminPermission(c *gin.Context) {
-	dto, err := gin_helpers.GetValueFromGinCtx[domain.ChangeUserAdminPermissionDTO](c, domain.DtoCtxKey)
+	dto, err := gin_helpers.GetValueFromGinCtx[domain.UpdateUserDTO](c, domain.DtoCtxKey)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
 
-	err = h.services.Auth.ChangeUserAdminStatus(c.Request.Context(), dto)
+	user, err := h.services.Auth.UpdateUser(c.Request.Context(), dto)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
 		return
 	}
 
-	c.JSON(http.StatusOK, "ok")
+	c.JSON(http.StatusOK, user)
+}
+
+func (h *Handler) changeUserPass(c *gin.Context) {
+	dto, err := gin_helpers.GetValueFromGinCtx[domain.UpdateUserDTO](c, domain.DtoCtxKey)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	user, err := h.services.Auth.UpdateUser(c.Request.Context(), dto)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }

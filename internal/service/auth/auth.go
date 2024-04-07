@@ -1,4 +1,4 @@
-package authorization
+package auth
 
 import (
 	"context"
@@ -148,11 +148,31 @@ func (s *Service) Users(ctx context.Context) ([]domain.User, error) {
 	return users, nil
 }
 
-func (s *Service) ChangeUserAdminStatus(ctx context.Context, dto domain.ChangeUserAdminPermissionDTO) error {
-	err := s.repository.ChangeUserAdminStatus(ctx, dto)
-	if err != nil {
-		return errors.Wrap(err, "ChangeUserAdminStatus auth service")
+func (s *Service) UpdateUser(ctx context.Context, dto domain.UpdateUserDTO) (user domain.User, err error) {
+	var newPassHash *string
+
+	if dto.Password != nil {
+		passHash, err := simple_auth.HashPassword(*dto.Password)
+		if err != nil {
+			return domain.User{}, errors.Wrap(err, "UpdateUser auth service")
+		}
+
+		newPassHash = &passHash
 	}
 
-	return nil
+	entity := domain.UpdateUserEntity{
+		UserID:       dto.UserID,
+		Username:     dto.Username,
+		FirstName:    dto.FirstName,
+		LastName:     dto.LastName,
+		PasswordHash: newPassHash,
+		IsAdmin:      dto.IsAdmin,
+	}
+
+	user, err = s.repository.UpdateUser(ctx, entity)
+	if err != nil {
+		return user, errors.Wrap(err, "UpdateUser auth service")
+	}
+
+	return user, nil
 }

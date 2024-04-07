@@ -40,23 +40,42 @@ func (r *Repository) CreateUser(ctx context.Context, dto domain.CreateUserEntity
 	return user, nil
 }
 
-func (r *Repository) ChangeUserAdminStatus(ctx context.Context, dto domain.ChangeUserAdminPermissionDTO) error {
-	sq := sql_query_maker.NewQueryMaker(2)
+func (r *Repository) UpdateUser(ctx context.Context, dto domain.UpdateUserEntity) (user domain.User, err error) {
+	sq := sql_query_maker.NewQueryMaker(3)
 
-	sq.Add(
-		`UPDATE "user" SET is_admin = ? WHERE id = ?`,
-		dto.IsAdmin,
-		dto.UserID,
-	)
+	sq.Add(`UPDATE "user" SET`)
+
+	if dto.Username != nil {
+		sq.Add("username = ?,", *dto.Username)
+	}
+
+	if dto.FirstName != nil {
+		sq.Add("first_name = ?,", *dto.FirstName)
+	}
+
+	if dto.LastName != nil {
+		sq.Add("last_name = ?,", *dto.LastName)
+	}
+
+	if dto.PasswordHash != nil {
+		sq.Add("password_hash = ?,", *dto.PasswordHash)
+	}
+
+	if dto.IsAdmin != nil {
+		sq.Add("is_admin = ?,", *dto.IsAdmin)
+	}
+
+	sq.Where("id = ?", dto.UserID)
+	sq.Add("RETURNING id, first_name, last_name, username, password_hash, is_admin")
 
 	query, args := sq.Make()
 
-	_, err := r.db.TxOrDB(ctx).Exec(ctx, query, args...)
+	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &user, query, args...)
 	if err != nil {
-		return errors.Wrap(err, "ChangeUserAdminStatus auth repo")
+		return domain.User{}, errors.Wrap(err, "UpdateUser auth repo")
 	}
 
-	return nil
+	return user, nil
 }
 
 func (r *Repository) UserByID(ctx context.Context, id string) (user domain.User, err error) {
