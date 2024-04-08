@@ -124,7 +124,7 @@ func (r *Repository) GetAllByTaskID(ctx context.Context, id string) (tts []domai
 
 	query, args := sq.Make()
 
-	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &tts, query, args...)
+	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &tts, query, args...) // fixme - can get none and thats ok, but crashes atm
 	if err != nil {
 		return tts, errors.Wrap(err, "GetAllByTaskID TaskTemplate repo:")
 	}

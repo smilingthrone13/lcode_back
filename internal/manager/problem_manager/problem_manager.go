@@ -14,9 +14,9 @@ import (
 
 type (
 	Services struct {
-		TaskService         *taskServ.Service
-		TaskTemplateService *taskTemplateServ.Service
-		TestCaseService     *testCaseServ.Service
+		TaskService         taskServ.Task
+		TaskTemplateService taskTemplateServ.TaskTemplate
+		TestCaseService     testCaseServ.TestCase
 	}
 
 	Manager struct {

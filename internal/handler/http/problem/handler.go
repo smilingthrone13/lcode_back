@@ -8,7 +8,7 @@ import (
 	accessMiddleware "lcode/internal/handler/middleware/access"
 	authMiddleware "lcode/internal/handler/middleware/auth"
 	problemMiddleware "lcode/internal/handler/middleware/problem"
-	"lcode/internal/manager/problem_manager"
+	problemManager "lcode/internal/manager/problem_manager"
 	"lcode/pkg/gin_helpers"
 	"lcode/pkg/http_lib/http_helper"
 	"lcode/pkg/struct_errors"
@@ -24,7 +24,7 @@ type (
 	}
 
 	Managers struct {
-		Problem *problem_manager.Manager
+		Problem problemManager.ProblemManager
 	}
 
 	Handler struct {

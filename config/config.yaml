@@ -12,6 +12,6 @@ tls:
   key: C:\Users\l.konstantin\Documents\Projects\!ssl_certs\key.pem
 searchCoefficient: 0.3
 auth:
-  accessTokenExpTime: 3000s  # seconds
+  accessTokenExpTime: 300s  # seconds
   refreshTokenExpTime: 720h # hours 720h
   secret: test-secret # any string

@@ -205,7 +205,7 @@ func (m *Middleware) ValidateFullProblemByTaskIDInput(c *gin.Context) {
 func (m *Middleware) ValidateTaskListByParamsInput(c *gin.Context) {
 	var inp domain.TaskParamsInput
 
-	if err := c.ShouldBindQuery(&inp); err != nil {
+	if err := c.ShouldBindJSON(&inp); err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
 		return
