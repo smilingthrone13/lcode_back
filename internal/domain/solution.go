@@ -19,14 +19,21 @@ type Solution struct {
 	Memory     int            `json:"memory"`
 }
 
-type CreateSolutionDTO struct {
+// entity
+type CreateSolutionEntity struct {
 	UserID     string
 	TaskID     string
 	LanguageID LanguageType
 	Code       string
 	Status     SolutionStatus
-	Runtime    float64
-	Memory     int
+}
+
+// dto
+type CreateSolutionDTO struct {
+	UserID     string
+	TaskID     string
+	LanguageID LanguageType
+	Code       string
 }
 
 type UpdateSolutionDTO struct {

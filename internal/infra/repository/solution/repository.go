@@ -17,18 +17,16 @@ type Repository struct {
 	db *postgres.DbManager
 }
 
-func (r *Repository) Create(ctx context.Context, entity domain.CreateSolutionDTO) (sol domain.Solution, err error) {
+func (r *Repository) Create(ctx context.Context, entity domain.CreateSolutionEntity) (sol domain.Solution, err error) {
 	sq := sql_query_maker.NewQueryMaker(7)
 
 	sq.Add(
-		`INSERT INTO solution (user_id, code, status, runtime, memory, task_id, language_id) 
-			   VALUES (?, ?, ?, ?, ?, ?, ?) 
+		`INSERT INTO solution (user_id, code, status, task_id, language_id) 
+			   VALUES (?, ?, ?, ?, ?) 
                RETURNING id, user_id, code, status, runtime, memory, task_id, language_id`,
 		entity.UserID,
 		entity.Code,
 		entity.Status,
-		entity.Runtime,
-		entity.Memory,
 		entity.TaskID,
 		entity.LanguageID,
 	)

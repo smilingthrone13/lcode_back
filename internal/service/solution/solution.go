@@ -21,7 +21,7 @@ func New(conf *config.Config, repository SolutionRepo) *Service {
 	}
 }
 
-func (s *Service) Create(ctx context.Context, entity domain.CreateSolutionDTO) (sol domain.Solution, err error) {
+func (s *Service) Create(ctx context.Context, entity domain.CreateSolutionEntity) (sol domain.Solution, err error) {
 	sol, err = s.repository.Create(ctx, entity)
 	if err != nil {
 		return sol, errors.Wrap(err, "Create solution service")

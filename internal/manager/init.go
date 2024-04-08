@@ -3,6 +3,7 @@ package manager
 import (
 	"lcode/config"
 	"lcode/internal/manager/problem_manager"
+	"lcode/internal/manager/solution_manager"
 	"lcode/internal/service"
 	"lcode/pkg/postgres"
 	"log/slog"
@@ -16,7 +17,8 @@ type (
 	}
 
 	Managers struct {
-		ProblemManager *problem_manager.Manager
+		ProblemManager  *problem_manager.Manager
+		SolutionManager *solution_manager.Manager
 	}
 )
 
@@ -32,7 +34,18 @@ func New(p *InitParams, services *service.Services) *Managers {
 		},
 	)
 
+	solutionManager := solution_manager.New(
+		p.Config,
+		p.Logger,
+		p.TransactionManager,
+		&solution_manager.Services{
+			Solution:       services.Solution,
+			SolutionResult: services.SolutionResult,
+		},
+	)
+
 	return &Managers{
-		ProblemManager: problemManager,
+		ProblemManager:  problemManager,
+		SolutionManager: solutionManager,
 	}
 }
