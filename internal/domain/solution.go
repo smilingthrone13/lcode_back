@@ -18,3 +18,20 @@ type Solution struct {
 	Runtime    float64        `json:"runtime"`
 	Memory     int            `json:"memory"`
 }
+
+type CreateSolutionDTO struct {
+	UserID     string
+	TaskID     string
+	LanguageID LanguageType
+	Code       string
+	Status     SolutionStatus
+	Runtime    float64
+	Memory     int
+}
+
+type UpdateSolutionDTO struct {
+	ID      string
+	Status  *SolutionStatus
+	Runtime *float64
+	Memory  *int
+}

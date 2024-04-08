@@ -4,6 +4,8 @@ import (
 	"lcode/config"
 	"lcode/internal/infra/repository"
 	"lcode/internal/service/auth"
+	"lcode/internal/service/solution"
+	solutionResult "lcode/internal/service/solution_result"
 	"lcode/internal/service/task"
 	taskTemplate "lcode/internal/service/task_template"
 	testCase "lcode/internal/service/test_case"
@@ -19,10 +21,12 @@ type (
 	}
 
 	Services struct {
-		Auth         *auth.Service
-		Task         *task.Service
-		TaskTemplate *taskTemplate.Service
-		TestCase     *testCase.Service
+		Auth           *auth.Service
+		Task           *task.Service
+		TaskTemplate   *taskTemplate.Service
+		TestCase       *testCase.Service
+		Solution       *solution.Service
+		SolutionResult *solutionResult.Service
 	}
 )
 
@@ -31,11 +35,15 @@ func New(p *InitParams, repos *repository.Repositories) *Services {
 	taskService := task.New(p.Logger, repos.Task)
 	taskTemplateService := taskTemplate.New(p.Logger, repos.TaskTemplate)
 	testCaseService := testCase.New(p.Logger, repos.TestCase)
+	solutionResultService := solutionResult.New(p.Config, repos.SolutionResult)
+	solutionService := solution.New(p.Config, repos.Solution)
 
 	return &Services{
-		Auth:         authService,
-		Task:         taskService,
-		TaskTemplate: taskTemplateService,
-		TestCase:     testCaseService,
+		Auth:           authService,
+		Task:           taskService,
+		TaskTemplate:   taskTemplateService,
+		TestCase:       testCaseService,
+		Solution:       solutionService,
+		SolutionResult: solutionResultService,
 	}
 }

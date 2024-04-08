@@ -103,7 +103,7 @@ create table solution
             on delete cascade,
     id          uuid             not null
         constraint solution_pk
-            primary key,
+            primary key default gen_random_uuid(),
     language_id integer
 );
 

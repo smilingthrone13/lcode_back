@@ -1,4 +1,4 @@
-package auth
+package solution_result
 
 import (
 	"context"
@@ -43,7 +43,7 @@ func (r *Repository) CreateBatch(ctx context.Context, results []domain.SolutionR
 }
 
 func (r *Repository) GetResultsBySolutionID(ctx context.Context, solutionID string) ([]domain.SolutionResult, error) {
-	sq := sql_query_maker.NewQueryMaker(0)
+	sq := sql_query_maker.NewQueryMaker(1)
 
 	results := []domain.SolutionResult{}
 
