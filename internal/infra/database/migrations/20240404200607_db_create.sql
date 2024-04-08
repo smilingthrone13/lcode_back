@@ -48,22 +48,6 @@ BEGIN
 END;
 $$;
 
-create table user_progress
-(
-    user_id uuid not null
-        constraint user_progress_user_id_fk
-            references "user"
-            on delete cascade,
-    task_id uuid not null
-        constraint user_progress_task_id_fk
-            references task
-            on delete cascade,
-    status  text not null
-);
-
-create unique index user_progress_user_id_task_id_uindex
-    on user_progress (user_id, task_id);
-
 create trigger update_task_number_trigger
     before insert or delete
     on task
