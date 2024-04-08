@@ -156,8 +156,6 @@ create unique index solution_result_solution_id_test_case_id_uindex
 
 -- +goose Down
 -- +goose StatementBegin
-drop table user_progress;
-
 drop table task_template;
 
 drop table solution_result;
