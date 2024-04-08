@@ -79,8 +79,8 @@ create table solution
             on delete cascade,
     code        text             not null,
     status      text             not null,
-    runtime     double precision not null,
-    memory      bigint           not null,
+    runtime     double precision not null default 0,
+    memory      bigint           not null default 0,
     task_id     uuid             not null
         constraint solution_task_id_fk
             references task
