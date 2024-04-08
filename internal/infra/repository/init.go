@@ -8,6 +8,7 @@ import (
 	"lcode/internal/infra/repository/task"
 	taskTemplate "lcode/internal/infra/repository/task_template"
 	testCase "lcode/internal/infra/repository/test_case"
+	userProgress "lcode/internal/infra/repository/user_progress"
 	"lcode/pkg/postgres"
 )
 
@@ -24,6 +25,7 @@ type (
 		TestCase       *testCase.Repository
 		Solution       *solution.Repository
 		SolutionResult *solutionResult.Repository
+		UserProgress   *userProgress.Repository
 	}
 )
 
@@ -35,5 +37,6 @@ func New(p *InitParams) *Repositories {
 		TestCase:       testCase.New(p.Config, p.DB),
 		Solution:       solution.New(p.DB),
 		SolutionResult: solutionResult.New(p.DB),
+		UserProgress:   userProgress.New(p.DB),
 	}
 }

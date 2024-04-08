@@ -9,6 +9,7 @@ import (
 	"lcode/internal/service/task"
 	taskTemplate "lcode/internal/service/task_template"
 	testCase "lcode/internal/service/test_case"
+	userProgress "lcode/internal/service/user_progress"
 	"lcode/pkg/postgres"
 	"log/slog"
 )
@@ -27,6 +28,7 @@ type (
 		TestCase       *testCase.Service
 		Solution       *solution.Service
 		SolutionResult *solutionResult.Service
+		UserProgress   *userProgress.Service
 	}
 )
 
@@ -37,6 +39,7 @@ func New(p *InitParams, repos *repository.Repositories) *Services {
 	testCaseService := testCase.New(p.Logger, repos.TestCase)
 	solutionResultService := solutionResult.New(p.Config, repos.SolutionResult)
 	solutionService := solution.New(p.Config, repos.Solution)
+	userProgressService := userProgress.New(p.Logger, repos.UserProgress)
 
 	return &Services{
 		Auth:           authService,
@@ -45,5 +48,6 @@ func New(p *InitParams, repos *repository.Repositories) *Services {
 		TestCase:       testCaseService,
 		Solution:       solutionService,
 		SolutionResult: solutionResultService,
+		UserProgress:   userProgressService,
 	}
 }

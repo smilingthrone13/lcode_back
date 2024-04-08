@@ -4,6 +4,7 @@ import (
 	"lcode/config"
 	authH "lcode/internal/handler/http/auth"
 	problemH "lcode/internal/handler/http/problem"
+	userProgressH "lcode/internal/handler/http/user_progress"
 	"lcode/internal/manager"
 	"lcode/internal/service"
 	"lcode/pkg/postgres"
@@ -18,8 +19,9 @@ type (
 	}
 
 	HTTPHandlers struct {
-		Auth    *authH.Handler
-		Problem *problemH.Handler
+		Auth         *authH.Handler
+		Problem      *problemH.Handler
+		UserProgress *userProgressH.Handler
 	}
 
 	Handlers struct {
@@ -44,10 +46,19 @@ func New(p *InitParams, services *service.Services, managers *manager.Managers) 
 		},
 	)
 
+	userProgressHandler := userProgressH.New(
+		p.Config,
+		p.Logger,
+		&userProgressH.Services{
+			UserProgress: services.UserProgress,
+		},
+	)
+
 	return &Handlers{
 		&HTTPHandlers{
-			Auth:    authHandler,
-			Problem: problemHandler,
+			Auth:         authHandler,
+			Problem:      problemHandler,
+			UserProgress: userProgressHandler,
 		},
 	}
 }

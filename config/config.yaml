@@ -1,7 +1,7 @@
 isDebug: true
 corsOrigins: [ "*" ]
 http:
-  host: 192.168.7.38
+  host: localhost
   port: 5000
   maxHeaderBytes: 1
   readTimeout: 600s
@@ -12,6 +12,6 @@ tls:
   key: C:\Users\l.konstantin\Documents\Projects\!ssl_certs\key.pem
 searchCoefficient: 0.3
 auth:
-  accessTokenExpTime: 300s  # seconds
+  accessTokenExpTime: 3000s  # seconds
   refreshTokenExpTime: 720h # hours 720h
   secret: test-secret # any string

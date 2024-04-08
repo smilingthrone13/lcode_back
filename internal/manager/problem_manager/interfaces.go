@@ -22,10 +22,6 @@ type ProblemManager interface {
 	TaskListByParams(ctx context.Context, dto domain.TaskParams) (domain.TaskList, error)
 }
 
-//type UserManager interface {
-//	GetUserStatistics()
-//}
-//
 //type SubmissionManager interface {
 //	SubmitSolution()
 //	CheckSolutionStatus()

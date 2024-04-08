@@ -774,6 +774,76 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
+  /progress/:
+    get:
+      tags: [ Progress ]
+      summary: Get progress
+      description: Authenticated users only. Get task completion progress for user.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProgress'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /progress/statistics:
+    get:
+      tags: [ Progress ]
+      summary: Get statistics
+      description: Authenticated users only. Get task completion statistics for user.
+      parameters:
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [category, difficulty]
+            description: Data type to base statistics on
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserStatistic'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
 components:
   schemas:
     StatusResponse:
@@ -1039,10 +1109,64 @@ components:
               description: ID of the last received task
               example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
 
+    ProgressData:
+      type: object
+      required: [ status, task_ids ]
+      properties:
+        status:
+          type: string
+          enum: [ in_progress, completed ]
+        task_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+            description: Task ID
+
+    UserProgress:
+      type: object
+      required: [ progress_data ]
+      properties:
+        progress_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProgressData'
+
+    StatisticData:
+      type: object
+      required: [ param, count_done, count_total ]
+      properties:
+        param:
+          type: string
+          description: Category name or difficulty level - based on requested statistics type
+          example: normal
+        count_done:
+          type: integer
+          description: Number of tasks done from said category/difficulty level
+          example: 5
+        count_total:
+          type: integer
+          description: Total number of task from said category/difficulty level
+          example: 10
+
+    UserStatistic:
+      type: object
+      required: [ type , statistic_data ]
+      properties:
+        type:
+          type: string
+          enum: [ difficulty, category ]
+          description: Requested statistics type
+        statistic_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatisticData'
+
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
 
 security:
-  - BearerAuth: []
+  - BearerAuth: [ ]

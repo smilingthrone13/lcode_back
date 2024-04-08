@@ -73,6 +73,14 @@ create unique index task_template__index
 
 create table solution
 (
+    id          uuid             not null
+        constraint solution_pk
+            primary key default gen_random_uuid(),
+    task_id     uuid             not null
+        constraint solution_task_id_fk
+            references task
+            on delete cascade,
+    language_id integer,
     user_id     uuid             not null
         constraint solution_user_id_fk
             references "user"
@@ -80,15 +88,7 @@ create table solution
     code        text             not null,
     status      text             not null,
     runtime     double precision not null default 0,
-    memory      bigint           not null default 0,
-    task_id     uuid             not null
-        constraint solution_task_id_fk
-            references task
-            on delete cascade,
-    id          uuid             not null
-        constraint solution_pk
-            primary key default gen_random_uuid(),
-    language_id integer
+    memory      bigint           not null default 0
 );
 
 create table test_case
@@ -156,6 +156,8 @@ create unique index solution_result_solution_id_test_case_id_uindex
 
 -- +goose Down
 -- +goose StatementBegin
+drop table user_progress;
+
 drop table task_template;
 
 drop table solution_result;

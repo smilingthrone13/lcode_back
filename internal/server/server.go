@@ -9,6 +9,7 @@ import (
 	"lcode/internal/handler"
 	"lcode/internal/handler/http/auth"
 	"lcode/internal/handler/http/problem"
+	userProgress "lcode/internal/handler/http/user_progress"
 	"lcode/internal/handler/middleware"
 	"log/slog"
 	"net/http"
@@ -84,12 +85,26 @@ func NewServer(
 	})
 
 	// http handlers
-	h.HTTP.Auth.Register(&auth.Middlewares{Access: middlewares.Access}, router)
+	h.HTTP.Auth.Register(
+		&auth.Middlewares{
+			Access: middlewares.Access,
+		},
+		router,
+	)
+
 	h.HTTP.Problem.Register(
 		&problem.Middlewares{
 			Problem: middlewares.Problem,
 			Access:  middlewares.Access,
 			Auth:    middlewares.Auth,
+		},
+		router,
+	)
+
+	h.HTTP.UserProgress.Register(
+		&userProgress.Middlewares{
+			Access:       middlewares.Access,
+			UserProgress: middlewares.UserProgress,
 		},
 		router,
 	)
