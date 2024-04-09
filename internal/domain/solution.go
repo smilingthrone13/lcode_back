@@ -3,9 +3,9 @@ package domain
 type SolutionStatus string
 
 const (
-	Testing   SolutionStatus = "testing"
-	Completed SolutionStatus = "completed"
-	Error     SolutionStatus = "error"
+	SolutionStatusTesting   SolutionStatus = "testing"
+	SolutionStatusCompleted SolutionStatus = "completed"
+	SolutionStatusError     SolutionStatus = "error"
 )
 
 type Solution struct {

@@ -77,7 +77,7 @@ create table solution
 (
     id          uuid             not null
         constraint solution_pk
-            primary key default gen_random_uuid(),
+            primary key                   default gen_random_uuid(),
     task_id     uuid             not null
         constraint solution_task_id_fk
             references task
@@ -149,7 +149,9 @@ create table solution_result
     submission_token uuid             not null,
     status           integer          not null,
     runtime          double precision not null,
-    memory           bigint           not null
+    memory           bigint           not null,
+    stdout           text,
+    stderr           text
 );
 
 create unique index solution_result_solution_id_test_case_id_uindex

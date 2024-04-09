@@ -47,3 +47,21 @@ func (q *solutionQueue) PopFront() (domain.Solution, bool) {
 
 	return s.Value.(domain.Solution), true
 }
+
+func (q *solutionQueue) PopFrontAll() []domain.Solution {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	solutions := make([]domain.Solution, 0, q.queue.Len())
+
+	var e *list.Element
+	for q.queue.Len() > 0 {
+		e = q.queue.Front()
+
+		solutions = append(solutions, e.Value.(domain.Solution))
+
+		q.queue.Remove(e)
+	}
+
+	return solutions
+}
