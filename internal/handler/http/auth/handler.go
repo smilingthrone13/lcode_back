@@ -45,6 +45,8 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 		authGroup.POST("/login", middlewares.Auth.ValidateLoginInput, h.login)
 		authGroup.POST("/refresh_tokens", middlewares.Auth.ValidateRefreshTokenInput, h.refreshToken)
 
+		authGroup.GET("/my_info", middlewares.Access.UserIdentity, h.getMyInfo)
+
 		authGroup.GET("/users", middlewares.Access.UserIdentity, middlewares.Auth.CheckAdminAccess, h.users)
 
 		usersGroup := authGroup.Group("/user", middlewares.Access.UserIdentity, middlewares.Auth.CheckAdminAccess)
@@ -118,6 +120,17 @@ func (h *Handler) refreshToken(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, tokens)
+}
+
+func (h *Handler) getMyInfo(c *gin.Context) {
+	user, err := gin_helpers.GetValueFromGinCtx[domain.User](c, domain.UserCtxKey)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }
 
 func (h *Handler) users(c *gin.Context) {
