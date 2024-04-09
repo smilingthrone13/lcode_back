@@ -115,6 +115,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
+  /auth/my_info:
+    get:
+      tags: [ Authorization ]
+      summary: Get user information
+      description: Authenticated users only. Get user information.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
   /auth/users:
     get:
       tags: [ Authorization ]
