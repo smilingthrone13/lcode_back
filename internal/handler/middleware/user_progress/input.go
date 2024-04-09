@@ -25,7 +25,7 @@ func New(cfg *config.Config, logger *slog.Logger) *Middleware {
 }
 
 func (m *Middleware) ValidateGetStatisticsInput(c *gin.Context) {
-	qType := c.Query("type")
+	qType := domain.StatisticsType(c.Query("type"))
 
 	if qType == "" {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Type is required")

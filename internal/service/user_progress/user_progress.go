@@ -25,7 +25,7 @@ func New(
 func (s *Service) GetStatisticsByUserID(
 	ctx context.Context,
 	userID string,
-	statType string,
+	statType domain.StatisticsType,
 ) (us domain.UserStatistic, err error) {
 	us, err = s.repository.StatisticsByUserID(ctx, userID, statType)
 	if err != nil {

@@ -6,11 +6,11 @@ import (
 )
 
 type UserProgress interface {
-	GetStatisticsByUserID(ctx context.Context, userID string, statType string) (domain.UserStatistic, error)
+	GetStatisticsByUserID(ctx context.Context, userID string, statType domain.StatisticsType) (domain.UserStatistic, error)
 	GetProgressByUserID(ctx context.Context, userID string) (domain.UserProgress, error)
 }
 
 type UserProgressRepo interface {
-	StatisticsByUserID(ctx context.Context, userID string, statType string) (domain.UserStatistic, error)
+	StatisticsByUserID(ctx context.Context, userID string, statType domain.StatisticsType) (domain.UserStatistic, error)
 	ProgressByUserID(ctx context.Context, userID string) (domain.UserProgress, error)
 }

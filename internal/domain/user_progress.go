@@ -1,15 +1,16 @@
 package domain
 
 type (
-	ProgressType string
+	ProgressType   string
+	StatisticsType string
 )
 
 const (
 	ProgressCompleted  ProgressType = "completed"
 	ProgressInProgress ProgressType = "in_progress"
 
-	StatisticCategory   string = "category"
-	StatisticDifficulty string = "difficulty"
+	StatisticCategory   StatisticsType = "category"
+	StatisticDifficulty StatisticsType = "difficulty"
 )
 
 type (
@@ -29,14 +30,14 @@ type (
 	}
 
 	UserStatistic struct {
-		Type       string          `json:"statistic_type"`
+		Type       StatisticsType  `json:"statistic_type"`
 		Statistics []StatisticData `json:"statistic_data"`
 	}
 )
 
 type (
 	GetStatisticsDTO struct {
-		UserID string `json:"-"`
-		Type   string `json:"type"`
+		UserID string         `json:"-"`
+		Type   StatisticsType `json:"type"`
 	}
 )

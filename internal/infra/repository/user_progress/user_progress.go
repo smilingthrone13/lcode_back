@@ -21,7 +21,7 @@ func New(db *postgres.DbManager) *Repository {
 func (r *Repository) StatisticsByUserID(
 	ctx context.Context,
 	userID string,
-	statType string,
+	statType domain.StatisticsType,
 ) (s domain.UserStatistic, err error) {
 	sq := sql_query_maker.NewQueryMaker(1)
 
