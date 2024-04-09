@@ -1,5 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
+CREATE EXTENSION pg_trgm;
+
 create table "user"
 (
     id            uuid    default gen_random_uuid() not null

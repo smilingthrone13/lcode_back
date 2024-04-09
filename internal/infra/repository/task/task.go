@@ -147,15 +147,13 @@ func (r *Repository) GetAllByParams(ctx context.Context, params domain.TaskParam
 
 	if params.Pagination.AfterID != nil {
 		q := fmt.Sprintf(
-			`
-			WHERE number %s (SELECT number FROM task WHERE id = ?)
-			`,
+			"WHERE number %s (SELECT number FROM task WHERE id = ?)",
 			db.GetLetterGreaterOrLessBySortType(params.Sort.ByNumber),
 		)
 		sq.Add(q, *params.Pagination.AfterID)
 	}
 
-	sq.AddCondition(params)
+	sq.WhereOptional(func() { sq.AddCondition(params) })
 	sq.SortByNumber(params.Sort.ByNumber)
 	sq.Add("LIMIT ?", params.Pagination.Limit)
 

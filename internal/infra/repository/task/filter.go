@@ -27,7 +27,7 @@ func (f *filter) Add(query string, args ...interface{}) *filter {
 
 func (f *filter) ConditionSearch(search string, searchCoefficient float32) *filter {
 	if search != "" {
-		f.Add("AND word_similarity(?, t.name) > ?", search, searchCoefficient)
+		f.Add("AND word_similarity(?, t.name) >= ?", search, searchCoefficient)
 	}
 
 	return f

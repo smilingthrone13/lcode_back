@@ -102,14 +102,16 @@ func (r *Repository) GetByID(ctx context.Context, id string) (tc domain.TestCase
 	return tc, nil
 }
 
-func (r *Repository) GetAllByTaskID(ctx context.Context, id string) (tcs []domain.TestCase, err error) {
+func (r *Repository) GetAllByTaskID(ctx context.Context, id string) ([]domain.TestCase, error) {
+	tcs := []domain.TestCase{}
+
 	sq := sql_query_maker.NewQueryMaker(1)
 
 	sq.Add("SELECT id, task_id, number, input, output FROM test_case WHERE task_id = ?", id)
 
 	query, args := sq.Make()
 
-	err = pgxscan.Select(ctx, r.db.TxOrDB(ctx), &tcs, query, args...)
+	err := pgxscan.Select(ctx, r.db.TxOrDB(ctx), &tcs, query, args...)
 	if err != nil {
 		return tcs, errors.Wrap(err, "GetAllByTaskID TestCase repo:")
 	}
