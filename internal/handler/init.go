@@ -2,6 +2,7 @@ package handler
 
 import (
 	"lcode/config"
+	articleH "lcode/internal/handler/http/article"
 	authH "lcode/internal/handler/http/auth"
 	problemH "lcode/internal/handler/http/problem"
 	userProgressH "lcode/internal/handler/http/user_progress"
@@ -22,6 +23,7 @@ type (
 		Auth         *authH.Handler
 		Problem      *problemH.Handler
 		UserProgress *userProgressH.Handler
+		Article      *articleH.Handler
 	}
 
 	Handlers struct {
@@ -54,11 +56,20 @@ func New(p *InitParams, services *service.Services, managers *manager.Managers) 
 		},
 	)
 
+	articleHandler := articleH.New(
+		p.Config,
+		p.Logger,
+		&articleH.Services{
+			Article: services.Article,
+		},
+	)
+
 	return &Handlers{
 		&HTTPHandlers{
 			Auth:         authHandler,
 			Problem:      problemHandler,
 			UserProgress: userProgressHandler,
+			Article:      articleHandler,
 		},
 	}
 }

@@ -14,6 +14,9 @@ create table "user"
     is_admin      boolean default false             not null
 );
 
+INSERT INTO "user" ("first_name", "last_name", "username", "password_hash", "is_admin")
+VALUES ('Admin', 'Admin', 'admin', '$2a$14$NRd0YacLcLfK6.yOmUUpXeGzzgGsWWYOaXkXZg3DK.9GqF0GEZ/Rq', true);
+
 create table task
 (
     id            uuid             default gen_random_uuid() not null
@@ -161,7 +164,7 @@ CREATE FUNCTION update_solution_metrics()
     RETURNS TRIGGER AS
 $$
 DECLARE
-    trigger_row RECORD;
+    trigger_row     RECORD;
     max_runtime_row RECORD;
 BEGIN
     IF TG_OP = 'INSERT' THEN
@@ -192,10 +195,36 @@ CREATE TRIGGER update_solution_metrics_trigger
     FOR EACH ROW
 EXECUTE FUNCTION update_solution_metrics();
 
+create table article
+(
+    id         uuid       default gen_random_uuid()            not null
+        constraint articles_pk
+            primary key,
+    author_id  uuid                                            not null
+        constraint articles_user_id_fk
+            references "user",
+    created_at timestamp  default timezone('utc'::text, now()) not null,
+    title      varchar(150)                                    not null
+        constraint articles_pk_2
+            unique,
+    content    text       default 'No text yet...'             not null,
+    categories text array default '{}'                         not null
+);
+
+INSERT INTO article (author_id, title, content, categories)
+VALUES ((SELECT id FROM "user" WHERE username = 'admin'),
+        'Practice Article',
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
+ Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.
+ Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper sagittis, dapibus gravida, tellus.
+ Nulla vitae elit. Nulla facilisi. Ut fringilla. Suspendisse eu ligula. Etiam porta sem.',
+        '{"Practice"}');
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
+drop table article;
+
 drop table task_template;
 
 drop table solution_result;
@@ -208,7 +237,11 @@ drop table test_case;
 
 drop table task;
 
-drop function update_task_number();
+drop function update_task_number() cascade;
 
-drop function update_test_case_number();
+drop function update_test_case_number() cascade;
+
+drop function update_solution_metrics() cascade;
+
+drop extension pg_trgm cascade;
 -- +goose StatementEnd

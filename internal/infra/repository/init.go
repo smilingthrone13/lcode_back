@@ -2,6 +2,7 @@ package repository
 
 import (
 	"lcode/config"
+	"lcode/internal/infra/repository/article"
 	"lcode/internal/infra/repository/auth"
 	"lcode/internal/infra/repository/solution"
 	solutionResult "lcode/internal/infra/repository/solution_result"
@@ -26,6 +27,7 @@ type (
 		Solution       *solution.Repository
 		SolutionResult *solutionResult.Repository
 		UserProgress   *userProgress.Repository
+		Article        *article.Repository
 	}
 )
 
@@ -38,5 +40,6 @@ func New(p *InitParams) *Repositories {
 		Solution:       solution.New(p.DB),
 		SolutionResult: solutionResult.New(p.DB),
 		UserProgress:   userProgress.New(p.DB),
+		Article:        article.New(p.Config, p.DB),
 	}
 }

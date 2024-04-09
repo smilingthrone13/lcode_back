@@ -10,11 +10,13 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jackc/pgx/v5 v5.5.5
+	github.com/lib/pq v1.10.0
 	github.com/m-a-r-a-t/sql-query-maker v0.0.0-20231116115731-0440ba3c12f2
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.18.2
 	golang.org/x/crypto v0.21.0
+	golang.org/x/net v0.22.0
 )
 
 require (
@@ -54,7 +56,6 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect

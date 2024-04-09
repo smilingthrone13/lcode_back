@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"lcode/config"
 	"lcode/internal/handler"
+	"lcode/internal/handler/http/article"
 	"lcode/internal/handler/http/auth"
 	"lcode/internal/handler/http/problem"
 	userProgress "lcode/internal/handler/http/user_progress"
@@ -105,6 +106,15 @@ func NewServer(
 		&userProgress.Middlewares{
 			Access:       middlewares.Access,
 			UserProgress: middlewares.UserProgress,
+		},
+		router,
+	)
+
+	h.HTTP.Article.Register(
+		&article.Middlewares{
+			Access:  middlewares.Access,
+			Auth:    middlewares.Auth,
+			Article: middlewares.Article,
 		},
 		router,
 	)

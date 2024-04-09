@@ -85,7 +85,7 @@ func (r *Repository) Update(ctx context.Context, id string, dto domain.TaskUpdat
 		sq.Add("memory_limit = ?,", *dto.MemoryLimit)
 	}
 
-	sq.Where("id = (SELECT id FROM task WHERE id = ? FOR UPDATE)", id)
+	sq.Where("id = ?", id)
 	sq.Add("RETURNING id, number, name, description, category, difficulty, runtime_limit, memory_limit")
 
 	query, args := sq.Make()
@@ -125,7 +125,8 @@ func (r *Repository) GetByID(ctx context.Context, id string) (t domain.Task, err
 	sq.Add(
 		`
 	SELECT id, number, name, description, category, difficulty, runtime_limit, memory_limit
-	FROM task WHERE id = ?
+	FROM task
+	WHERE id = ?
 	`,
 		id)
 

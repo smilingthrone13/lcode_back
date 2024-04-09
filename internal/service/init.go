@@ -3,6 +3,7 @@ package service
 import (
 	"lcode/config"
 	"lcode/internal/infra/repository"
+	"lcode/internal/service/article"
 	"lcode/internal/service/auth"
 	"lcode/internal/service/solution"
 	solutionResult "lcode/internal/service/solution_result"
@@ -22,13 +23,14 @@ type (
 	}
 
 	Services struct {
-		Auth           *auth.Service
-		Task           *task.Service
-		TaskTemplate   *taskTemplate.Service
-		TestCase       *testCase.Service
-		Solution       *solution.Service
-		SolutionResult *solutionResult.Service
-		UserProgress   *userProgress.Service
+		Auth           auth.Authorization
+		Task           task.Task
+		TaskTemplate   taskTemplate.TaskTemplate
+		TestCase       testCase.TestCase
+		Solution       solution.Solution
+		SolutionResult solutionResult.SolutionResult
+		UserProgress   userProgress.UserProgress
+		Article        article.Article
 	}
 )
 
@@ -40,6 +42,7 @@ func New(p *InitParams, repos *repository.Repositories) *Services {
 	solutionResultService := solutionResult.New(p.Config, repos.SolutionResult)
 	solutionService := solution.New(p.Config, repos.Solution)
 	userProgressService := userProgress.New(p.Logger, repos.UserProgress)
+	articleService := article.New(p.Logger, repos.Article)
 
 	return &Services{
 		Auth:           authService,
@@ -49,5 +52,6 @@ func New(p *InitParams, repos *repository.Repositories) *Services {
 		Solution:       solutionService,
 		SolutionResult: solutionResultService,
 		UserProgress:   userProgressService,
+		Article:        articleService,
 	}
 }
