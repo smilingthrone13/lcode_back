@@ -178,6 +178,14 @@ paths:
       tags: [ Authorization ]
       summary: Change password
       description: Admin only. Change user password.
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: 8df7d0a3-647a-4770-a3f7-85b67154572b
       requestBody:
         required: true
         content:
@@ -224,6 +232,14 @@ paths:
       tags: [ Authorization ]
       summary: Change user permissions
       description: Admin only. Set/revoke user admin permission.
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: 8df7d0a3-647a-4770-a3f7-85b67154572b
       requestBody:
         required: true
         content:
@@ -265,11 +281,61 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
-  /problems/list:
+  /articles/practice:
     get:
-      tags: [ Problems ]
-      summary: Get problems list
-      description: Authenticated users only. Get problems list (sorted and/or filtered) with pagination.
+      tags: [ Article ]
+      summary: Get practice article
+      description: No authentication required. Get practice article.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /articles/available_attributes:
+    get:
+      tags: [ Article ]
+      summary: Get available article attributes
+      description: Authenticated users only. Get available article attributes that have been created already.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ categories ]
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: string
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /articles/list:
+    get:
+      tags: [ Article ]
+      summary: Get articles list
+      description: Authenticated users only. Get articles list (sorted and/or filtered) with pagination. <br> Articles here are returned with empty content field. When you want to display article content, use GET /articles/{id} instead.
       parameters:
         - in: query
           name: search
@@ -283,13 +349,236 @@ paths:
             items:
               type: string
           description: List of categories separated by comma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleListParams'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - articles
+                  - pagination
+                properties:
+                  articles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Article'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /articles/:
+    post:
+      tags: [ Article ]
+      summary: Create article
+      description: Admin only. Create article.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleCreateInput'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /articles/{article_id}:
+    parameters:
+      - in: path
+        name: article_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: 8df7d0a3-647a-4770-a3f7-85b67154572b
+
+    get:
+      tags: [ Article ]
+      summary: Get article
+      description: Authenticated users only. Get article by ID.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    patch:
+      tags: [ Article ]
+      summary: Update article by ID
+      description: Admin only. Update article by ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleUpdateInput'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    delete:
+      tags: [ Article ]
+      summary: Delete article by ID
+      description: Admin only. Delete article by ID.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /problems/available_attributes:
+    get:
+      tags: [ Problems ]
+      summary: Get available problems attributes
+      description: Authenticated users only. Get available problems attributes that have been created already.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ categories, difficulties ]
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: string
+                  difficulties:
+                    type: array
+                    items:
+                      type: string
+
+  /problems/list:
+    get:
+      tags: [ Problems ]
+      summary: Get problems list
+      description: Authenticated users only. Get problems list (sorted and/or filtered) with pagination.
+      parameters:
         - in: query
-          name: difficulties
+          name: search
+          schema:
+            type: string
+          description: Search query string
+        - in: query
+          name: category
           schema:
             type: array
             items:
               type: string
-          description: List of difficulties separated by comma
+          description: List of categories
+        - in: query
+          name: difficulty
+          schema:
+            type: array
+            items:
+              type: string
+          description: List of difficulties
       requestBody:
         content:
           application/json:
@@ -311,15 +600,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/Task'
                   pagination:
-                    type: object
-                    required:
-                      - after_id
-                    properties:
-                      after_id:
-                        type: string
-                        format: uuid
-                        description: Last task ID from given page
-                        example: 5c7f8d0d-5a1e-4b7d-a1b9-d2b0a2c3c4d2
+                    $ref: '#/components/schemas/Pagination'
         400:
           description: Bad request
           content:
@@ -396,18 +677,19 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
 
   /problems/{task_id}:
+    parameters:
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Task ID
+
     get:
       tags: [ Problems ]
       summary: Get problem details
       description: Authenticated users only. Get full problem details.
-      parameters:
-        - in: path
-          name: task_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Task ID
       responses:
         200:
           description: Successful operation
@@ -438,14 +720,6 @@ paths:
       tags: [ Problems ]
       summary: Update problem task
       description: Admins only. Update problem task.
-      parameters:
-        - in: path
-          name: task_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Task ID
       requestBody:
         content:
           application/json:
@@ -481,14 +755,6 @@ paths:
       tags: [ Problems ]
       summary: Delete problem
       description: Admins only. Delete problem completely (including all users statistics).
-      parameters:
-        - in: path
-          name: task_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Task ID
       responses:
         200:
           description: Successful operation
@@ -561,25 +827,26 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
 
   /problems/{task_id}/template/{template_id}:
+    parameters:
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Task ID
+      - in: path
+        name: template_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Template ID
+
     patch:
       tags: [ Problems ]
       summary: Update task code template
       description: Admins only. Update task code template for existing problem.
-      parameters:
-        - in: path
-          name: task_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Task ID
-        - in: path
-          name: template_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Template ID
       requestBody:
         required: true
         content:
@@ -616,21 +883,6 @@ paths:
       tags: [ Problems ]
       summary: Delete task code template
       description: Admins only. Delete task code template for existing problem.
-      parameters:
-        - in: path
-          name: task_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Task ID
-        - in: path
-          name: template_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Template ID
       responses:
         200:
           description: Successful operation
@@ -703,25 +955,26 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
 
   /problems/{task_id}/testcase/{case_id}:
+    parameters:
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Task ID
+      - in: path
+        name: case_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Test case ID
+
     patch:
       tags: [ Problems ]
       summary: Update test case
       description: Admins only. Update test case for existing problem.
-      parameters:
-        - in: path
-          name: task_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Task ID
-        - in: path
-          name: case_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Test case ID
       requestBody:
         required: true
         content:
@@ -758,21 +1011,6 @@ paths:
       tags: [ Problems ]
       summary: Delete test case
       description: Admins only. Delete test case for existing problem.
-      parameters:
-        - in: path
-          name: task_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Task ID
-        - in: path
-          name: case_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: Test case ID
       responses:
         200:
           description: Successful operation
@@ -1134,6 +1372,98 @@ components:
               description: ID of the last received task
               example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
 
+    Article:
+      type: object
+      required:
+        - id
+        - title
+        - author_id
+        - content
+        - categories
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Article ID
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+        title:
+          type: string
+          description: Article title
+          example: Example Article
+        author_id:
+          type: string
+          format: uuid
+          description: Author ID
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+        content:
+          type: string
+          description: Article content (text)
+        categories:
+          type: array
+          items:
+            type: string
+          description: List of article category tags
+          example: [ Sorting, Algorithms ]
+        created_at:
+          type: integer
+          format: uint64
+          description: Creation time in milliseconds in standard UNIX format
+          example: 1705417437
+
+    ArticleListParams:
+      type: object
+      properties:
+        sort:
+          type: object
+          required:
+            - "date"
+          properties:
+            "number":
+              type: string
+              enum: [ asc, desc ]
+          default: desc
+          description: Sort by article creation date
+        pagination:
+          type: object
+          required:
+            - limit
+          properties:
+            limit:
+              type: integer
+              example: 15
+              default: 30
+              description: Number of tasks per page
+            after_id:
+              type: string
+              format: uuid
+              description: ID of the last received task
+              example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+
+    ArticleCreateInput:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: Article title
+          example: Example Article
+        content:
+          type: string
+          description: Article content (text). Markdown supported.
+        categories:
+          type: array
+          items:
+            type: string
+          description: List of article category tags
+          example: [ Sorting, Algorithms ]
+
+    ArticleUpdateInput:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/ArticleCreateInput'
+
     ProgressData:
       type: object
       required: [ status, task_ids ]
@@ -1187,6 +1517,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StatisticData'
+
+    Pagination:
+      type: object
+      required:
+        - after_id
+      properties:
+        after_id:
+          type: string
+          format: uuid
+          description: Last item ID from given page
+          example: 5c7f8d0d-5a1e-4b7d-a1b9-d2b0a2c3c4d2
 
   securitySchemes:
     BearerAuth:

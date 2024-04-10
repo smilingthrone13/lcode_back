@@ -8,7 +8,6 @@ import (
 	"lcode/pkg/http_lib/http_helper"
 	"log/slog"
 	"net/http"
-	"strings"
 )
 
 type (
@@ -212,16 +211,14 @@ func (m *Middleware) ValidateTaskListByParamsInput(c *gin.Context) {
 		return
 	}
 
-	var categories []string
-	qCats, ok := c.GetQuery("categories")
-	if ok {
-		categories = strings.Split(qCats, ",")
+	categories, ok := c.GetQueryArray("category")
+	if !ok {
+		categories = []string{}
 	}
 
-	var difficulties []string
-	qDiff, ok := c.GetQuery("difficulties")
-	if ok {
-		difficulties = strings.Split(qDiff, ",")
+	difficulties, ok := c.GetQueryArray("difficulty")
+	if !ok {
+		difficulties = []string{}
 	}
 
 	filter := domain.TaskFilter{

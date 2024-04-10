@@ -12,6 +12,8 @@ type Task interface {
 
 	GetByID(ctx context.Context, id string) (domain.Task, error)
 	GetAllByParams(ctx context.Context, params domain.TaskParams) (domain.TaskList, error)
+
+	GetAvailableAttributes(ctx context.Context) (domain.TaskAttributes, error)
 }
 
 type TaskRepo interface {
@@ -21,4 +23,6 @@ type TaskRepo interface {
 
 	GetByID(ctx context.Context, id string) (domain.Task, error)
 	GetAllByParams(ctx context.Context, params domain.TaskParams) (domain.TaskList, error)
+
+	GetAvailableAttributes(ctx context.Context) (domain.TaskAttributes, error)
 }

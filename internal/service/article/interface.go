@@ -13,6 +13,8 @@ type Article interface {
 	GetByID(ctx context.Context, id string) (domain.Article, error)
 	GetPracticeArticle(ctx context.Context) (domain.Article, error)
 	GetAllByParams(ctx context.Context, params domain.ArticleParams) (domain.ArticleList, error)
+
+	GetAvailableAttributes(ctx context.Context) (domain.ArticleAttributes, error)
 }
 
 type ArticleRepo interface {
@@ -23,4 +25,6 @@ type ArticleRepo interface {
 	GetByID(ctx context.Context, id string) (domain.Article, error)
 	GetPracticeArticle(ctx context.Context) (domain.Article, error)
 	GetAllByParams(ctx context.Context, params domain.ArticleParams) (domain.ArticleList, error)
+
+	GetAvailableAttributes(ctx context.Context) (domain.ArticleAttributes, error)
 }

@@ -327,3 +327,12 @@ func (m *Manager) TaskListByParams(ctx context.Context, dto domain.TaskParams) (
 
 	return tl, nil
 }
+
+func (m *Manager) GetAvailableTaskAttributes(ctx context.Context) (domain.TaskAttributes, error) {
+	ta, err := m.services.TaskService.GetAvailableAttributes(ctx)
+	if err != nil {
+		return ta, errors.Wrap(err, "ProblemManager Manager GetAvailableTaskAttributes:")
+	}
+
+	return ta, nil
+}

@@ -182,3 +182,25 @@ func (r Repository) GetAllByParams(ctx context.Context, params domain.ArticlePar
 
 	return aList, nil
 }
+
+func (r Repository) GetAvailableAttributes(ctx context.Context) (domain.ArticleAttributes, error) {
+	categories := []string{}
+	sq := sql_query_maker.NewQueryMaker(1)
+
+	sq.Add(
+		`
+	SELECT DISTINCT unnest(categories)
+	FROM article a
+	WHERE a.title != ?
+	`,
+		domain.PracticeArticleName)
+
+	query, args := sq.Make()
+
+	err := pgxscan.Select(ctx, r.db.TxOrDB(ctx), &categories, query, args...)
+	if err != nil {
+		return domain.ArticleAttributes{}, errors.Wrap(err, "GetAvailableAttributes Article repo:")
+	}
+
+	return domain.ArticleAttributes{Categories: categories}, nil
+}

@@ -35,6 +35,10 @@ type (
 	ArticleSort struct {
 		ByDate db.SortType `json:"date"`
 	}
+
+	ArticleAttributes struct {
+		Categories []string `json:"categories"`
+	}
 )
 
 type (

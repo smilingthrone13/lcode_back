@@ -63,3 +63,12 @@ func (s *Service) GetAllByParams(ctx context.Context, params domain.TaskParams) 
 
 	return tList, nil
 }
+
+func (s *Service) GetAvailableAttributes(ctx context.Context) (domain.TaskAttributes, error) {
+	ta, err := s.repository.GetAvailableAttributes(ctx)
+	if err != nil {
+		return domain.TaskAttributes{}, errors.Wrap(err, "GetAvailableAttributes Task service:")
+	}
+
+	return ta, nil
+}

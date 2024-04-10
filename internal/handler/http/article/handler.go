@@ -43,17 +43,21 @@ func New(cfg *config.Config, logger *slog.Logger, services *Services) *Handler {
 }
 
 func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
-	httpServer.GET("/article/practice", h.getPracticeArticle)
+	httpServer.GET("/articles/practice", h.getPracticeArticle)
 
-	articleGroup := httpServer.Group("/article", middlewares.Access.UserIdentity)
+	articleGroup := httpServer.Group("/articles", middlewares.Access.UserIdentity)
 	{
-		articleGroup.GET("/:id", h.getArticle)
+		articleGroup.GET("/available_attributes", h.getAvailableArticleAttributes)
+
+		articleGroup.GET("/list", middlewares.Article.ValidateArticleListByParamsInput, h.getArticleList)
+
+		articleGroup.GET("/:id", middlewares.Article.ValidateArticleGetInput, h.getArticle)
 
 		adminArticleGroup := articleGroup.Group("", middlewares.Auth.CheckAdminAccess)
 		{
-			adminArticleGroup.POST("/", h.createArticle)
-			adminArticleGroup.PUT("/:id", h.updateArticle)
-			adminArticleGroup.DELETE("/:id", h.deleteArticle)
+			adminArticleGroup.POST("/", middlewares.Article.ValidateCreateArticleInput, h.createArticle)
+			adminArticleGroup.PATCH("/:id", middlewares.Article.ValidateUpdateArticleInput, h.updateArticle)
+			adminArticleGroup.DELETE("/:id", middlewares.Article.ValidateDeleteArticleInput, h.deleteArticle)
 		}
 	}
 }
@@ -140,7 +144,7 @@ func (h *Handler) getArticle(c *gin.Context) {
 func (h *Handler) getPracticeArticle(c *gin.Context) {
 	a, err := h.services.Article.GetPracticeArticle(c.Request.Context())
 	if err != nil {
-		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 
 		return
 	}
@@ -164,4 +168,15 @@ func (h *Handler) getArticleList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, articles)
+}
+
+func (h *Handler) getAvailableArticleAttributes(c *gin.Context) {
+	aa, err := h.services.Article.GetAvailableAttributes(c.Request.Context())
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, aa)
 }

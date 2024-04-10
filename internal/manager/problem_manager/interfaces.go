@@ -20,6 +20,8 @@ type ProblemManager interface {
 
 	FullProblemByTaskID(ctx context.Context, taskID string) (domain.Problem, error)
 	TaskListByParams(ctx context.Context, dto domain.TaskParams) (domain.TaskList, error)
+
+	GetAvailableTaskAttributes(ctx context.Context) (domain.TaskAttributes, error)
 }
 
 //type SubmissionManager interface {

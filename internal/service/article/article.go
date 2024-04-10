@@ -72,3 +72,12 @@ func (s *Service) GetAllByParams(ctx context.Context, params domain.ArticleParam
 
 	return al, nil
 }
+
+func (s *Service) GetAvailableAttributes(ctx context.Context) (domain.ArticleAttributes, error) {
+	aa, err := s.repository.GetAvailableAttributes(ctx)
+	if err != nil {
+		return aa, errors.Wrap(err, "Article Service GetAvailableAttributes:")
+	}
+
+	return aa, nil
+}

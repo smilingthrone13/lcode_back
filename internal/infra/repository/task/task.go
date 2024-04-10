@@ -172,3 +172,23 @@ func (r *Repository) GetAllByParams(ctx context.Context, params domain.TaskParam
 
 	return tList, nil
 }
+
+func (r *Repository) GetAvailableAttributes(ctx context.Context) (ta domain.TaskAttributes, err error) {
+	sq := sql_query_maker.NewQueryMaker(1)
+
+	sq.Add(
+		`
+	SELECT array_agg(DISTINCT category) AS categories, array_agg(DISTINCT difficulty) AS difficulties
+	FROM task t
+	`,
+	)
+
+	query, args := sq.Make()
+
+	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &ta, query, args...)
+	if err != nil {
+		return ta, errors.Wrap(err, "GetAvailableAttributes Task repo:")
+	}
+
+	return ta, nil
+}

@@ -42,6 +42,11 @@ type (
 		Limit   int     `json:"limit"`
 		AfterID *string `json:"after_id"`
 	}
+
+	TaskAttributes struct {
+		Categories   []string `json:"categories" db:"categories"`
+		Difficulties []string `json:"difficulties" db:"difficulties"`
+	}
 )
 
 type (

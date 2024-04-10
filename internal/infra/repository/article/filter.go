@@ -1,7 +1,6 @@
 package article
 
 import (
-	"github.com/lib/pq"
 	sql_query_maker "github.com/m-a-r-a-t/sql-query-maker"
 	"lcode/config"
 	"lcode/internal/domain"
@@ -36,7 +35,7 @@ func (f *filter) ConditionSearch(search string, searchCoefficient float32) *filt
 
 func (f *filter) ConditionCategories(categories []string) *filter {
 	if len(categories) > 0 {
-		f.Add("AND ? && a.categories", pq.StringArray(categories)) // fixme
+		f.Add("AND ? && a.categories", categories)
 	}
 
 	return f

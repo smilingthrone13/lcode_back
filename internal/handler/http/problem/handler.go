@@ -55,6 +55,10 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 			middlewares.Problem.ValidateTaskListByParamsInput,
 			h.getTasksList,
 		)
+		problemGroup.GET(
+			"/available_attributes",
+			h.getAvailableTaskAttributes,
+		)
 
 		taskGroup := problemGroup.Group("", middlewares.Auth.CheckAdminAccess)
 		{
@@ -319,4 +323,15 @@ func (h *Handler) getTasksList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, tasks)
+}
+
+func (h *Handler) getAvailableTaskAttributes(c *gin.Context) {
+	ta, err := h.managers.Problem.GetAvailableTaskAttributes(c.Request.Context())
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, ta)
 }
