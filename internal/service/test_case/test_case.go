@@ -19,22 +19,22 @@ func New(
 	return &Service{logger: logger, repository: repository}
 }
 
-func (s *Service) Create(ctx context.Context, taskID string, dto domain.TestCaseCreateInput) (domain.TestCase, error) {
-	tc, err := s.repository.Create(ctx, taskID, dto)
+func (s *Service) Create(ctx context.Context, taskID string, dto domain.TestCaseCreateInput) error {
+	err := s.repository.Create(ctx, taskID, dto)
 	if err != nil {
-		return domain.TestCase{}, errors.Wrap(err, "Create TestCase service:")
+		return errors.Wrap(err, "Create TestCase service:")
 	}
 
-	return tc, nil
+	return nil
 }
 
-func (s *Service) Update(ctx context.Context, id string, dto domain.TestCaseUpdateInput) (domain.TestCase, error) {
-	tc, err := s.repository.Update(ctx, id, dto)
+func (s *Service) Update(ctx context.Context, id string, dto domain.TestCaseUpdateInput) error {
+	err := s.repository.Update(ctx, id, dto)
 	if err != nil {
-		return domain.TestCase{}, errors.Wrap(err, "Update TestCase service:")
+		return errors.Wrap(err, "Update TestCase service:")
 	}
 
-	return tc, nil
+	return nil
 }
 
 func (s *Service) Delete(ctx context.Context, id string) error {
@@ -44,15 +44,6 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	}
 
 	return nil
-}
-
-func (s *Service) GetByID(ctx context.Context, id string) (domain.TestCase, error) {
-	tc, err := s.repository.GetByID(ctx, id)
-	if err != nil {
-		return domain.TestCase{}, errors.Wrap(err, "GetByID TestCase service:")
-	}
-
-	return tc, nil
 }
 
 func (s *Service) GetAllByTaskID(ctx context.Context, id string) ([]domain.TestCase, error) {

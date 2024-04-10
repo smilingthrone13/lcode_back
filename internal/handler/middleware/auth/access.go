@@ -17,7 +17,7 @@ func (m *Middleware) CheckAdminAccess(c *gin.Context) {
 	}
 
 	if !user.IsAdmin {
-		http_helper.NewErrorResponse(c, http.StatusBadRequest, "user is not admin")
+		http_helper.NewErrorResponse(c, http.StatusForbidden, "user is not admin")
 
 		return
 	}

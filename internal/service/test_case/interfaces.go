@@ -6,19 +6,17 @@ import (
 )
 
 type TestCase interface {
-	Create(ctx context.Context, taskID string, dto domain.TestCaseCreateInput) (domain.TestCase, error)
-	Update(ctx context.Context, id string, dto domain.TestCaseUpdateInput) (domain.TestCase, error)
+	Create(ctx context.Context, taskID string, dto domain.TestCaseCreateInput) error
+	Update(ctx context.Context, id string, dto domain.TestCaseUpdateInput) error
 	Delete(ctx context.Context, id string) error
 
-	GetByID(ctx context.Context, id string) (domain.TestCase, error)
 	GetAllByTaskID(ctx context.Context, id string) ([]domain.TestCase, error)
 }
 
 type TestCaseRepo interface {
-	Create(ctx context.Context, taskID string, dto domain.TestCaseCreateInput) (domain.TestCase, error)
-	Update(ctx context.Context, id string, dto domain.TestCaseUpdateInput) (domain.TestCase, error)
+	Create(ctx context.Context, taskID string, dto domain.TestCaseCreateInput) error
+	Update(ctx context.Context, id string, dto domain.TestCaseUpdateInput) error
 	Delete(ctx context.Context, id string) error
 
-	GetByID(ctx context.Context, id string) (domain.TestCase, error)
 	GetAllByTaskID(ctx context.Context, id string) ([]domain.TestCase, error)
 }

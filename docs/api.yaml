@@ -166,6 +166,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         500:
           description: Internal server error
           content:
@@ -220,6 +226,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         500:
           description: Internal server error
           content:
@@ -270,6 +282,12 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         401:
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -419,6 +437,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         500:
           description: Internal server error
           content:
@@ -494,6 +518,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         500:
           description: Internal server error
           content:
@@ -520,6 +550,12 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         401:
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -663,6 +699,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         409:
           description: Conflict
           content:
@@ -744,6 +786,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         500:
           description: Internal server error
           content:
@@ -770,6 +818,12 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         401:
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -815,6 +869,12 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         401:
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -872,6 +932,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         500:
           description: Internal server error
           content:
@@ -898,6 +964,12 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         401:
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -943,6 +1015,12 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         401:
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -1000,6 +1078,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
         500:
           description: Internal server error
           content:
@@ -1026,6 +1110,12 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         401:
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
           content:
             application/json:
               schema:

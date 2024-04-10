@@ -113,7 +113,8 @@ func (m *Middleware) ValidateUpdateProblemTaskTemplateInput(c *gin.Context) {
 	}
 
 	dto.TemplateID = c.Param("template_id")
-	if dto.TemplateID == "" {
+	dto.TaskID = c.Param("task_id")
+	if dto.TemplateID == "" || dto.TaskID == "" {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Template ID is required")
 
 		return
@@ -165,7 +166,8 @@ func (m *Middleware) ValidateUpdateProblemTestCaseInput(c *gin.Context) {
 	}
 
 	dto.CaseID = c.Param("case_id")
-	if dto.CaseID == "" {
+	dto.TaskID = c.Param("task_id")
+	if dto.CaseID == "" || dto.TaskID == "" {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Test Case ID is required")
 
 		return

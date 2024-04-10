@@ -30,6 +30,7 @@ type (
 	}
 
 	TaskTemplateUpdateDTO struct {
+		TaskID     string
 		TemplateID string
 		Input      TaskTemplateUpdateInput
 	}

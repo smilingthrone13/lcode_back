@@ -29,6 +29,7 @@ type (
 	}
 
 	TestCaseUpdateDTO struct {
+		TaskID string
 		CaseID string
 		Input  TestCaseUpdateInput
 	}

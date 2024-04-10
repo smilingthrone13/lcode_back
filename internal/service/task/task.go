@@ -19,22 +19,22 @@ func New(
 	return &Service{logger: logger, repository: repository}
 }
 
-func (s *Service) Create(ctx context.Context, dto domain.TaskCreateInput) (domain.Task, error) {
-	t, err := s.repository.Create(ctx, dto)
+func (s *Service) Create(ctx context.Context, dto domain.TaskCreateInput) (taskID string, err error) {
+	taskID, err = s.repository.Create(ctx, dto)
 	if err != nil {
-		return domain.Task{}, errors.Wrap(err, "Create Task service:")
+		return taskID, errors.Wrap(err, "Create Task service:")
 	}
 
-	return t, nil
+	return taskID, nil
 }
 
-func (s *Service) Update(ctx context.Context, id string, dto domain.TaskUpdateInput) (domain.Task, error) {
-	t, err := s.repository.Update(ctx, id, dto)
+func (s *Service) Update(ctx context.Context, id string, dto domain.TaskUpdateInput) error {
+	err := s.repository.Update(ctx, id, dto)
 	if err != nil {
-		return domain.Task{}, errors.Wrap(err, "Update Task service:")
+		return errors.Wrap(err, "Update Task service:")
 	}
 
-	return t, nil
+	return nil
 }
 
 func (s *Service) Delete(ctx context.Context, id string) error {

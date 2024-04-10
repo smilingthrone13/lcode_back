@@ -127,7 +127,7 @@ func (h *Handler) createProblem(c *gin.Context) {
 		return
 	}
 
-	problem, err := h.managers.Problem.CreateProblem(c.Request.Context(), dto.Input)
+	problem, err := h.managers.Problem.CreateProblem(c.Request.Context(), dto)
 	if err != nil {
 		var errExist *struct_errors.ErrExist
 		if errors.As(err, &errExist) {
@@ -153,7 +153,7 @@ func (h *Handler) updateProblemTask(c *gin.Context) {
 		return
 	}
 
-	problem, err := h.managers.Problem.UpdateProblemTask(c.Request.Context(), dto.TaskID, dto.Input)
+	problem, err := h.managers.Problem.UpdateProblemTask(c.Request.Context(), dto)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -189,7 +189,7 @@ func (h *Handler) createProblemTaskTemplate(c *gin.Context) {
 		return
 	}
 
-	problem, err := h.managers.Problem.CreateProblemTaskTemplate(c.Request.Context(), dto.TaskID, dto.Input)
+	problem, err := h.managers.Problem.CreateProblemTaskTemplate(c.Request.Context(), dto)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -207,7 +207,7 @@ func (h *Handler) updateProblemTaskTemplate(c *gin.Context) {
 		return
 	}
 
-	problem, err := h.managers.Problem.UpdateProblemTaskTemplate(c.Request.Context(), dto.TemplateID, dto.Input)
+	problem, err := h.managers.Problem.UpdateProblemTaskTemplate(c.Request.Context(), dto)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -243,7 +243,7 @@ func (h *Handler) createProblemTestCase(c *gin.Context) {
 		return
 	}
 
-	problem, err := h.managers.Problem.CreateProblemTestCase(c.Request.Context(), dto.TaskID, dto.Input)
+	problem, err := h.managers.Problem.CreateProblemTestCase(c.Request.Context(), dto)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -261,7 +261,7 @@ func (h *Handler) updateProblemTestCase(c *gin.Context) {
 		return
 	}
 
-	problem, err := h.managers.Problem.UpdateProblemTestCase(c.Request.Context(), dto.CaseID, dto.Input)
+	problem, err := h.managers.Problem.UpdateProblemTestCase(c.Request.Context(), dto)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 

@@ -19,20 +19,20 @@ VALUES ('Admin', 'Admin', 'admin', '$2a$14$NRd0YacLcLfK6.yOmUUpXeGzzgGsWWYOaXkXZ
 
 create table task
 (
-    id            uuid             default gen_random_uuid() not null
+    id            uuid             default gen_random_uuid()             not null
         constraint task_pk
             primary key,
-    number        bigint                                     not null,
-    name          text                                       not null,
-    description   text             default ''::text          not null,
-    difficulty    text                                       not null,
-    category      text                                       not null,
-    runtime_limit double precision default 5.0               not null,
-    memory_limit  bigint           default 128000            not null
+    name          text                                                   not null
+        constraint task_pk_2
+            unique,
+    number        bigint                                                 not null,
+    description   text             default 'No description yet...'::text not null,
+    difficulty    text                                                   not null,
+    category      text                                                   not null,
+    runtime_limit double precision default 5.0                           not null,
+    memory_limit  bigint           default 128000                        not null,
+    created_at    timestamp        default timezone('utc'::text, now())  not null
 );
-
-create unique index task_name_uindex
-    on task (name);
 
 CREATE FUNCTION update_task_number() RETURNS TRIGGER
     LANGUAGE plpgsql
@@ -98,46 +98,17 @@ create table solution
 
 create table test_case
 (
-    id      uuid default gen_random_uuid() not null
+    id         uuid      default gen_random_uuid()            not null
         constraint test_case_pk
             primary key,
-    task_id uuid                           not null
+    task_id    uuid                                           not null
         constraint test_case_task_id_fk
             references task
             on delete cascade,
-    number  bigint                         not null,
-    input   text                           not null,
-    output  text                           not null
+    input      text                                           not null,
+    output     text                                           not null,
+    created_at timestamp default timezone('utc'::text, now()) not null
 );
-
-CREATE FUNCTION update_test_case_number() RETURNS TRIGGER
-    LANGUAGE plpgsql
-AS
-$$
-BEGIN
-    IF TG_OP = 'INSERT' THEN
-        SELECT (COALESCE(MAX(number), 0) + 1)
-        INTO NEW.number
-        FROM test_case
-        WHERE task_id = NEW.task_id;
-        RETURN NEW;
-
-    ELSIF TG_OP = 'DELETE' THEN
-        UPDATE test_case
-        SET number = number - 1
-        WHERE task_id = OLD.task_id
-          AND number > (SELECT number FROM test_case WHERE id = OLD.id);
-        RETURN OLD;
-
-    END IF;
-END;
-$$;
-
-create trigger update_test_case_number_trigger
-    before insert or delete
-    on test_case
-    for each row
-execute procedure update_test_case_number();
 
 create table solution_result
 (
@@ -203,8 +174,6 @@ drop table test_case;
 drop table task;
 
 drop function update_task_number() cascade;
-
-drop function update_test_case_number() cascade;
 
 drop extension pg_trgm cascade;
 -- +goose StatementEnd

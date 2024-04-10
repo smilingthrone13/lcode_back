@@ -65,9 +65,9 @@ func (f *filter) WhereOptional(modifyFunc func()) *filter {
 
 func (f *filter) SortByNumber(t db.SortType) *filter {
 	if t == db.DESC {
-		f.Add("ORDER BY number DESC, id DESC")
+		f.Add("ORDER BY created_at DESC, id DESC")
 	} else {
-		f.Add("ORDER BY number, id")
+		f.Add("ORDER BY created_at, id")
 	}
 
 	return f

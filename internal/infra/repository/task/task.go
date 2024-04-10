@@ -23,28 +23,28 @@ func New(cfg *config.Config, db *postgres.DbManager) *Repository {
 	return &Repository{cfg: cfg, db: db}
 }
 
-func (r *Repository) Create(ctx context.Context, dto domain.TaskCreateInput) (t domain.Task, err error) {
+func (r *Repository) Create(ctx context.Context, dto domain.TaskCreateInput) (taskID string, err error) {
 	sq := sql_query_maker.NewQueryMaker(6)
 
 	sq.Add(
 		`
 	INSERT INTO task (name, description, difficulty, category, runtime_limit, memory_limit)
 	VALUES (?, ?, ?, ?, ?, ?)
-	RETURNING id, number, name, description, difficulty, category, runtime_limit, memory_limit
+	RETURNING id
 	`,
 		dto.Name, dto.Description, dto.Difficulty, dto.Category, dto.RuntimeLimit, dto.MemoryLimit,
 	)
 
 	query, args := sq.Make()
 
-	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &t, query, args...)
+	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &taskID, query, args...)
 	if err == nil {
-		return t, nil
+		return taskID, nil
 	}
 
 	var pgError *pgconn.PgError
 	if ok := errors.As(err, &pgError); !ok {
-		return t, errors.Wrap(err, "Create Task repo:")
+		return "", errors.Wrap(err, "Create Task repo:")
 	}
 
 	switch pgError.Code {
@@ -52,11 +52,10 @@ func (r *Repository) Create(ctx context.Context, dto domain.TaskCreateInput) (t 
 		err = &struct_errors.ErrExist{Err: err, Msg: "Name already exist"}
 	}
 
-	return t, errors.Wrap(err, "Create Task repo:")
-
+	return "", errors.Wrap(err, "Create Task repo:")
 }
 
-func (r *Repository) Update(ctx context.Context, id string, dto domain.TaskUpdateInput) (t domain.Task, err error) {
+func (r *Repository) Update(ctx context.Context, id string, dto domain.TaskUpdateInput) error {
 	sq := sql_query_maker.NewQueryMaker(7)
 
 	sq.Add("UPDATE task SET")
@@ -86,16 +85,21 @@ func (r *Repository) Update(ctx context.Context, id string, dto domain.TaskUpdat
 	}
 
 	sq.Where("id = ?", id)
-	sq.Add("RETURNING id, number, name, description, category, difficulty, runtime_limit, memory_limit")
 
 	query, args := sq.Make()
 
-	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &t, query, args...)
+	res, err := r.db.TxOrDB(ctx).Exec(ctx, query, args...)
 	if err != nil {
-		return t, errors.Wrap(err, "Update Task repo:")
+		return errors.Wrap(err, "Update Task repo:")
 	}
 
-	return t, nil
+	if res.RowsAffected() == 0 {
+		err = errors.New("Task not found!")
+
+		return errors.Wrap(err, "Update Task repo:")
+	}
+
+	return nil
 }
 
 func (r *Repository) Delete(ctx context.Context, id string) error {
@@ -148,7 +152,7 @@ func (r *Repository) GetAllByParams(ctx context.Context, params domain.TaskParam
 
 	if params.Pagination.AfterID != nil {
 		q := fmt.Sprintf(
-			"WHERE number %s (SELECT number FROM task WHERE id = ?)",
+			"WHERE created_at %s (SELECT created_at FROM task WHERE id = ?)",
 			db.GetLetterGreaterOrLessBySortType(params.Sort.ByNumber),
 		)
 		sq.Add(q, *params.Pagination.AfterID)

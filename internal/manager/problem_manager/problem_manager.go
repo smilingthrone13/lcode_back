@@ -41,7 +41,7 @@ func New(
 	}
 }
 
-func (m *Manager) CreateProblem(ctx context.Context, dto domain.ProblemCreateInput) (p domain.Problem, err error) {
+func (m *Manager) CreateProblem(ctx context.Context, dto domain.ProblemCreateDTO) (p domain.Problem, err error) {
 	tx, err := m.transactionManager.NewTx(ctx, nil)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager CreateProblem:")
@@ -49,39 +49,29 @@ func (m *Manager) CreateProblem(ctx context.Context, dto domain.ProblemCreateInp
 	ctx = context.WithValue(ctx, postgres.TxKey{}, tx)
 	defer tx.Rollback(ctx)
 
-	task, err := m.services.TaskService.Create(ctx, dto.Task)
+	taskID, err := m.services.TaskService.Create(ctx, dto.Input.Task)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager CreateProblem:")
 	}
 
-	templates := make([]domain.TaskTemplate, 0, len(dto.TaskTemplates))
-	for i := range dto.TaskTemplates {
-		template, err := m.services.TaskTemplateService.Create(ctx, task.ID, dto.TaskTemplates[i])
+	for i := range dto.Input.TaskTemplates {
+		err = m.services.TaskTemplateService.Create(ctx, taskID, dto.Input.TaskTemplates[i])
 		if err != nil {
 			return p, errors.Wrap(err, "ProblemManager Manager CreateProblem:")
 		}
-
-		templates = append(templates, template)
 	}
 
-	testCases := make([]domain.TestCase, 0, len(dto.TestCases))
-	for i := range dto.TestCases {
-		testCase, err := m.services.TestCaseService.Create(ctx, task.ID, dto.TestCases[i])
+	for i := range dto.Input.TestCases {
+		err = m.services.TestCaseService.Create(ctx, taskID, dto.Input.TestCases[i])
 		if err != nil {
 			return p, errors.Wrap(err, "ProblemManager Manager CreateProblem:")
 		}
-
-		testCases = append(testCases, testCase)
 	}
+
+	p, err = m.FullProblemByTaskID(ctx, taskID)
 
 	if err = tx.Commit(ctx); err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager CreateProblem:")
-	}
-
-	p = domain.Problem{
-		Task:          task,
-		TaskTemplates: templates,
-		TestCases:     testCases,
 	}
 
 	return p, nil
@@ -89,8 +79,7 @@ func (m *Manager) CreateProblem(ctx context.Context, dto domain.ProblemCreateInp
 
 func (m *Manager) UpdateProblemTask(
 	ctx context.Context,
-	taskID string,
-	dto domain.TaskUpdateInput,
+	dto domain.TaskUpdateDTO,
 ) (p domain.Problem, err error) {
 	tx, err := m.transactionManager.NewTx(ctx, nil)
 	if err != nil {
@@ -99,12 +88,12 @@ func (m *Manager) UpdateProblemTask(
 	ctx = context.WithValue(ctx, postgres.TxKey{}, tx)
 	defer tx.Rollback(ctx)
 
-	_, err = m.services.TaskService.Update(ctx, taskID, dto)
+	err = m.services.TaskService.Update(ctx, dto.TaskID, dto.Input)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager UpdateProblemTask:")
 	}
 
-	p, err = m.FullProblemByTaskID(ctx, taskID)
+	p, err = m.FullProblemByTaskID(ctx, dto.TaskID)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager UpdateProblemTask:")
 	}
@@ -138,8 +127,7 @@ func (m *Manager) DeleteProblem(ctx context.Context, taskID string) (err error) 
 
 func (m *Manager) CreateProblemTaskTemplate(
 	ctx context.Context,
-	taskID string,
-	dto domain.TaskTemplateCreateInput,
+	dto domain.TaskTemplateCreateDTO,
 ) (p domain.Problem, err error) {
 	tx, err := m.transactionManager.NewTx(ctx, nil)
 	if err != nil {
@@ -148,12 +136,12 @@ func (m *Manager) CreateProblemTaskTemplate(
 	ctx = context.WithValue(ctx, postgres.TxKey{}, tx)
 	defer tx.Rollback(ctx)
 
-	_, err = m.services.TaskTemplateService.Create(ctx, taskID, dto)
+	err = m.services.TaskTemplateService.Create(ctx, dto.TaskID, dto.Input)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager CreateProblemTaskTemplate:")
 	}
 
-	p, err = m.FullProblemByTaskID(ctx, taskID)
+	p, err = m.FullProblemByTaskID(ctx, dto.TaskID)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager CreateProblemTaskTemplate:")
 	}
@@ -167,8 +155,7 @@ func (m *Manager) CreateProblemTaskTemplate(
 
 func (m *Manager) UpdateProblemTaskTemplate(
 	ctx context.Context,
-	templateID string,
-	dto domain.TaskTemplateUpdateInput,
+	dto domain.TaskTemplateUpdateDTO,
 ) (p domain.Problem, err error) {
 	tx, err := m.transactionManager.NewTx(ctx, nil)
 	if err != nil {
@@ -177,12 +164,12 @@ func (m *Manager) UpdateProblemTaskTemplate(
 	ctx = context.WithValue(ctx, postgres.TxKey{}, tx)
 	defer tx.Rollback(ctx)
 
-	template, err := m.services.TaskTemplateService.Update(ctx, templateID, dto)
+	err = m.services.TaskTemplateService.Update(ctx, dto.TemplateID, dto.Input)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager UpdateProblemTaskTemplate:")
 	}
 
-	p, err = m.FullProblemByTaskID(ctx, template.TaskID)
+	p, err = m.FullProblemByTaskID(ctx, dto.TaskID)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager UpdateProblemTaskTemplate:")
 	}
@@ -216,8 +203,7 @@ func (m *Manager) DeleteProblemTaskTemplate(ctx context.Context, templateID stri
 
 func (m *Manager) CreateProblemTestCase(
 	ctx context.Context,
-	taskID string,
-	dto domain.TestCaseCreateInput,
+	dto domain.TestCaseCreateDTO,
 ) (p domain.Problem, err error) {
 	tx, err := m.transactionManager.NewTx(ctx, nil)
 	if err != nil {
@@ -226,12 +212,12 @@ func (m *Manager) CreateProblemTestCase(
 	ctx = context.WithValue(ctx, postgres.TxKey{}, tx)
 	defer tx.Rollback(ctx)
 
-	_, err = m.services.TestCaseService.Create(ctx, taskID, dto)
+	err = m.services.TestCaseService.Create(ctx, dto.TaskID, dto.Input)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager CreateProblemTestCase:")
 	}
 
-	p, err = m.FullProblemByTaskID(ctx, taskID)
+	p, err = m.FullProblemByTaskID(ctx, dto.TaskID)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager CreateProblemTestCase:")
 	}
@@ -244,8 +230,7 @@ func (m *Manager) CreateProblemTestCase(
 }
 
 func (m *Manager) UpdateProblemTestCase(ctx context.Context,
-	caseID string,
-	dto domain.TestCaseUpdateInput,
+	dto domain.TestCaseUpdateDTO,
 ) (p domain.Problem, err error) {
 	tx, err := m.transactionManager.NewTx(ctx, nil)
 	if err != nil {
@@ -254,12 +239,12 @@ func (m *Manager) UpdateProblemTestCase(ctx context.Context,
 	ctx = context.WithValue(ctx, postgres.TxKey{}, tx)
 	defer tx.Rollback(ctx)
 
-	testCase, err := m.services.TestCaseService.Update(ctx, caseID, dto)
+	err = m.services.TestCaseService.Update(ctx, dto.CaseID, dto.Input)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager UpdateProblemTestCase:")
 	}
 
-	p, err = m.FullProblemByTaskID(ctx, testCase.TaskID)
+	p, err = m.FullProblemByTaskID(ctx, dto.TaskID)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager UpdateProblemTestCase:")
 	}
