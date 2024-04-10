@@ -42,7 +42,7 @@ func New(p *InitParams, repos *repository.Repositories) *Services {
 	solutionResultService := solutionResult.New(p.Config, repos.SolutionResult)
 	solutionService := solution.New(p.Config, repos.Solution)
 	userProgressService := userProgress.New(p.Logger, repos.UserProgress)
-	articleService := article.New(p.Logger, repos.Article)
+	articleService := article.New(p.Logger, p.TransactionManager, repos.Article)
 
 	return &Services{
 		Auth:           authService,
