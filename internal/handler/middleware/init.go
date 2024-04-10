@@ -6,6 +6,7 @@ import (
 	"lcode/internal/handler/middleware/article"
 	"lcode/internal/handler/middleware/auth"
 	"lcode/internal/handler/middleware/problem"
+	"lcode/internal/handler/middleware/solution"
 	userProgress "lcode/internal/handler/middleware/user_progress"
 	"lcode/internal/manager"
 	"lcode/internal/service"
@@ -24,6 +25,7 @@ type (
 		Problem      *problem.Middleware
 		UserProgress *userProgress.Middleware
 		Article      *article.Middleware
+		Solution     *solution.Middleware
 	}
 )
 
@@ -60,11 +62,17 @@ func New(p *InitParams, services *service.Services, managers *manager.Managers) 
 		p.Logger,
 	)
 
+	solutionMiddleware := solution.New(
+		p.Config,
+		p.Logger,
+	)
+
 	return &Middlewares{
 		Access:       accessMiddleware,
 		Auth:         authMiddleware,
 		Problem:      problemMiddleware,
 		UserProgress: userProgressMiddleware,
 		Article:      articleMiddleware,
+		Solution:     solutionMiddleware,
 	}
 }

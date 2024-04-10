@@ -1,6 +1,7 @@
 package solution_manager
 
 import (
+	"cmp"
 	"context"
 	"github.com/pkg/errors"
 	"lcode/config"
@@ -9,6 +10,7 @@ import (
 	solutionResult "lcode/internal/service/solution_result"
 	"lcode/pkg/postgres"
 	"log/slog"
+	"slices"
 	"time"
 )
 
@@ -124,19 +126,117 @@ func (m *Manager) runWorkerManager() {
 }
 
 func (m *Manager) solutionWorker(item workerItem) {
-	//ctx := context.Background()
+	baseCtx := context.Background()
+	solUpdateStatus := domain.SolutionStatusCompleted
+	sol := item.solution
+	task := &item.task
+	template := &item.template
+	testCases := item.testCases
 
-	//task := &item.task
-	//template := &item.template
-	//testCases := item.testCases
-	//
-	//data := domain.CreateJudgeSubmission{
-	//	SourceCode: solution.Code,
-	//	LanguageID: solution.LanguageID,
-	//	Stdin: item.task.
-	//}
-	//
-	//m.services.Judge.CreateSubmission(ctx,)
+	solResults := make([]domain.SolutionResult, 0, len(testCases))
+	srcCode := sol.Code + template.Wrapper
+
+	for i := range testCases {
+		data := domain.CreateJudgeSubmission{
+			SourceCode:     srcCode,
+			LanguageID:     sol.LanguageID,
+			Stdin:          testCases[i].Input,
+			ExpectedOutput: testCases[i].Output,
+			CpuTimeLimit:   task.RuntimeLimit,
+			MemoryLimit:    task.MemoryLimit,
+		}
+
+		info, err := m.createSubmission(baseCtx, data)
+		if err != nil {
+			solUpdateStatus = domain.SolutionStatusError
+
+			m.logger.Error("can not create submission", slog.String("err", err.Error()))
+
+			break
+		}
+
+		result := domain.SolutionResult{
+			SolutionID:      sol.Id,
+			TestCaseID:      testCases[i].ID,
+			SubmissionToken: info.Token,
+			Status:          info.Status,
+			Runtime:         info.Time,
+			Memory:          info.Memory,
+			Stdout:          info.Stdout,
+			Stderr:          info.Stderr,
+		}
+
+		solResults = append(solResults, result)
+
+		if info.Status != domain.Accepted {
+			solUpdateStatus = domain.SolutionStatusError
+			break
+		}
+	}
+
+	tx, err := m.transactionManager.NewTx(baseCtx, nil)
+	if err != nil {
+		m.logger.Error("can not create transaction", slog.String("err", err.Error()))
+
+		return
+	}
+	ctx := context.WithValue(baseCtx, postgres.TxKey{}, tx)
+	defer tx.Rollback(ctx)
+
+	// если не получилось, то пропускаем и меняем статус у solution на error
+
+	if len(solResults) != 0 {
+		err = m.services.SolutionResult.CreateBatch(ctx, solResults...)
+		if err != nil {
+			solUpdateStatus = domain.SolutionStatusError
+
+			m.logger.Error("can not create solution results", slog.String("err", err.Error()))
+		}
+	}
+
+	var maxRuntimeSolResult domain.SolutionResult
+
+	if len(solResults) != 0 {
+		maxRuntimeSolResult = slices.MaxFunc(solResults, func(a, b domain.SolutionResult) int {
+			return cmp.Compare(a.Runtime, b.Runtime)
+		})
+	}
+
+	updateSolutionDTO := domain.UpdateSolutionDTO{
+		ID:      sol.Id,
+		Status:  &solUpdateStatus,
+		Runtime: &maxRuntimeSolResult.Runtime,
+		Memory:  &maxRuntimeSolResult.Memory,
+	}
+
+	_, err = m.services.Solution.Update(ctx, updateSolutionDTO)
+	if err != nil {
+		m.logger.Error("can not set status to solution", slog.String("err", err.Error()))
+
+		return
+	}
+
+	if err = tx.Commit(ctx); err != nil {
+		m.logger.Error("can not commit transaction", slog.String("err", err.Error()))
+
+		return
+	}
+}
+
+func (m *Manager) createSubmission(ctx context.Context, data domain.CreateJudgeSubmission) (info domain.JudgeSubmissionInfo, err error) {
+	for {
+		info, err = m.services.Judge.CreateSubmission(ctx, data)
+		var queueIsFullError *domain.JudgeQueueIsFullError
+
+		if errors.As(err, &queueIsFullError) {
+			time.Sleep(time.Millisecond * 100)
+			continue
+		} else if err != nil {
+			return domain.JudgeSubmissionInfo{}, errors.Wrap(err, "createSubmission solution manager")
+		}
+
+		return info, nil
+	}
 }
 
 func (m *Manager) CreateSolution(ctx context.Context, dto domain.CreateSolutionDTO) (sol domain.Solution, err error) {
@@ -148,11 +248,11 @@ func (m *Manager) CreateSolution(ctx context.Context, dto domain.CreateSolutionD
 	defer tx.Rollback(ctx)
 
 	entity := domain.CreateSolutionEntity{
-		UserID:     dto.UserID,
 		TaskID:     dto.TaskID,
 		LanguageID: dto.LanguageID,
 		Code:       dto.Code,
 		Status:     domain.SolutionStatusTesting,
+		User:       dto.User,
 	}
 
 	sol, err = m.services.Solution.Create(ctx, entity)

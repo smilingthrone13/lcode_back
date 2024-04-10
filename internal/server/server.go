@@ -10,6 +10,7 @@ import (
 	"lcode/internal/handler/http/article"
 	"lcode/internal/handler/http/auth"
 	"lcode/internal/handler/http/problem"
+	"lcode/internal/handler/http/solution"
 	userProgress "lcode/internal/handler/http/user_progress"
 	"lcode/internal/handler/middleware"
 	"log/slog"
@@ -115,6 +116,14 @@ func NewServer(
 			Access:  middlewares.Access,
 			Auth:    middlewares.Auth,
 			Article: middlewares.Article,
+		},
+		router,
+	)
+
+	h.HTTP.Solution.Register(
+		&solution.Middlewares{
+			Access:   middlewares.Access,
+			Solution: middlewares.Solution,
 		},
 		router,
 	)

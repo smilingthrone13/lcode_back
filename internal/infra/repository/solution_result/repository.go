@@ -17,10 +17,10 @@ type Repository struct {
 	db *postgres.DbManager
 }
 
-func (r *Repository) CreateBatch(ctx context.Context, results []domain.SolutionResult) error {
+func (r *Repository) CreateBatch(ctx context.Context, results ...domain.SolutionResult) error {
 	sq := sql_query_maker.NewQueryMaker(4)
 
-	sq.Add(`INSERT INTO solution_result (solution_id, test_case_id, submission_token, status, runtime, memory)`)
+	sq.Add(`INSERT INTO solution_result (solution_id, test_case_id, submission_token, status, runtime, memory, stdout, stderr)`)
 
 	for i := range results {
 		sq.Values(
@@ -30,6 +30,8 @@ func (r *Repository) CreateBatch(ctx context.Context, results []domain.SolutionR
 			results[i].Status,
 			results[i].Runtime,
 			results[i].Memory,
+			results[i].Stdout,
+			results[i].Stderr,
 		)
 	}
 

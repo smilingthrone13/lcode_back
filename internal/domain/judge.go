@@ -28,6 +28,8 @@ const (
 	NodeJS_12_14_0   LanguageType = 63
 )
 
+var AvailableLanguageIds = []LanguageType{TypeScript_3_7_4, NodeJS_12_14_0}
+
 type CreateJudgeSubmission struct {
 	SourceCode     string       `json:"source_code"`
 	LanguageID     LanguageType `json:"language_id"`

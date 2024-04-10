@@ -2,6 +2,7 @@ package manager
 
 import (
 	"lcode/config"
+	"lcode/internal/infra/webapi"
 	"lcode/internal/manager/problem_manager"
 	"lcode/internal/manager/solution_manager"
 	"lcode/internal/service"
@@ -22,7 +23,7 @@ type (
 	}
 )
 
-func New(p *InitParams, services *service.Services) *Managers {
+func New(p *InitParams, services *service.Services, apis *webapi.APIs) *Managers {
 	problemManager := problem_manager.New(
 		p.Config,
 		p.Logger,
@@ -39,8 +40,10 @@ func New(p *InitParams, services *service.Services) *Managers {
 		p.Logger,
 		p.TransactionManager,
 		&solution_manager.Services{
+			ProblemManager: problemManager,
 			Solution:       services.Solution,
 			SolutionResult: services.SolutionResult,
+			Judge:          apis.Judge,
 		},
 	)
 

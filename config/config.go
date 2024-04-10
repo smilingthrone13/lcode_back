@@ -29,6 +29,7 @@ type (
 		TLS               TLSConfig
 		DBConfig          DBConfig
 		QueryParams       QueryParams
+		JudgeConfig       JudgeConfig
 	}
 
 	HTTPConfig struct {
@@ -53,6 +54,11 @@ type (
 
 	DBConfig struct {
 		Path string
+	}
+
+	JudgeConfig struct {
+		Host string
+		Port string
 	}
 
 	QueryParams struct {
@@ -112,6 +118,10 @@ func parseYml(configDir string, cfg *Config) error {
 	}
 
 	if err := viper.UnmarshalKey("query_params", &cfg.QueryParams); err != nil {
+		return err
+	}
+
+	if err := viper.UnmarshalKey("judge", &cfg.JudgeConfig); err != nil {
 		return err
 	}
 

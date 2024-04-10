@@ -7,4 +7,6 @@ type SolutionResult struct {
 	Status          JudgeStatus `json:"status"`
 	Runtime         float64     `json:"runtime"`
 	Memory          int         `json:"memory"`
+	Stdout          *string     `json:"stdout"`
+	Stderr          *string     `json:"stderr"`
 }

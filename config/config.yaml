@@ -15,3 +15,6 @@ auth:
   accessTokenExpTime: 300s  # seconds
   refreshTokenExpTime: 720h # hours 720h
   secret: test-secret # any string
+judge:
+  host: 192.168.7.38
+  port: 2358

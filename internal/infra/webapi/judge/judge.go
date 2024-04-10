@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pkg/errors"
+	"lcode/config"
 	"lcode/internal/domain"
 	"lcode/pkg/struct_errors"
 	"net/http"
@@ -17,9 +18,9 @@ const (
 	submissionFields = "token,stdout,stderr,time,memory,message,status"
 )
 
-func New(host string, port int) *API {
+func New(cfg *config.JudgeConfig) *API {
 	return &API{
-		addr:   fmt.Sprintf("%s:%d", host, port),
+		addr:   fmt.Sprintf("http://%s:%s", cfg.Host, cfg.Port),
 		client: &http.Client{},
 	}
 }

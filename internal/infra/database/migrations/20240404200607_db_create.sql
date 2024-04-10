@@ -160,41 +160,6 @@ create table solution_result
 create unique index solution_result_solution_id_test_case_id_uindex
     on solution_result (solution_id, test_case_id);
 
-CREATE FUNCTION update_solution_metrics()
-    RETURNS TRIGGER AS
-$$
-DECLARE
-    trigger_row     RECORD;
-    max_runtime_row RECORD;
-BEGIN
-    IF TG_OP = 'INSERT' THEN
-        trigger_row = NEW;
-    ELSIF TG_OP = 'DELETE' THEN
-        trigger_row = OLD;
-    end if;
-
-    SELECT memory, runtime
-    INTO max_runtime_row
-    FROM solution_result
-    WHERE solution_id = trigger_row.solution_id
-    ORDER BY runtime DESC
-    LIMIT 1;
-
-    UPDATE solution
-    SET runtime = COALESCE(max_runtime_row.runtime, 0),
-        memory  = COALESCE(max_runtime_row.memory, 0)
-    WHERE id = trigger_row.solution_id;
-
-    RETURN trigger_row;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_solution_metrics_trigger
-    AFTER INSERT OR DELETE
-    ON solution_result
-    FOR EACH ROW
-EXECUTE FUNCTION update_solution_metrics();
-
 create table article
 (
     id         uuid       default gen_random_uuid()            not null
@@ -240,8 +205,6 @@ drop table task;
 drop function update_task_number() cascade;
 
 drop function update_test_case_number() cascade;
-
-drop function update_solution_metrics() cascade;
 
 drop extension pg_trgm cascade;
 -- +goose StatementEnd

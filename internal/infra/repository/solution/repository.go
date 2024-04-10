@@ -24,7 +24,7 @@ func (r *Repository) Create(ctx context.Context, entity domain.CreateSolutionEnt
 		`INSERT INTO solution (user_id, code, status, task_id, language_id) 
 			   VALUES (?, ?, ?, ?, ?) 
                RETURNING id, user_id, code, status, runtime, memory, task_id, language_id`,
-		entity.UserID,
+		entity.User.ID,
 		entity.Code,
 		entity.Status,
 		entity.TaskID,
@@ -48,6 +48,14 @@ func (r *Repository) Update(ctx context.Context, dto domain.UpdateSolutionDTO) (
 
 	if dto.Status != nil {
 		sq.Add("status = ?,", *dto.Status)
+	}
+
+	if dto.Runtime != nil {
+		sq.Add("runtime = ?,", *dto.Runtime)
+	}
+
+	if dto.Memory != nil {
+		sq.Add("memory = ?,", *dto.Memory)
 	}
 
 	sq.Where("id = ?", dto.ID)

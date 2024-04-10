@@ -21,19 +21,19 @@ type Solution struct {
 
 // entity
 type CreateSolutionEntity struct {
-	UserID     string
 	TaskID     string
 	LanguageID LanguageType
 	Code       string
 	Status     SolutionStatus
+	User       User
 }
 
 // dto
 type CreateSolutionDTO struct {
-	UserID     string
 	TaskID     string
 	LanguageID LanguageType
 	Code       string
+	User       User
 }
 
 type UpdateSolutionDTO struct {

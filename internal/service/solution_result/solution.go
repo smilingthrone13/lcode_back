@@ -21,8 +21,8 @@ func New(conf *config.Config, repository SolutionResultRepo) *Service {
 	}
 }
 
-func (s *Service) CreateBatch(ctx context.Context, results []domain.SolutionResult) error {
-	err := s.repository.CreateBatch(ctx, results)
+func (s *Service) CreateBatch(ctx context.Context, results ...domain.SolutionResult) error {
+	err := s.repository.CreateBatch(ctx, results...)
 	if err != nil {
 		return errors.Wrap(err, "CreateBatch solution_result service")
 	}

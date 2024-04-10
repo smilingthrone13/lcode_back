@@ -7,6 +7,7 @@ import (
 	"lcode/internal/handler/middleware"
 	"lcode/internal/infra/database"
 	"lcode/internal/infra/repository"
+	"lcode/internal/infra/webapi"
 	"lcode/internal/manager"
 	"lcode/internal/server"
 	"lcode/internal/service"
@@ -51,6 +52,8 @@ func Init(cfg *config.Config) *App {
 	// init infrastructure
 	repos := repository.New(&repository.InitParams{Config: cfg, DB: db})
 
+	apis := webapi.New(&webapi.InitParams{Config: cfg})
+
 	services := service.New(
 		&service.InitParams{
 			Config:             cfg,
@@ -67,6 +70,7 @@ func Init(cfg *config.Config) *App {
 			TransactionManager: transactionProvider,
 		},
 		services,
+		apis,
 	)
 
 	handlers := handler.New(

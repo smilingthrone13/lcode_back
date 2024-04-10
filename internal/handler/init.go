@@ -5,6 +5,7 @@ import (
 	articleH "lcode/internal/handler/http/article"
 	authH "lcode/internal/handler/http/auth"
 	problemH "lcode/internal/handler/http/problem"
+	solutionH "lcode/internal/handler/http/solution"
 	userProgressH "lcode/internal/handler/http/user_progress"
 	"lcode/internal/manager"
 	"lcode/internal/service"
@@ -24,6 +25,7 @@ type (
 		Problem      *problemH.Handler
 		UserProgress *userProgressH.Handler
 		Article      *articleH.Handler
+		Solution     *solutionH.Handler
 	}
 
 	Handlers struct {
@@ -64,12 +66,21 @@ func New(p *InitParams, services *service.Services, managers *manager.Managers) 
 		},
 	)
 
+	solutionHandler := solutionH.New(
+		p.Config,
+		p.Logger,
+		&solutionH.Services{
+			SolutionManager: managers.SolutionManager,
+		},
+	)
+
 	return &Handlers{
 		&HTTPHandlers{
 			Auth:         authHandler,
 			Problem:      problemHandler,
 			UserProgress: userProgressHandler,
 			Article:      articleHandler,
+			Solution:     solutionHandler,
 		},
 	}
 }
