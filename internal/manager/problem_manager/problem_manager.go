@@ -264,6 +264,10 @@ func (m *Manager) UpdateProblemTestCase(ctx context.Context,
 		return p, errors.Wrap(err, "ProblemManager Manager UpdateProblemTestCase:")
 	}
 
+	if err = tx.Commit(ctx); err != nil {
+		return p, errors.Wrap(err, "ProblemManager Manager UpdateProblemTestCase:")
+	}
+
 	return p, nil
 }
 
@@ -288,13 +292,6 @@ func (m *Manager) DeleteProblemTestCase(ctx context.Context, caseID string) erro
 }
 
 func (m *Manager) FullProblemByTaskID(ctx context.Context, taskID string) (p domain.Problem, err error) {
-	tx, err := m.transactionManager.NewTx(ctx, nil)
-	if err != nil {
-		return p, errors.Wrap(err, "ProblemManager Manager FullProblemByTaskID:")
-	}
-	ctx = context.WithValue(ctx, postgres.TxKey{}, tx)
-	defer tx.Rollback(ctx)
-
 	task, err := m.services.TaskService.GetByID(ctx, taskID)
 	if err != nil {
 		return p, errors.Wrap(err, "ProblemManager Manager FullProblemByTaskID:")
