@@ -64,25 +64,6 @@ func (f *filter) SortByCreatedAt(t db.SortType) *filter {
 	return f
 }
 
-//func (f *filter) Sort(s domain.ArticleSort) *filter {
-//	f.Add("ORDER BY")
-//
-//	switch s.ByTitle {
-//	case db.ASC:
-//		f.Add("title,")
-//	case db.DESC:
-//		f.Add("title DESC,")
-//	}
-//
-//	if s.ByDate == db.DESC {
-//		f.Add("created_at DESC")
-//	} else {
-//		f.Add("created_at")
-//	}
-//
-//	return f
-//}
-
 func (f *filter) Clear() *filter {
 	f.SqlQueryMaker.Clear()
 

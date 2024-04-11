@@ -5,6 +5,7 @@ import (
 	"lcode/internal/infra/repository"
 	"lcode/internal/service/article"
 	"lcode/internal/service/auth"
+	"lcode/internal/service/comment"
 	"lcode/internal/service/solution"
 	solutionResult "lcode/internal/service/solution_result"
 	"lcode/internal/service/task"
@@ -31,6 +32,7 @@ type (
 		SolutionResult solutionResult.SolutionResult
 		UserProgress   userProgress.UserProgress
 		Article        article.Article
+		Comment        comment.Comment
 	}
 )
 
@@ -43,6 +45,7 @@ func New(p *InitParams, repos *repository.Repositories) *Services {
 	solutionService := solution.New(p.Config, repos.Solution)
 	userProgressService := userProgress.New(p.Logger, repos.UserProgress)
 	articleService := article.New(p.Logger, p.TransactionManager, repos.Article)
+	commentService := comment.New(p.Logger, p.TransactionManager, repos.Comment)
 
 	return &Services{
 		Auth:           authService,
@@ -53,5 +56,6 @@ func New(p *InitParams, repos *repository.Repositories) *Services {
 		SolutionResult: solutionResultService,
 		UserProgress:   userProgressService,
 		Article:        articleService,
+		Comment:        commentService,
 	}
 }

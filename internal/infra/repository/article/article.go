@@ -23,7 +23,7 @@ func New(cfg *config.Config, db *postgres.DbManager) *Repository {
 	return &Repository{cfg: cfg, db: db}
 }
 
-func (r *Repository) Create(ctx context.Context, dto domain.ArticleCreateInput) (a domain.Article, err error) {
+func (r *Repository) Create(ctx context.Context, inp domain.ArticleCreateInput) (a domain.Article, err error) {
 	var id string
 	sq := sql_query_maker.NewQueryMaker(4)
 
@@ -33,7 +33,7 @@ func (r *Repository) Create(ctx context.Context, dto domain.ArticleCreateInput) 
 	VALUES (?, ?, ?, ?)
 	RETURNING id
 	`,
-		dto.AuthorID, dto.Title, dto.Content, dto.Categories,
+		inp.AuthorID, inp.Title, inp.Content, inp.Categories,
 	)
 
 	query, args := sq.Make()
@@ -61,24 +61,24 @@ func (r *Repository) Create(ctx context.Context, dto domain.ArticleCreateInput) 
 	return a, nil
 }
 
-func (r *Repository) Update(ctx context.Context, dto domain.ArticleUpdateInput) (a domain.Article, err error) {
+func (r *Repository) Update(ctx context.Context, inp domain.ArticleUpdateInput) (a domain.Article, err error) {
 	sq := sql_query_maker.NewQueryMaker(4)
 
 	sq.Add("UPDATE article SET")
 
-	if dto.Title != nil {
-		sq.Add("title = ?,", *dto.Title)
+	if inp.Title != nil {
+		sq.Add("title = ?,", *inp.Title)
 	}
 
-	if dto.Content != nil {
-		sq.Add("content = ?,", *dto.Content)
+	if inp.Content != nil {
+		sq.Add("content = ?,", *inp.Content)
 	}
 
-	if dto.Categories != nil {
-		sq.Add("categories = ?,", dto.Categories)
+	if inp.Categories != nil {
+		sq.Add("categories = ?,", inp.Categories)
 	}
 
-	sq.Where("id = ?", dto.ID)
+	sq.Where("id = ?", inp.ID)
 
 	query, args := sq.Make()
 
@@ -103,7 +103,7 @@ func (r *Repository) Update(ctx context.Context, dto domain.ArticleUpdateInput) 
 		return a, errors.Wrap(err, "Update Article repo:")
 	}
 
-	a, err = r.GetByID(ctx, dto.ID)
+	a, err = r.GetByID(ctx, inp.ID)
 	if err != nil {
 		return a, errors.Wrap(err, "Update Article repo:")
 	}

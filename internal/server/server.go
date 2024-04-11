@@ -9,6 +9,7 @@ import (
 	"lcode/internal/handler"
 	"lcode/internal/handler/http/article"
 	"lcode/internal/handler/http/auth"
+	"lcode/internal/handler/http/comment"
 	"lcode/internal/handler/http/problem"
 	"lcode/internal/handler/http/solution"
 	userProgress "lcode/internal/handler/http/user_progress"
@@ -124,6 +125,14 @@ func NewServer(
 		&solution.Middlewares{
 			Access:   middlewares.Access,
 			Solution: middlewares.Solution,
+		},
+		router,
+	)
+
+	h.HTTP.Comment.Register(
+		&comment.Middlewares{
+			Access:  middlewares.Access,
+			Comment: middlewares.Comment,
 		},
 		router,
 	)

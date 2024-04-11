@@ -4,6 +4,7 @@ import (
 	"lcode/config"
 	"lcode/internal/infra/repository/article"
 	"lcode/internal/infra/repository/auth"
+	"lcode/internal/infra/repository/comment"
 	"lcode/internal/infra/repository/solution"
 	solutionResult "lcode/internal/infra/repository/solution_result"
 	"lcode/internal/infra/repository/task"
@@ -28,6 +29,7 @@ type (
 		SolutionResult *solutionResult.Repository
 		UserProgress   *userProgress.Repository
 		Article        *article.Repository
+		Comment        *comment.Repository
 	}
 )
 
@@ -41,5 +43,6 @@ func New(p *InitParams) *Repositories {
 		SolutionResult: solutionResult.New(p.DB),
 		UserProgress:   userProgress.New(p.DB),
 		Article:        article.New(p.Config, p.DB),
+		Comment:        comment.New(p.Config, p.DB),
 	}
 }

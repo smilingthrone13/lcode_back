@@ -4,18 +4,17 @@ import "lcode/pkg/db"
 
 type (
 	Comment struct {
-		ID        string  `json:"id"`
-		AuthorID  string  `json:"user_id"`
-		ParentID  string  `json:"parent_id"` // parent comment id
-		EntityID  string  `json:"post_id"`   // article or problem id
-		Content   string  `json:"content"`
-		CreatedAt IntTime `json:"created_at"`
+		ID        string  `json:"id" db:"id"`
+		ParentID  *string `json:"parent_id" db:"parent_id"` // parent comment id
+		EntityID  string  `json:"entity_id" db:"entity_id"` // article or problem id
+		Text      string  `json:"comment_text" db:"comment_text"`
+		CreatedAt IntTime `json:"created_at" db:"created_at"`
+		Author    `json:"author"`
 	}
 
 	Thread struct {
-		EntityID string    `json:"entity_id"`
-		Comment  Comment   `json:"comment"`
-		Replies  []Comment `json:"replies"`
+		Comment Comment   `json:"comment"`
+		Replies []Comment `json:"replies"`
 	}
 
 	ThreadList struct {
@@ -25,9 +24,9 @@ type (
 )
 
 type (
-	CommentParams struct {
-		Sort       CommentSort
-		Pagination IdPaginationParams
+	CommentParamsInput struct {
+		Sort       CommentSort        `json:"sort"`
+		Pagination IdPaginationParams `json:"pagination"`
 	}
 
 	CommentSort struct {
@@ -39,17 +38,13 @@ type (
 	CommentCreateInput struct {
 		AuthorID string  `json:"-"`
 		ParentID *string `json:"parent_id"`
-		EntityID string  `json:"post_id"`
-		Content  string  `json:"content"`
+		EntityID string  `json:"entity_id"`
+		Text     string  `json:"comment_text"`
 	}
 
 	CommentUpdateInput struct {
-		ID      string  `json:"-"`
-		Content *string `json:"content"`
-	}
-
-	CommentDeleteInput struct {
-		ID string
+		ID   string  `json:"-"`
+		Text *string `json:"comment_text"`
 	}
 )
 
@@ -59,14 +54,17 @@ type (
 	}
 
 	CommentUpdateDTO struct {
+		User  User
 		Input CommentUpdateInput
 	}
 
 	CommentDeleteDTO struct {
-		Input CommentDeleteInput
+		User User
+		ID   string
 	}
 
 	CommentParamsDTO struct {
-		Input CommentParams
+		EntityID string
+		Input    CommentParamsInput
 	}
 )

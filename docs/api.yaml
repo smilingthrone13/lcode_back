@@ -1238,6 +1238,176 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
+  /comments/:
+    post:
+      tags: [ Comments ]
+      summary: Add comment
+      description: Authenticated users only. Add comment to problem/article.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentInput'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /comments/{comment_id}:
+    parameters:
+      - in: path
+        name: comment_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: e0c6c0e6-f3e9-4a4d-9d8c-e6e8c0e6f3e9
+
+    patch:
+      tags: [ Comments ]
+      summary: Update comment
+      description: Authenticated users only. Update comment for existing problem/article.<br>Admins can edit all comments, users can only edit their own.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCommentInput'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    delete:
+      tags: [ Comments ]
+      summary: Delete comment
+      description: Authenticated users only. Delete comment for existing problem/article.<br>Admins can delete all comments, users can only delete their own.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /comments/{entity_id}:
+    get:
+      tags: [ Comments ]
+      summary: Get comment threads
+      description: Authenticated users only. Get comment threads with pagination for existing problem/article.
+      parameters:
+        - in: path
+          name: entity_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: e0c6c0e6-f3e9-4a4d-9d8c-e6e8c0e6f3e9
+          description: Article ID or problem ID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreadListParams'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadList'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
 components:
   schemas:
     StatusResponse:
@@ -1575,11 +1745,11 @@ components:
           required:
             - "date"
           properties:
-            "number":
+            "date":
               type: string
               enum: [ asc, desc ]
           default: desc
-          description: Sort by article creation date
+          description: Sort by articles creation date
         pagination:
           type: object
           required:
@@ -1589,11 +1759,11 @@ components:
               type: integer
               example: 15
               default: 30
-              description: Number of tasks per page
+              description: Number of articles per page
             after_id:
               type: string
               format: uuid
-              description: ID of the last received task
+              description: ID of the last received article
               example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
 
     ArticleCreateInput:
@@ -1685,6 +1855,136 @@ components:
           format: uuid
           description: Last item ID from given page
           example: 5c7f8d0d-5a1e-4b7d-a1b9-d2b0a2c3c4d2
+
+    UpdateCommentInput:
+      type: object
+      properties:
+        comment_text:
+          type: string
+          description: Comment text
+          example: Ipsum dolor sit amet, consectetur adipiscing elit
+
+    CreateCommentInput:
+      type: object
+      allOf:
+        -  $ref: '#/components/schemas/UpdateCommentInput'
+      required:
+        - entity_id
+        - comment_text
+      properties:
+        parent_id:
+          type: string
+          format: uuid
+          description: Parent comment ID (if any)
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+        entity_id:
+          type: string
+          format: uuid
+          description: Entity ID (article or problem) that comment belongs to
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+
+    Comment:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CreateCommentInput'
+      required:
+        - id
+        - parent_id
+        - entity_id
+        - comment_text
+        - created_at
+        - author
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Comment ID
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+        created_at:
+          type: integer
+          format: uint64
+          description: Creation time in milliseconds in standard UNIX format
+          example: 1705417437
+        author:
+          type: object
+          required:
+            - user_id
+            - username
+            - first_name
+            - last_name
+          properties:
+            user_id:
+              type: string
+              format: uuid
+              description: User ID
+              example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+            username:
+              type: string
+              description: User username
+              example: peter_parker_1337
+            first_name:
+              type: string
+              description: User first name
+              example: Peter
+            last_name:
+              type: string
+              description: User last name
+              example: Parker
+
+    Thread:
+      type: object
+      required:
+        - comment
+        - replies
+      properties:
+        comment:
+          $ref: '#/components/schemas/Comment'
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+
+    ThreadList:
+      type: object
+      required:
+        - threads
+        - pagination
+      properties:
+        threads:
+          type: array
+          items:
+            $ref: '#/components/schemas/Thread'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    ThreadListParams:
+      type: object
+      properties:
+        sort:
+          type: object
+          required:
+            - "date"
+          properties:
+            "date":
+              type: string
+              enum: [ asc, desc ]
+          default: desc
+          description: Sort by comments creation date
+        pagination:
+          type: object
+          required:
+            - limit
+          properties:
+            limit:
+              type: integer
+              example: 15
+              default: 30
+              description: Number of comment threads per page
+            after_id:
+              type: string
+              format: uuid
+              description: ID of the last received comment thread
+              example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
 
   securitySchemes:
     BearerAuth:

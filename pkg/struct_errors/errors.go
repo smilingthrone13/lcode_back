@@ -98,3 +98,15 @@ func NewInternalErr(err error) *InternalErr {
 
 	return e
 }
+
+type ForbiddenErr struct {
+	BaseError
+}
+
+func NewForbiddenErr(err error) *ForbiddenErr {
+	e := &ForbiddenErr{}
+	e.SetCode("default.forbidden_error")
+	e.SetErr("Forbidden", err)
+
+	return e
+}
