@@ -720,7 +720,7 @@ paths:
                 test_cases:
                   type: array
                   items:
-                    $ref: '#/components/schemas/TestCaseInput'
+                    $ref: '#/components/schemas/CreateTestCaseInput'
       responses:
         200:
           description: Successful operation
@@ -1040,7 +1040,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TestCaseInput'
+              $ref: '#/components/schemas/CreateTestCaseInput'
       responses:
         201:
           description: Created
@@ -1099,7 +1099,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TestCaseInput'
+              $ref: '#/components/schemas/UpdateTestCaseInput'
       responses:
         200:
           description: Successful operation
@@ -1351,9 +1351,9 @@ components:
         - difficulty
         - runtime_limit
         - memory_limit
+      allOf:
+        - $ref: '#/components/schemas/TaskInput'
       properties:
-        allOf:
-          $ref: '#/components/schemas/TaskInput'
         id:
           type: string
           format: uuid
@@ -1370,9 +1370,9 @@ components:
         - language_id
         - template
         - wrapper
+      allOf:
+        - $ref: '#/components/schemas/UpdateTaskTemplateInput'
       properties:
-        allOf:
-          $ref: '#/components/schemas/UpdateTaskTemplateInput'
         language_id:
           type: integer
           description: Programming language ID. 63 for JS, 74 for TS
@@ -1381,17 +1381,14 @@ components:
 
     UpdateTaskTemplateInput:
       type: object
-      required:
-        - template
-        - wrapper
       properties:
         template:
           type: string
-          description: Task template in given programming language
+          description: Task template in given programming language. If provided, must not me an empty string.
           example: TODO
         wrapper:
           type: string
-          description: Task wrapper in given programming language
+          description: Task wrapper in given programming language. If provided, must not me an empty string.
           example: TODO
 
     TaskTemplate:
@@ -1402,9 +1399,9 @@ components:
         - language_id
         - template
         - wrapper
+      allOf:
+        - $ref: '#/components/schemas/CreateTaskTemplateInput'
       properties:
-        allOf:
-          $ref: '#/components/schemas/CreateTaskTemplateInput'
         id:
           type: string
           format: uuid
@@ -1416,7 +1413,7 @@ components:
           description: Parent task ID
           example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
 
-    TestCaseInput:
+    CreateTestCaseInput:
       type: object
       required:
         - input
@@ -1424,12 +1421,17 @@ components:
       properties:
         input:
           type: string
-          description: Test case input as string
+          description: Test case input as string. Must not me an empty string.
           example: TODO
         output:
           type: string
-          description: Test case output as string
+          description: Test case output as string. Must not me an empty string.
           example: TODO
+
+    UpdateTestCaseInput:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CreateTestCaseInput'
 
     TaskTestCase:
       type: object
@@ -1439,9 +1441,9 @@ components:
         - task_id
         - input
         - output
+      allOf:
+        - $ref: '#/components/schemas/CreateTestCaseInput'
       properties:
-        allOf:
-          $ref: '#/components/schemas/TestCaseInput'
         id:
           type: string
           format: uuid

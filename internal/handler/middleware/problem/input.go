@@ -68,6 +68,14 @@ func (m *Middleware) ValidateUpdateProblemTaskInput(c *gin.Context) {
 		return
 	}
 
+	if dto.Input.Name == nil && dto.Input.Category == nil &&
+		dto.Input.Description == nil && dto.Input.Difficulty == nil &&
+		dto.Input.MemoryLimit == nil && dto.Input.RuntimeLimit == nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "No update data provided")
+
+		return
+	}
+
 	dto.TaskID = c.Param("task_id")
 	if dto.TaskID == "" {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Task ID is required")
@@ -101,6 +109,12 @@ func (m *Middleware) ValidateCreateProblemTaskTemplateInput(c *gin.Context) {
 		return
 	}
 
+	if dto.Input.Template == "" || dto.Input.Wrapper == "" || dto.Input.LanguageID == 0 {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Invalid input")
+
+		return
+	}
+
 	dto.TaskID = c.Param("task_id")
 	if dto.TaskID == "" {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Task ID is required")
@@ -120,10 +134,16 @@ func (m *Middleware) ValidateUpdateProblemTaskTemplateInput(c *gin.Context) {
 		return
 	}
 
+	if dto.Input.Wrapper == nil && dto.Input.Template == nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "No update data provided")
+
+		return
+	}
+
 	dto.TemplateID = c.Param("template_id")
 	dto.TaskID = c.Param("task_id")
 	if dto.TemplateID == "" || dto.TaskID == "" {
-		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Template ID is required")
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Task ID and Template ID are required")
 
 		return
 	}
@@ -154,6 +174,12 @@ func (m *Middleware) ValidateCreateProblemTestCaseInput(c *gin.Context) {
 		return
 	}
 
+	if dto.Input.Input == "" || dto.Input.Output == "" {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Invalid input")
+
+		return
+	}
+
 	dto.TaskID = c.Param("task_id")
 	if dto.TaskID == "" {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Task ID is required")
@@ -173,10 +199,16 @@ func (m *Middleware) ValidateUpdateProblemTestCaseInput(c *gin.Context) {
 		return
 	}
 
+	if dto.Input.Input == nil && dto.Input.Output == nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "No update data provided")
+
+		return
+	}
+
 	dto.CaseID = c.Param("case_id")
 	dto.TaskID = c.Param("task_id")
 	if dto.CaseID == "" || dto.TaskID == "" {
-		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Test Case ID is required")
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Task ID and TestCase ID are required")
 
 		return
 	}

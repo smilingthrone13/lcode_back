@@ -64,7 +64,7 @@ func (m *Middleware) ValidateUpdateArticleInput(c *gin.Context) {
 		return
 	}
 
-	if dto.Input.Title == nil || dto.Input.Content == nil {
+	if dto.Input.Title == nil && dto.Input.Content == nil && dto.Input.Categories == nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, "No update data provided")
 
 		return
@@ -142,6 +142,12 @@ func (m *Middleware) ValidateUpdatePracticeArticleInput(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&dto.Input); err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	if dto.Input.Title == nil && dto.Input.Content == nil && dto.Input.Categories == nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "No update data provided")
 
 		return
 	}
