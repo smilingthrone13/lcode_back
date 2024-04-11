@@ -33,10 +33,14 @@ func (m *Middleware) ValidateCreateArticleInput(c *gin.Context) {
 		return
 	}
 
-	if dto.Input.Title == "" {
-		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Title is required")
+	if dto.Input.Title == "" || dto.Input.Content == "" {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Title and content are required")
 
 		return
+	}
+
+	if dto.Input.Categories == nil {
+		dto.Input.Categories = []string{}
 	}
 
 	user, err := gin_helpers.GetValueFromGinCtx[domain.User](c, domain.UserCtxKey)
@@ -56,6 +60,12 @@ func (m *Middleware) ValidateUpdateArticleInput(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&dto.Input); err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	if dto.Input.Title == nil || dto.Input.Content == nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "No update data provided")
 
 		return
 	}
@@ -121,6 +131,22 @@ func (m *Middleware) ValidateArticleGetInput(c *gin.Context) {
 
 		return
 	}
+
+	c.Set(domain.DtoCtxKey, dto)
+}
+
+// Practice
+
+func (m *Middleware) ValidateUpdatePracticeArticleInput(c *gin.Context) {
+	var dto domain.ArticleUpdateDTO
+
+	if err := c.ShouldBindJSON(&dto.Input); err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	dto.Input.ID = domain.PracticeArticleID
 
 	c.Set(domain.DtoCtxKey, dto)
 }

@@ -44,7 +44,7 @@ paths:
     post:
       tags: [ Authorization ]
       summary: Login a user
-      description: Login a user and return a JWT tokens
+      description: Login a user and return a pair of access/refresh JWT tokens
       requestBody:
         required: true
         content:
@@ -83,7 +83,7 @@ paths:
     post:
       tags: [ Authorization ]
       summary: Refresh tokens
-      description: Get a new JWT tokens with a refresh token
+      description: Get a new pair of JWT tokens using current refresh token
       requestBody:
         required: true
         content:
@@ -301,7 +301,7 @@ paths:
 
   /articles/practice:
     get:
-      tags: [ Article ]
+      tags: [ Article (Practice) ]
       summary: Get practice article
       description: No authentication required. Get practice article.
       responses:
@@ -318,11 +318,52 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
+    patch:
+      tags: [ Article (Practice) ]
+      summary: Update practice article
+      description: No authentication required. Update practice article.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleUpdateInput'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    delete:
+      tags: [ Article (Practice) ]
+      summary: Delete practice article
+      description: No authentication required. Mock delete practice article.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
   /articles/available_attributes:
     get:
       tags: [ Article ]
       summary: Get available article attributes
-      description: Authenticated users only. Get available article attributes that have been created already.
+      description: Authenticated users only. Get available article attributes that have been created already. <br> Does not include Practice article attributes.
       responses:
         200:
           description: Successful operation
@@ -353,7 +394,7 @@ paths:
     get:
       tags: [ Article ]
       summary: Get articles list
-      description: Authenticated users only. Get articles list (sorted and/or filtered) with pagination. <br> Articles here are returned with empty content field. When you want to display article content, use GET /articles/{id} instead.
+      description: Authenticated users only. Get articles list (sorted and/or filtered) with pagination. <br> Articles here are returned with empty content field. When you want to display article content, use GET /articles/{id} instead. <br> List does not include Practice article.
       parameters:
         - in: query
           name: search
@@ -541,7 +582,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Article'
+                $ref: '#/components/schemas/StatusResponse'
         400:
           description: Bad request
           content:
@@ -1267,6 +1308,7 @@ components:
       required:
         - name
         - category
+        - description
         - difficulty
       properties:
         name:
@@ -1462,15 +1504,36 @@ components:
               description: ID of the last received task
               example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
 
+    Author:
+      type: object
+      required:
+        - user_id
+        - first_name
+        - last_name
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: User ID
+          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+        first_name:
+          type: string
+          description: User first name
+          example: Peter
+        last_name:
+          type: string
+          description: User last name
+          example: Parker
+
     Article:
       type: object
       required:
         - id
         - title
-        - author_id
         - content
         - categories
         - created_at
+        - author
       properties:
         id:
           type: string
@@ -1481,11 +1544,6 @@ components:
           type: string
           description: Article title
           example: Example Article
-        author_id:
-          type: string
-          format: uuid
-          description: Author ID
-          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
         content:
           type: string
           description: Article content (text)
@@ -1500,6 +1558,8 @@ components:
           format: uint64
           description: Creation time in milliseconds in standard UNIX format
           example: 1705417437
+        author:
+          $ref: '#/components/schemas/Author'
 
     ArticleListParams:
       type: object
@@ -1534,6 +1594,7 @@ components:
       type: object
       required:
         - title
+        - content
       properties:
         title:
           type: string

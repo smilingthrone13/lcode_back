@@ -42,7 +42,9 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 	authGroup := httpServer.Group("/auth")
 	{
 		authGroup.POST("/register", middlewares.Auth.ValidateRegisterInput, h.register)
+
 		authGroup.POST("/login", middlewares.Auth.ValidateLoginInput, h.login)
+
 		authGroup.POST("/refresh_tokens", middlewares.Auth.ValidateRefreshTokenInput, h.refreshToken)
 
 		authGroup.GET("/my_info", middlewares.Access.UserIdentity, h.getMyInfo)

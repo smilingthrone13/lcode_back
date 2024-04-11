@@ -56,9 +56,9 @@ func (f *filter) WhereOptional(modifyFunc func()) *filter {
 
 func (f *filter) SortByCreatedAt(t db.SortType) *filter {
 	if t == db.ASC {
-		f.Add("ORDER BY created_at, id")
+		f.Add("ORDER BY a.created_at, id")
 	} else {
-		f.Add("ORDER BY created_at DESC, id DESC")
+		f.Add("ORDER BY a.created_at DESC, id DESC")
 	}
 
 	return f

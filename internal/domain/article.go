@@ -2,16 +2,16 @@ package domain
 
 import "lcode/pkg/db"
 
-const PracticeArticleName = "Practice Article"
+const PracticeArticleID = "00000000-0000-0000-0000-000000000000"
 
 type (
 	Article struct {
 		ID         string   `json:"id" db:"id"`
 		Title      string   `json:"title" db:"title"`
-		AuthorID   string   `json:"author_id" db:"author_id"`
 		Content    string   `json:"content" db:"content"`
 		Categories []string `json:"categories" db:"categories"`
 		CreatedAt  IntTime  `json:"created_at" db:"created_at"`
+		Author     `json:"author"`
 	}
 
 	ArticleList struct {
@@ -45,7 +45,7 @@ type (
 	ArticleCreateInput struct {
 		AuthorID   string   `json:"-"`
 		Title      string   `json:"title"`
-		Content    *string  `json:"content"`
+		Content    string   `json:"content"`
 		Categories []string `json:"categories"`
 	}
 

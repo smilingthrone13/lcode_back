@@ -43,7 +43,14 @@ func New(cfg *config.Config, logger *slog.Logger, services *Services) *Handler {
 }
 
 func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
-	httpServer.GET("/articles/practice", h.getPracticeArticle)
+	practiceGroup := httpServer.Group("/articles/practice")
+	{
+		practiceGroup.GET("", h.getPracticeArticle)
+
+		practiceGroup.PATCH("", middlewares.Article.ValidateUpdatePracticeArticleInput, h.updateArticle)
+
+		practiceGroup.DELETE("", h.deletePracticeArticle)
+	}
 
 	articleGroup := httpServer.Group("/articles", middlewares.Access.UserIdentity)
 	{
@@ -56,7 +63,9 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 		adminArticleGroup := articleGroup.Group("", middlewares.Auth.CheckAdminAccess)
 		{
 			adminArticleGroup.POST("/", middlewares.Article.ValidateCreateArticleInput, h.createArticle)
+
 			adminArticleGroup.PATCH("/:id", middlewares.Article.ValidateUpdateArticleInput, h.updateArticle)
+
 			adminArticleGroup.DELETE("/:id", middlewares.Article.ValidateDeleteArticleInput, h.deleteArticle)
 		}
 	}
@@ -141,17 +150,6 @@ func (h *Handler) getArticle(c *gin.Context) {
 	c.JSON(http.StatusOK, a)
 }
 
-func (h *Handler) getPracticeArticle(c *gin.Context) {
-	a, err := h.services.Article.GetPracticeArticle(c.Request.Context())
-	if err != nil {
-		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
-
-		return
-	}
-
-	c.JSON(http.StatusOK, a)
-}
-
 func (h *Handler) getArticleList(c *gin.Context) {
 	dto, err := gin_helpers.GetValueFromGinCtx[domain.ArticleParamsDTO](c, domain.DtoCtxKey)
 	if err != nil {
@@ -179,4 +177,21 @@ func (h *Handler) getAvailableArticleAttributes(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, aa)
+}
+
+// Practice Interactions
+
+func (h *Handler) getPracticeArticle(c *gin.Context) {
+	a, err := h.services.Article.GetByID(c.Request.Context(), domain.PracticeArticleID)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, a)
+}
+
+func (h *Handler) deletePracticeArticle(c *gin.Context) {
+	c.JSON(http.StatusOK, map[string]string{"message": "Successful operation"})
 }

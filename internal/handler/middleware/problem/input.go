@@ -47,6 +47,14 @@ func (m *Middleware) ValidateCreateProblemInput(c *gin.Context) {
 		return
 	}
 
+	if dto.Input.Task.MemoryLimit == 0 {
+		dto.Input.Task.MemoryLimit = m.cfg.JudgeConfig.DefaultMemoryLimitKB
+	}
+
+	if dto.Input.Task.RuntimeLimit == 0 {
+		dto.Input.Task.RuntimeLimit = m.cfg.JudgeConfig.DefaultTimeLimitSec
+	}
+
 	c.Set(domain.DtoCtxKey, dto)
 }
 

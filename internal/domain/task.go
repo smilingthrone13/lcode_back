@@ -51,12 +51,12 @@ type (
 
 type (
 	TaskCreateInput struct {
-		Name         string   `json:"name" db:"name"`
-		Description  *string  `json:"description" db:"description"`
-		Category     string   `json:"category" db:"category"`
-		Difficulty   string   `json:"difficulty" db:"difficulty"`
-		RuntimeLimit *float64 `json:"runtime_limit" db:"runtime_limit"`
-		MemoryLimit  *int     `json:"memory_limit" db:"memory_limit"`
+		Name         string  `json:"name" db:"name"`
+		Description  string  `json:"description" db:"description"`
+		Category     string  `json:"category" db:"category"`
+		Difficulty   string  `json:"difficulty" db:"difficulty"`
+		RuntimeLimit float64 `json:"runtime_limit" db:"runtime_limit"`
+		MemoryLimit  int     `json:"memory_limit" db:"memory_limit"`
 	}
 
 	TaskUpdateInput struct {

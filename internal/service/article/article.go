@@ -91,15 +91,6 @@ func (s *Service) GetByID(ctx context.Context, id string) (a domain.Article, err
 	return a, nil
 }
 
-func (s *Service) GetPracticeArticle(ctx context.Context) (a domain.Article, err error) {
-	a, err = s.repository.GetPracticeArticle(ctx)
-	if err != nil {
-		return a, errors.Wrap(err, "Article Service GetPracticeArticle:")
-	}
-
-	return a, nil
-}
-
 func (s *Service) GetAllByParams(ctx context.Context, params domain.ArticleParams) (al domain.ArticleList, err error) {
 	al, err = s.repository.GetAllByParams(ctx, params)
 	if err != nil {

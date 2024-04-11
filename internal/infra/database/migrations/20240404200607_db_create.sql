@@ -19,19 +19,19 @@ VALUES ('Admin', 'Admin', 'admin', '$2a$14$NRd0YacLcLfK6.yOmUUpXeGzzgGsWWYOaXkXZ
 
 create table task
 (
-    id            uuid             default gen_random_uuid()             not null
+    id            uuid      default gen_random_uuid()            not null
         constraint task_pk
             primary key,
-    name          text                                                   not null
+    name          text                                           not null
         constraint task_pk_2
             unique,
-    number        bigint                                                 not null,
-    description   text             default 'No description yet...'::text not null,
-    difficulty    text                                                   not null,
-    category      text                                                   not null,
-    runtime_limit double precision default 5.0                           not null,
-    memory_limit  bigint           default 128000                        not null,
-    created_at    timestamp        default timezone('utc'::text, now())  not null
+    number        bigint                                         not null,
+    description   text                                           not null,
+    difficulty    text                                           not null,
+    category      text                                           not null,
+    runtime_limit double precision                               not null,
+    memory_limit  bigint                                         not null,
+    created_at    timestamp default timezone('utc'::text, now()) not null
 );
 
 CREATE FUNCTION update_task_number() RETURNS TRIGGER
@@ -133,22 +133,23 @@ create unique index solution_result_solution_id_test_case_id_uindex
 
 create table article
 (
-    id         uuid       default gen_random_uuid()            not null
+    id         uuid      default gen_random_uuid()            not null
         constraint articles_pk
             primary key,
-    author_id  uuid                                            not null
+    author_id  uuid                                           not null
         constraint articles_user_id_fk
             references "user",
-    created_at timestamp  default timezone('utc'::text, now()) not null,
-    title      varchar(150)                                    not null
+    created_at timestamp default timezone('utc'::text, now()) not null,
+    title      varchar(150)                                   not null
         constraint articles_pk_2
             unique,
-    content    text       default 'No text yet...'             not null,
-    categories text array default '{}'                         not null
+    content    text                                           not null,
+    categories text array                                     not null
 );
 
-INSERT INTO article (author_id, title, content, categories)
-VALUES ((SELECT id FROM "user" WHERE username = 'admin'),
+INSERT INTO article (id, author_id, title, content, categories)
+VALUES ('00000000-0000-0000-0000-000000000000',
+        (SELECT id FROM "user" WHERE username = 'admin'),
         'Practice Article',
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
  Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.

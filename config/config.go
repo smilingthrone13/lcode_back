@@ -57,8 +57,10 @@ type (
 	}
 
 	JudgeConfig struct {
-		Host string
-		Port string
+		Host                 string
+		Port                 string
+		DefaultMemoryLimitKB int     `mapstructure:"defaultMemoryLimitKB"`
+		DefaultTimeLimitSec  float64 `mapstructure:"defaultTimeLimitSec"`
 	}
 
 	QueryParams struct {
