@@ -139,7 +139,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (a domain.Article, 
 		`
 	SELECT 
 	    a.id AS id, title, content, categories, created_at,
-	    u.id AS user_id, u.first_name AS first_name, u.last_name AS last_name
+	    u.id AS user_id, u.username AS username, u.first_name AS first_name, u.last_name AS last_name
 	FROM article a 
 	    JOIN "user" u ON a.author_id = u.id
 	WHERE a.id = ?
@@ -164,7 +164,7 @@ func (r *Repository) GetAllByParams(ctx context.Context, params domain.ArticlePa
 		`
 	SELECT 
 	    a.id AS id, title, content, categories, created_at,
-	    u.id AS user_id, u.first_name AS first_name, u.last_name AS last_name
+	    u.id AS user_id, u.username AS username, u.first_name AS first_name, u.last_name AS last_name
 	FROM article a 
 	    JOIN "user" u ON a.author_id = u.id
 	`,

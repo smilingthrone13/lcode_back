@@ -1518,6 +1518,10 @@ components:
           format: uuid
           description: User ID
           example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
+        username:
+          type: string
+          description: User username
+          example: peter_parker_1337
         first_name:
           type: string
           description: User first name
