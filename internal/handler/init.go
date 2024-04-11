@@ -70,7 +70,9 @@ func New(p *InitParams, services *service.Services, managers *manager.Managers) 
 		p.Config,
 		p.Logger,
 		&solutionH.Services{
-			SolutionManager: managers.SolutionManager,
+			SolutionManager:       managers.SolutionManager,
+			SolutionService:       services.Solution,
+			SolutionResultService: services.SolutionResult,
 		},
 	)
 

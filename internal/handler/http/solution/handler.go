@@ -7,6 +7,8 @@ import (
 	accessMiddleware "lcode/internal/handler/middleware/access"
 	solutionMiddleware "lcode/internal/handler/middleware/solution"
 	"lcode/internal/manager/solution_manager"
+	"lcode/internal/service/solution"
+	"lcode/internal/service/solution_result"
 	"lcode/pkg/gin_helpers"
 	"lcode/pkg/http_lib/http_helper"
 	"log/slog"
@@ -20,7 +22,9 @@ type (
 	}
 
 	Services struct {
-		SolutionManager solution_manager.SolutionManager
+		SolutionManager       solution_manager.SolutionManager
+		SolutionService       solution.Solution
+		SolutionResultService solution_result.SolutionResult
 	}
 
 	Handler struct {
@@ -39,14 +43,38 @@ func New(cfg *config.Config, logger *slog.Logger, services *Services) *Handler {
 }
 
 func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
-	solutionGroup := httpServer.Group("/solution")
+	solutionsGroup := httpServer.Group("/solutions", middlewares.Access.UserIdentity)
 	{
-		solutionGroup.POST(
+
+		solutionsGroup.POST(
 			"/",
-			middlewares.Access.UserIdentity,
 			middlewares.Solution.ValidateCreateSolutionInput,
 			h.createSolution,
 		)
+
+		solutionsGroup.GET("/task/:task_id",
+			middlewares.Solution.ValidateGetSolutionsInput,
+			h.solutions,
+		)
+
+		solGroup := solutionsGroup.Group("/:id")
+		{
+			solGroup.GET(
+				"/code",
+				middlewares.Solution.ValidateGetSolutionCodeInput,
+				middlewares.Solution.CheckSolutionAccess,
+				h.solutionCode,
+			)
+
+			solGroup.GET(
+				"/results",
+				middlewares.Access.UserIdentity,
+				middlewares.Solution.ValidateGetSolutionResultsInput,
+				middlewares.Solution.CheckSolutionAccess,
+				h.solutionResults,
+			)
+		}
+
 	}
 }
 
@@ -66,4 +94,58 @@ func (h *Handler) createSolution(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, sol)
+}
+
+func (h *Handler) solutions(c *gin.Context) {
+	dto, err := gin_helpers.GetValueFromGinCtx[domain.GetSolutionsDTO](c, domain.DtoCtxKey)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	solutions, err := h.services.SolutionService.SolutionsByUserAndTask(c.Request.Context(), dto)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, solutions)
+}
+
+func (h *Handler) solutionResults(c *gin.Context) {
+	dto, err := gin_helpers.GetValueFromGinCtx[domain.GetSolutionResultsDTO](c, domain.DtoCtxKey)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	results, err := h.services.SolutionResultService.ResultsBySolutionID(c.Request.Context(), dto.SolutionID)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, results)
+}
+
+func (h *Handler) solutionCode(c *gin.Context) {
+	dto, err := gin_helpers.GetValueFromGinCtx[domain.GetSolutionCodeDTO](c, domain.DtoCtxKey)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	sol, err := h.services.SolutionService.SolutionByID(c.Request.Context(), dto.SolutionID)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, sol.Code)
 }

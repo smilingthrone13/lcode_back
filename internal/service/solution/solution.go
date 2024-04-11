@@ -39,11 +39,20 @@ func (s *Service) Update(ctx context.Context, entity domain.UpdateSolutionDTO) (
 	return sol, nil
 }
 
-func (s *Service) GetSolutionsByUserIdAndTaskId(ctx context.Context, userID, taskID string) ([]domain.Solution, error) {
-	solutions, err := s.repository.GetSolutionsByUserIdAndTaskId(ctx, userID, taskID)
+func (s *Service) SolutionsByUserAndTask(ctx context.Context, dto domain.GetSolutionsDTO) ([]domain.Solution, error) {
+	solutions, err := s.repository.SolutionsByUserAndTask(ctx, dto)
 	if err != nil {
-		return nil, errors.Wrap(err, "GetSolutionsByUserIdAndTaskId solution service")
+		return nil, errors.Wrap(err, "SolutionsByUserAndTask solution service")
 	}
 
 	return solutions, nil
+}
+
+func (s *Service) SolutionByID(ctx context.Context, id string) (sol domain.Solution, err error) {
+	sol, err = s.repository.SolutionByID(ctx, id)
+	if err != nil {
+		return domain.Solution{}, errors.Wrap(err, "SolutionByID solution service")
+	}
+
+	return sol, nil
 }

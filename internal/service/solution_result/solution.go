@@ -30,10 +30,10 @@ func (s *Service) CreateBatch(ctx context.Context, results ...domain.SolutionRes
 	return nil
 }
 
-func (s *Service) GetResultsBySolutionID(ctx context.Context, solutionID string) ([]domain.SolutionResult, error) {
-	results, err := s.repository.GetResultsBySolutionID(ctx, solutionID)
+func (s *Service) ResultsBySolutionID(ctx context.Context, solutionID string) ([]domain.SolutionResult, error) {
+	results, err := s.repository.ResultsBySolutionID(ctx, solutionID)
 	if err != nil {
-		return nil, errors.Wrap(err, "GetResultsBySolutionID solution_result service")
+		return nil, errors.Wrap(err, "ResultsBySolutionID solution_result service")
 	}
 
 	return results, nil

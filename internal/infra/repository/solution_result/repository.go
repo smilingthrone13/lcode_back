@@ -20,7 +20,9 @@ type Repository struct {
 func (r *Repository) CreateBatch(ctx context.Context, results ...domain.SolutionResult) error {
 	sq := sql_query_maker.NewQueryMaker(4)
 
-	sq.Add(`INSERT INTO solution_result (solution_id, test_case_id, submission_token, status, runtime, memory, stdout, stderr)`)
+	sq.Add(`INSERT INTO solution_result 
+    			  (solution_id, test_case_id, submission_token, status, runtime, memory, stdout, stderr)`,
+	)
 
 	for i := range results {
 		sq.Values(
@@ -44,13 +46,15 @@ func (r *Repository) CreateBatch(ctx context.Context, results ...domain.Solution
 	return nil
 }
 
-func (r *Repository) GetResultsBySolutionID(ctx context.Context, solutionID string) ([]domain.SolutionResult, error) {
+func (r *Repository) ResultsBySolutionID(ctx context.Context, solutionID string) ([]domain.SolutionResult, error) {
 	sq := sql_query_maker.NewQueryMaker(1)
 
 	results := []domain.SolutionResult{}
 
 	sq.Add(`
-			SELECT solution_id, test_case_id, submission_token, status, runtime, memory FROM solution_result
+			SELECT solution_id, test_case_id, submission_token, 
+			       status, runtime, memory, stdout, stderr 
+			FROM solution_result
 			WHERE solution_id = ?`,
 		solutionID,
 	)
@@ -59,7 +63,7 @@ func (r *Repository) GetResultsBySolutionID(ctx context.Context, solutionID stri
 
 	err := pgxscan.Select(ctx, r.db.TxOrDB(ctx), &results, query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "GetResultsBySolutionID solution_result repo")
+		return nil, errors.Wrap(err, "ResultsBySolutionID solution_result repo")
 	}
 
 	return results, nil

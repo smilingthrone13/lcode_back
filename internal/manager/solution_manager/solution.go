@@ -223,7 +223,10 @@ func (m *Manager) solutionWorker(item workerItem) {
 	}
 }
 
-func (m *Manager) createSubmission(ctx context.Context, data domain.CreateJudgeSubmission) (info domain.JudgeSubmissionInfo, err error) {
+func (m *Manager) createSubmission(
+	ctx context.Context,
+	data domain.CreateJudgeSubmission,
+) (info domain.JudgeSubmissionInfo, err error) {
 	for {
 		info, err = m.services.Judge.CreateSubmission(ctx, data)
 		var queueIsFullError *domain.JudgeQueueIsFullError
@@ -239,7 +242,10 @@ func (m *Manager) createSubmission(ctx context.Context, data domain.CreateJudgeS
 	}
 }
 
-func (m *Manager) CreateSolution(ctx context.Context, dto domain.CreateSolutionDTO) (sol domain.Solution, err error) {
+func (m *Manager) CreateSolution(
+	ctx context.Context,
+	dto domain.CreateSolutionDTO,
+) (sol domain.Solution, err error) {
 	tx, err := m.transactionManager.NewTx(ctx, nil)
 	if err != nil {
 		return domain.Solution{}, errors.Wrap(err, "CreateSolution solution manager")

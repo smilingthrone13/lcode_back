@@ -65,6 +65,9 @@ func New(p *InitParams, services *service.Services, managers *manager.Managers) 
 	solutionMiddleware := solution.New(
 		p.Config,
 		p.Logger,
+		&solution.Services{
+			Solution: services.Solution,
+		},
 	)
 
 	return &Middlewares{

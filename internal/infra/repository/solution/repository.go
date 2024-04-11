@@ -71,8 +71,8 @@ func (r *Repository) Update(ctx context.Context, dto domain.UpdateSolutionDTO) (
 	return sol, nil
 }
 
-func (r *Repository) GetSolutionsByUserIdAndTaskId(ctx context.Context, userID, taskID string) ([]domain.Solution, error) {
-	sq := sql_query_maker.NewQueryMaker(1)
+func (r *Repository) SolutionsByUserAndTask(ctx context.Context, dto domain.GetSolutionsDTO) ([]domain.Solution, error) {
+	sq := sql_query_maker.NewQueryMaker(3)
 
 	results := []domain.Solution{}
 
@@ -80,16 +80,36 @@ func (r *Repository) GetSolutionsByUserIdAndTaskId(ctx context.Context, userID, 
 			SELECT id, user_id, code, status, runtime, memory, task_id, language_id
 			FROM solution
 			WHERE user_id = ? AND task_id = ?`,
-		userID,
-		taskID,
+		dto.User.ID,
+		dto.TaskID,
 	)
 
 	query, args := sq.Make()
 
 	err := pgxscan.Select(ctx, r.db.TxOrDB(ctx), &results, query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "GetSolutionsByUserIdAndTaskId solution repo")
+		return nil, errors.Wrap(err, "SolutionsByUserAndTask solution repo")
 	}
 
 	return results, nil
+}
+
+func (r *Repository) SolutionByID(ctx context.Context, id string) (sol domain.Solution, err error) {
+	sq := sql_query_maker.NewQueryMaker(1)
+
+	sq.Add(`
+			SELECT id, user_id, code, status, runtime, memory, task_id, language_id
+			FROM solution
+			WHERE id = ?`,
+		id,
+	)
+
+	query, args := sq.Make()
+
+	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &sol, query, args...)
+	if err != nil {
+		return domain.Solution{}, errors.Wrap(err, "SolutionByID solution repo")
+	}
+
+	return sol, nil
 }
