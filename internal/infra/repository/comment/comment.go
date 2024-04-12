@@ -22,18 +22,19 @@ func New(cfg *config.Config, db *postgres.DbManager) *Repository {
 	return &Repository{cfg: cfg, db: db}
 }
 
-func (r *Repository) Create(ctx context.Context, inp domain.CommentCreateInput) (c domain.Comment, err error) {
+func (r *Repository) Create(ctx context.Context, dto domain.CommentCreateDTO) (c domain.Comment, err error) {
 	var id string
 	sq := sql_query_maker.NewQueryMaker(4)
 
-	sq.Add(
+	q := fmt.Sprintf(
 		`
-	INSERT INTO comment (parent_id, entity_id, author_id, comment_text)
+	INSERT INTO %s (parent_id, entity_id, author_id, comment_text)
 	VALUES (?, ?, ?, ?)
 	RETURNING id
 	`,
-		inp.ParentID, inp.EntityID, inp.AuthorID, inp.Text,
-	)
+		dto.OriginType)
+
+	sq.Add(q, dto.Input.ParentID, dto.Input.EntityID, dto.Input.AuthorID, dto.Input.Text)
 
 	query, args := sq.Make()
 
@@ -42,7 +43,7 @@ func (r *Repository) Create(ctx context.Context, inp domain.CommentCreateInput) 
 		return c, errors.Wrap(err, "Create Comment repo:")
 	}
 
-	c, err = r.getByID(ctx, id)
+	c, err = r.getByID(ctx, dto.OriginType, id)
 	if err != nil {
 		return c, errors.Wrap(err, "Create Comment repo:")
 	}
@@ -53,7 +54,7 @@ func (r *Repository) Create(ctx context.Context, inp domain.CommentCreateInput) 
 func (r *Repository) Update(ctx context.Context, dto domain.CommentUpdateDTO) (c domain.Comment, err error) {
 	sq := sql_query_maker.NewQueryMaker(4)
 
-	c, err = r.getByID(ctx, dto.Input.ID)
+	c, err = r.getByID(ctx, dto.OriginType, dto.Input.ID)
 	if err != nil {
 		return c, errors.Wrap(err, "Update Comment repo:")
 	}
@@ -64,7 +65,7 @@ func (r *Repository) Update(ctx context.Context, dto domain.CommentUpdateDTO) (c
 		return c, errors.Wrap(err, "Update Comment repo:")
 	}
 
-	sq.Add("UPDATE comment SET")
+	sq.Add(fmt.Sprintf("UPDATE %s SET", dto.OriginType))
 
 	if dto.Input.Text != nil {
 		sq.Add("comment_text = ?", *dto.Input.Text)
@@ -85,7 +86,7 @@ func (r *Repository) Update(ctx context.Context, dto domain.CommentUpdateDTO) (c
 		return c, errors.Wrap(err, "Update Comment repo:")
 	}
 
-	c, err = r.getByID(ctx, dto.Input.ID)
+	c, err = r.getByID(ctx, dto.OriginType, dto.Input.ID)
 	if err != nil {
 		return c, errors.Wrap(err, "Update Comment repo:")
 	}
@@ -96,7 +97,7 @@ func (r *Repository) Update(ctx context.Context, dto domain.CommentUpdateDTO) (c
 func (r *Repository) Delete(ctx context.Context, dto domain.CommentDeleteDTO) error {
 	sq := sql_query_maker.NewQueryMaker(2)
 
-	c, err := r.getByID(ctx, dto.ID)
+	c, err := r.getByID(ctx, dto.OriginType, dto.ID)
 	if err != nil {
 		return errors.Wrap(err, "Delete Comment repo:")
 	}
@@ -107,7 +108,7 @@ func (r *Repository) Delete(ctx context.Context, dto domain.CommentDeleteDTO) er
 		return errors.Wrap(err, "Delete Comment repo:")
 	}
 
-	sq.Add("DELETE FROM comment WHERE id = ?", dto.ID)
+	sq.Add(fmt.Sprintf("DELETE FROM %s WHERE id = ?", dto.OriginType), dto.ID)
 
 	query, args := sq.Make()
 
@@ -127,10 +128,9 @@ func (r *Repository) Delete(ctx context.Context, dto domain.CommentDeleteDTO) er
 
 func (r *Repository) GetThreadsByParamsAndEntityID(
 	ctx context.Context,
-	entityID string,
-	params domain.CommentParamsInput,
+	dto domain.CommentParamsDTO,
 ) (tl domain.ThreadList, err error) {
-	threadHeads, err := r.getThreadHeads(ctx, entityID, params)
+	threadHeads, err := r.getThreadHeads(ctx, dto.OriginType, dto.EntityID, dto.Input)
 	if err != nil {
 		return tl, errors.Wrap(err, "GetThreadsByParamsAndEntityID Comment repo:")
 	}
@@ -140,7 +140,7 @@ func (r *Repository) GetThreadsByParamsAndEntityID(
 		headIDs = append(headIDs, threadHeads[i].ID)
 	}
 
-	replies, err := r.getRepliesByCommentIDs(ctx, headIDs)
+	replies, err := r.getRepliesByCommentIDs(ctx, dto.OriginType, headIDs)
 	if err != nil {
 		return tl, errors.Wrap(err, "GetThreadsByParamsAndEntityID Comment repo:")
 	}
@@ -153,18 +153,21 @@ func (r *Repository) GetThreadsByParamsAndEntityID(
 	return tl, nil
 }
 
-func (r *Repository) getByID(ctx context.Context, id string) (c domain.Comment, err error) {
+func (r *Repository) getByID(ctx context.Context, origin domain.CommentOriginType, id string) (c domain.Comment, err error) {
 	sq := sql_query_maker.NewQueryMaker(1)
 
 	sq.Add(
-		`
-	SELECT 
-	    c.id AS id, parent_id, entity_id, author_id, comment_text, created_at,
-	    u.id AS user_id, u.username AS username, u.first_name AS first_name, u.last_name AS last_name
-	FROM comment c 
-	    JOIN "user" u ON c.author_id = u.id
-	WHERE c.id = ?
-	`,
+		fmt.Sprintf(
+			`
+			SELECT 
+			    c.id AS id, parent_id, entity_id, comment_text, created_at,
+			    u.id AS user_id, u.username AS username, u.first_name AS first_name, u.last_name AS last_name
+			FROM %s c 
+			    JOIN "user" u ON c.author_id = u.id
+			WHERE c.id = ?
+			`,
+			origin,
+		),
 		id)
 
 	query, args := sq.Make()
@@ -179,25 +182,29 @@ func (r *Repository) getByID(ctx context.Context, id string) (c domain.Comment, 
 
 func (r *Repository) getThreadHeads(
 	ctx context.Context,
+	origin domain.CommentOriginType,
 	entityID string,
 	params domain.CommentParamsInput,
 ) (heads []domain.Comment, err error) {
 	sq := newFilter(r.cfg, 15)
 
 	sq.Add(
-		`
-	SELECT 
-	    c.id AS id, parent_id, entity_id, author_id, comment_text, created_at,
-	    u.id AS user_id, u.username AS username, u.first_name AS first_name, u.last_name AS last_name
-	FROM comment c 
-	    JOIN "user" u ON c.author_id = u.id
-	`,
+		fmt.Sprintf(
+			`
+			SELECT 
+			    c.id AS id, parent_id, entity_id, comment_text, created_at,
+			    u.id AS user_id, u.username AS username, u.first_name AS first_name, u.last_name AS last_name
+			FROM %s c 
+			    JOIN "user" u ON c.author_id = u.id
+			`,
+			origin,
+		),
 	)
 
 	if params.Pagination.AfterID != nil {
 		q := fmt.Sprintf(
-			"WHERE c.entity_id = ? AND c.parent_id IS NULL AND c.created_at %s (SELECT created_at FROM comment WHERE id = ?)",
-			db.GetLetterGreaterOrLessBySortType(params.Sort.ByDate),
+			"WHERE c.entity_id = ? AND c.parent_id IS NULL AND c.created_at %s (SELECT created_at FROM %s WHERE id = ?)",
+			db.GetLetterGreaterOrLessBySortType(params.Sort.ByDate), origin,
 		)
 		sq.Add(q, entityID, *params.Pagination.AfterID)
 	} else {
@@ -219,20 +226,24 @@ func (r *Repository) getThreadHeads(
 
 func (r *Repository) getRepliesByCommentIDs(
 	ctx context.Context,
+	origin domain.CommentOriginType,
 	commentIDs []string,
 ) (replies []domain.Comment, err error) {
 	sq := sql_query_maker.NewQueryMaker(1)
 
 	sq.Add(
-		`
-	SELECT 
-	    c.id AS id, parent_id, entity_id, author_id, comment_text, created_at,
-	    u.id AS user_id, u.username AS username, u.first_name AS first_name, u.last_name AS last_name
-	FROM comment c 
-	    JOIN "user" u ON c.author_id = u.id
-	WHERE c.parent_id = ANY(?)
-	ORDER BY c.created_at DESC
-	`,
+		fmt.Sprintf(
+			`
+			SELECT 
+			    c.id AS id, parent_id, entity_id, comment_text, created_at,
+			    u.id AS user_id, u.username AS username, u.first_name AS first_name, u.last_name AS last_name
+			FROM %s c 
+			    JOIN "user" u ON c.author_id = u.id
+			WHERE c.parent_id = ANY(?)
+			ORDER BY c.created_at DESC
+			`,
+			origin,
+		),
 		commentIDs,
 	)
 

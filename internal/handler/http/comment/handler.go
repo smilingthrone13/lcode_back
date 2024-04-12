@@ -39,7 +39,7 @@ func New(cfg *config.Config, logger *slog.Logger, services *Services) *Handler {
 }
 
 func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
-	commentGroup := httpServer.Group("/comments", middlewares.Access.UserIdentity)
+	commentGroup := httpServer.Group("/comments/:origin_type", middlewares.Access.UserIdentity)
 	{
 		commentGroup.GET("/:entity_id", middlewares.Comment.ValidateThreadsListByParamsInput, h.getThreadList)
 

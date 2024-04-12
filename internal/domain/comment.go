@@ -2,6 +2,13 @@ package domain
 
 import "lcode/pkg/db"
 
+type CommentOriginType string
+
+const (
+	ArticleOriginType CommentOriginType = "article_comment"
+	TaskOriginType    CommentOriginType = "task_comment"
+)
+
 type (
 	Comment struct {
 		ID        string  `json:"id" db:"id"`
@@ -50,21 +57,25 @@ type (
 
 type (
 	CommentCreateDTO struct {
-		Input CommentCreateInput
+		OriginType CommentOriginType
+		Input      CommentCreateInput
 	}
 
 	CommentUpdateDTO struct {
-		User  User
-		Input CommentUpdateInput
+		User       User
+		OriginType CommentOriginType
+		Input      CommentUpdateInput
 	}
 
 	CommentDeleteDTO struct {
-		User User
-		ID   string
+		User       User
+		OriginType CommentOriginType
+		ID         string
 	}
 
 	CommentParamsDTO struct {
-		EntityID string
-		Input    CommentParamsInput
+		EntityID   string
+		OriginType CommentOriginType
+		Input      CommentParamsInput
 	}
 )

@@ -10,6 +10,11 @@ import (
 	"net/http"
 )
 
+const (
+	articleOriginInput = "article"
+	problemOriginInput = "problem"
+)
+
 type (
 	Middleware struct {
 		cfg    *config.Config
@@ -26,6 +31,18 @@ func New(cfg *config.Config, logger *slog.Logger) *Middleware {
 
 func (m *Middleware) ValidateCreateCommentInput(c *gin.Context) {
 	var dto domain.CommentCreateDTO
+
+	origin := c.Param("origin_type")
+	switch origin {
+	case articleOriginInput:
+		dto.OriginType = domain.ArticleOriginType
+	case problemOriginInput:
+		dto.OriginType = domain.TaskOriginType
+	default:
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Unknown origin type")
+
+		return
+	}
 
 	if err := c.ShouldBindJSON(&dto.Input); err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -54,6 +71,18 @@ func (m *Middleware) ValidateCreateCommentInput(c *gin.Context) {
 
 func (m *Middleware) ValidateUpdateCommentInput(c *gin.Context) {
 	var dto domain.CommentUpdateDTO
+
+	origin := c.Param("origin_type")
+	switch origin {
+	case articleOriginInput:
+		dto.OriginType = domain.ArticleOriginType
+	case problemOriginInput:
+		dto.OriginType = domain.TaskOriginType
+	default:
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Unknown origin type")
+
+		return
+	}
 
 	dto.Input.ID = c.Param("comment_id")
 	if dto.Input.ID == "" {
@@ -89,6 +118,18 @@ func (m *Middleware) ValidateUpdateCommentInput(c *gin.Context) {
 func (m *Middleware) ValidateDeleteCommentInput(c *gin.Context) {
 	var dto domain.CommentDeleteDTO
 
+	origin := c.Param("origin_type")
+	switch origin {
+	case articleOriginInput:
+		dto.OriginType = domain.ArticleOriginType
+	case problemOriginInput:
+		dto.OriginType = domain.TaskOriginType
+	default:
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Unknown origin type")
+
+		return
+	}
+
 	dto.ID = c.Param("comment_id")
 	if dto.ID == "" {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Comment ID is required")
@@ -110,6 +151,18 @@ func (m *Middleware) ValidateDeleteCommentInput(c *gin.Context) {
 
 func (m *Middleware) ValidateThreadsListByParamsInput(c *gin.Context) {
 	var dto domain.CommentParamsDTO
+
+	origin := c.Param("origin_type")
+	switch origin {
+	case articleOriginInput:
+		dto.OriginType = domain.ArticleOriginType
+	case problemOriginInput:
+		dto.OriginType = domain.TaskOriginType
+	default:
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Unknown origin type")
+
+		return
+	}
 
 	dto.EntityID = c.Param("entity_id")
 	if dto.EntityID == "" {

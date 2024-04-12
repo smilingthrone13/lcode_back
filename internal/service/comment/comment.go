@@ -30,7 +30,7 @@ func (s *Service) Create(ctx context.Context, dto domain.CommentCreateDTO) (c do
 	ctx = context.WithValue(ctx, postgres.TxKey{}, tx)
 	defer tx.Rollback(ctx)
 
-	c, err = s.repository.Create(ctx, dto.Input)
+	c, err = s.repository.Create(ctx, dto)
 	if err != nil {
 		return c, errors.Wrap(err, "Comment Service Create:")
 	}
@@ -86,7 +86,7 @@ func (s *Service) GetThreadsByParamsAndEntityID(
 	ctx context.Context,
 	dto domain.CommentParamsDTO,
 ) (tl domain.ThreadList, err error) {
-	tl, err = s.repository.GetThreadsByParamsAndEntityID(ctx, dto.EntityID, dto.Input)
+	tl, err = s.repository.GetThreadsByParamsAndEntityID(ctx, dto)
 	if err != nil {
 		return tl, errors.Wrap(err, "Comment Service GetThreadsByParamsAndEntityID:")
 	}

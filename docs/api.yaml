@@ -1238,7 +1238,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
-  /comments/:
+  /comments/{origin_type}/:
+    parameters:
+      - in: path
+        name: origin_type
+        required: true
+        schema:
+          type: string
+          enum: [ article, problem ]
+        description: Comment origin type
     post:
       tags: [ Comments ]
       summary: Add comment
@@ -1275,7 +1283,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
-  /comments/{comment_id}:
+  /comments/{origin_type}/{comment_id}:
     parameters:
       - in: path
         name: comment_id
@@ -1284,6 +1292,13 @@ paths:
           type: string
           format: uuid
           example: e0c6c0e6-f3e9-4a4d-9d8c-e6e8c0e6f3e9
+      - in: path
+        name: origin_type
+        required: true
+        schema:
+          type: string
+          enum: [ article, problem ]
+        description: Comment origin type
 
     patch:
       tags: [ Comments ]
@@ -1363,12 +1378,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
-  /comments/{entity_id}:
+  /comments/{origin_type}/{entity_id}:
     get:
       tags: [ Comments ]
       summary: Get comment threads
       description: Authenticated users only. Get comment threads with pagination for existing problem/article.
       parameters:
+        - in: path
+          name: origin_type
+          required: true
+          schema:
+            type: string
+            enum: [ article, problem]
+          description: Comment origin type
         - in: path
           name: entity_id
           required: true
