@@ -1443,24 +1443,38 @@ components:
     CreateUserInput:
       type: object
       required:
+        - email
         - username
         - password
         - first_name
         - last_name
       properties:
+        email:
+          type: string
+          format: email
+          maxLength: 100
         username:
           type: string
+          minLength: 3
+          maxLength: 50
         password:
           type: string
+          minLength: 5
+          maxLength: 50
         first_name:
           type: string
+          minLength: 2
+          maxLength: 50
         last_name:
           type: string
+          minLength: 2
+          maxLength: 50
 
     User:
       type: object
       required:
         - id
+        - email
         - username
         - first_name
         - last_name
@@ -1471,6 +1485,9 @@ components:
           format: uuid
         username:
           type: string
+        email:
+          type: string
+          format: email
         first_name:
           type: string
         last_name:
@@ -1704,6 +1721,7 @@ components:
         - user_id
         - first_name
         - last_name
+        - username
       properties:
         user_id:
           type: string

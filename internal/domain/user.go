@@ -8,6 +8,7 @@ const (
 type (
 	User struct {
 		ID           string `json:"id" db:"id" mapstructure:"id"`
+		Email        string `json:"email" db:"email" mapstructure:"email"`
 		Username     string `json:"username" db:"username" mapstructure:"username"`
 		FirstName    string `json:"first_name" db:"first_name" mapstructure:"first_name"`
 		LastName     string `json:"last_name" db:"last_name" mapstructure:"last_name"`
@@ -26,6 +27,7 @@ type (
 // entity for input for repository
 type (
 	CreateUserEntity struct {
+		Email        string
 		Username     string
 		FirstName    string
 		LastName     string
@@ -34,6 +36,7 @@ type (
 
 	UpdateUserEntity struct {
 		UserID       string
+		Email        *string
 		Username     *string
 		FirstName    *string
 		LastName     *string
@@ -45,10 +48,11 @@ type (
 // layer transfer objects
 type (
 	CreateUserDTO struct {
-		Username  string `json:"username"`
-		FirstName string `json:"first_name"`
-		LastName  string `json:"last_name"`
-		Password  string `json:"password"`
+		Email     string `json:"email" binding:"required,email,max=100"`
+		Username  string `json:"username" binding:"required,min=3,max=50"`
+		FirstName string `json:"first_name" binding:"required,min=2,max=50"`
+		LastName  string `json:"last_name" binding:"required,min=2,max=50"`
+		Password  string `json:"password" binding:"required,min=5,max=50"`
 	}
 
 	LoginDTO struct {
@@ -62,10 +66,11 @@ type (
 
 	UpdateUserDTO struct {
 		UserID    string
-		Username  *string `json:"username"`
-		FirstName *string `json:"first_name"`
-		LastName  *string `json:"last_name"`
-		Password  *string `json:"password"`
+		Email     *string `json:"email" binding:"email,max=100"`
+		Username  *string `json:"username" binding:"min=3,max=50"`
+		FirstName *string `json:"first_name" binding:"min=2,max=50"`
+		LastName  *string `json:"last_name" binding:"min=2,max=50"`
+		Password  *string `json:"password" binding:"min=5,max=50"`
 		IsAdmin   *bool   `json:"is_admin"`
 	}
 

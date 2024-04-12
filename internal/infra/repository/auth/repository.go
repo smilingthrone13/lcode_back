@@ -21,9 +21,10 @@ func (r *Repository) CreateUser(ctx context.Context, dto domain.CreateUserEntity
 	sq := sql_query_maker.NewQueryMaker(4)
 
 	sq.Add(
-		`INSERT INTO "user" (first_name, last_name, username, password_hash) 
-			   VALUES (?, ?, ?, ?) 
-               RETURNING id, first_name, last_name, username, password_hash, is_admin`,
+		`INSERT INTO "user" (email, first_name, last_name, username, password_hash) 
+			   VALUES (?, ?, ?, ?, ?) 
+               RETURNING id, email, first_name, last_name, username, password_hash, is_admin`,
+		dto.Email,
 		dto.FirstName,
 		dto.LastName,
 		dto.Username,
@@ -44,6 +45,10 @@ func (r *Repository) UpdateUser(ctx context.Context, dto domain.UpdateUserEntity
 	sq := sql_query_maker.NewQueryMaker(3)
 
 	sq.Add(`UPDATE "user" SET`)
+
+	if dto.Email != nil {
+		sq.Add("email = ?,", *dto.Email)
+	}
 
 	if dto.Username != nil {
 		sq.Add("username = ?,", *dto.Username)
@@ -66,7 +71,7 @@ func (r *Repository) UpdateUser(ctx context.Context, dto domain.UpdateUserEntity
 	}
 
 	sq.Where("id = ?", dto.UserID)
-	sq.Add("RETURNING id, first_name, last_name, username, password_hash, is_admin")
+	sq.Add("RETURNING id, email, first_name, last_name, username, password_hash, is_admin")
 
 	query, args := sq.Make()
 
@@ -82,7 +87,7 @@ func (r *Repository) UserByID(ctx context.Context, id string) (user domain.User,
 	sq := sql_query_maker.NewQueryMaker(2)
 
 	sq.Add(
-		`SELECT id, first_name, last_name, username, password_hash, is_admin FROM "user" WHERE id =?`,
+		`SELECT id, email, first_name, last_name, username, password_hash, is_admin FROM "user" WHERE id =?`,
 		id,
 	)
 
@@ -101,7 +106,7 @@ func (r *Repository) Users(ctx context.Context) ([]domain.User, error) {
 
 	users := []domain.User{}
 
-	sq.Add(`SELECT id, first_name, last_name, username, password_hash, is_admin FROM "user"`)
+	sq.Add(`SELECT id, email, first_name, last_name, username, password_hash, is_admin FROM "user"`)
 
 	query, args := sq.Make()
 
@@ -117,7 +122,7 @@ func (r *Repository) UserByUsername(ctx context.Context, username string) (user 
 	sq := sql_query_maker.NewQueryMaker(2)
 
 	sq.Add(
-		`SELECT id, first_name, last_name, username, password_hash, is_admin FROM "user" WHERE username = ?`,
+		`SELECT id, email, first_name, last_name, username, password_hash, is_admin FROM "user" WHERE username = ?`,
 		username,
 	)
 

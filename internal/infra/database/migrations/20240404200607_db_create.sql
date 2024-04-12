@@ -7,6 +7,7 @@ create table "user"
     id            uuid    default gen_random_uuid() not null
         constraint user_pk
             primary key,
+    email         varchar(100)                       not null unique,
     first_name    varchar(50)                       not null,
     last_name     varchar(50)                       not null,
     username      varchar(50)                       not null unique,
@@ -14,8 +15,8 @@ create table "user"
     is_admin      boolean default false             not null
 );
 
-INSERT INTO "user" ("first_name", "last_name", "username", "password_hash", "is_admin")
-VALUES ('Admin', 'Admin', 'admin', '$2a$14$NRd0YacLcLfK6.yOmUUpXeGzzgGsWWYOaXkXZg3DK.9GqF0GEZ/Rq', true);
+INSERT INTO "user" ("email","first_name", "last_name", "username", "password_hash", "is_admin")
+VALUES ('admin@admin','Admin', 'Admin', 'admin', '$2a$14$NRd0YacLcLfK6.yOmUUpXeGzzgGsWWYOaXkXZg3DK.9GqF0GEZ/Rq', true);
 
 create table task
 (

@@ -42,6 +42,7 @@ func (s *Service) Register(ctx context.Context, dto domain.CreateUserDTO) (user 
 	}
 
 	entity := domain.CreateUserEntity{
+		Email:        dto.Email,
 		Username:     dto.Username,
 		FirstName:    dto.FirstName,
 		LastName:     dto.LastName,
@@ -162,6 +163,7 @@ func (s *Service) UpdateUser(ctx context.Context, dto domain.UpdateUserDTO) (use
 
 	entity := domain.UpdateUserEntity{
 		UserID:       dto.UserID,
+		Email:        dto.Email,
 		Username:     dto.Username,
 		FirstName:    dto.FirstName,
 		LastName:     dto.LastName,
