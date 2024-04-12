@@ -154,6 +154,7 @@ func (r *Repository) GetThreadsByParamsAndEntityID(
 }
 
 func (r *Repository) getByID(ctx context.Context, origin domain.CommentOriginType, id string) (c domain.Comment, err error) {
+	var comms []domain.Comment
 	sq := sql_query_maker.NewQueryMaker(1)
 
 	sq.Add(
@@ -172,12 +173,18 @@ func (r *Repository) getByID(ctx context.Context, origin domain.CommentOriginTyp
 
 	query, args := sq.Make()
 
-	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &c, query, args...)
+	err = pgxscan.Select(ctx, r.db.TxOrDB(ctx), &comms, query, args...)
 	if err != nil {
 		return c, errors.Wrap(err, "getByID Comment repo:")
 	}
 
-	return c, nil
+	if len(comms) < 1 {
+		err = struct_errors.NewErrNotFound("Comment not found", nil)
+
+		return c, errors.Wrap(err, "getByID Comment repo:")
+	}
+
+	return comms[0], nil
 }
 
 func (r *Repository) getThreadHeads(
