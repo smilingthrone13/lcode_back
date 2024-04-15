@@ -14,6 +14,8 @@ const (
 	defaultPage       = 1
 	defaultLimitCount = 30
 
+	defaultUserAvatarMaxSize = 5 * 1024 * 1024 // MB
+
 	defaultAccessTokenExpTime  = time.Second * 300
 	defaultRefreshTokenExpTime = time.Hour * 24 * 30
 	defaultSecretKey           = "secret"
@@ -27,6 +29,7 @@ type (
 		HTTP              HTTPConfig
 		Auth              AuthConfig
 		TLS               TLSConfig
+		Files             Files
 		DBConfig          DBConfig
 		QueryParams       QueryParams
 		JudgeConfig       JudgeConfig
@@ -54,6 +57,11 @@ type (
 
 	DBConfig struct {
 		Path string
+	}
+
+	Files struct {
+		MainFolder        string
+		UserAvatarMaxSize int64
 	}
 
 	JudgeConfig struct {
@@ -115,6 +123,10 @@ func parseYml(configDir string, cfg *Config) error {
 		return err
 	}
 
+	if err := viper.UnmarshalKey("files", &cfg.Files); err != nil {
+		return err
+	}
+
 	if err := viper.UnmarshalKey("tls", &cfg.TLS); err != nil {
 		return err
 	}
@@ -167,6 +179,8 @@ func InitDefault() {
 	viper.SetDefault("http.timeouts.write", defaultHTTPRWTimeout)
 	viper.SetDefault("query_params.page", defaultPage)
 	viper.SetDefault("query_params.limit", defaultLimitCount)
+
+	viper.SetDefault("files.user_avatar_max_size", defaultUserAvatarMaxSize)
 
 	viper.SetDefault("auth.access_token_exp_time", defaultAccessTokenExpTime)
 	viper.SetDefault("auth.refresh_token_exp_time", defaultRefreshTokenExpTime)

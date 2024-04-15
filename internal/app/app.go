@@ -15,6 +15,7 @@ import (
 	"lcode/pkg/postgres"
 	"log"
 	"log/slog"
+	"os"
 	"time"
 )
 
@@ -43,6 +44,11 @@ func Init(cfg *config.Config) *App {
 	}
 
 	db, err := database.NewPostgresDB(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.MkdirAll(cfg.Files.MainFolder, os.ModeDir)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -20,3 +20,6 @@ judge:
   port: 2358
   defaultMemoryLimitKB: 128000
   defaultTimeLimitSec: 5.0
+files:
+  mainFolder: .\files
+  userAvatarMaxSize: 5242880 # 5MB

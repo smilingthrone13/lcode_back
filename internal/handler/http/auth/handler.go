@@ -6,6 +6,7 @@ import (
 	"lcode/internal/domain"
 	accessMiddleware "lcode/internal/handler/middleware/access"
 	authMiddleware "lcode/internal/handler/middleware/auth"
+	"lcode/internal/manager/user_manager"
 	"lcode/internal/service/auth"
 	"lcode/pkg/gin_helpers"
 	"lcode/pkg/http_lib/http_helper"
@@ -20,7 +21,8 @@ type (
 	}
 
 	Services struct {
-		Auth auth.Authorization
+		Auth        auth.Authorization
+		UserManager user_manager.UserManager
 	}
 
 	Handler struct {
@@ -49,23 +51,48 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 
 		authGroup.GET("/my_info", middlewares.Access.UserIdentity, h.getMyInfo)
 
-		authGroup.GET("/users", middlewares.Access.UserIdentity, middlewares.Auth.CheckAdminAccess, h.users)
-
-		usersGroup := authGroup.Group("/user", middlewares.Access.UserIdentity, middlewares.Auth.CheckAdminAccess)
+		usersGroup := authGroup.Group(
+			"/users",
+			middlewares.Access.UserIdentity,
+		)
 		{
+			usersGroup.GET("", h.users)
+
+			usersGroup.POST(
+				"/upload_avatar/:file_name",
+				middlewares.Auth.ValidateUploadAvatarInput,
+				h.uploadAvatar,
+			)
+
+			usersGroup.DELETE(
+				"/delete_avatar",
+				middlewares.Auth.ValidateDeleteAvatarInput,
+				h.deleteAvatar,
+			)
 
 			usersGroup.PATCH(
 				"/:user_id/change_admin_permission",
+				middlewares.Auth.CheckAdminAccess,
 				middlewares.Auth.ValidateChangeUserPermissionInput,
 				h.changeAdminPermission,
 			)
 
 			usersGroup.PATCH(
-				"/:user_id/change_password",
-				middlewares.Auth.ValidateChangeUserPasswordInput,
-				h.changeUserPass,
+				"/:user_id/update_profile",
+				middlewares.Auth.ValidateChangeUserProfileInput,
+				middlewares.Auth.CheckUpdateProfilePermission,
+				h.updateProfile,
 			)
 
+			usersGroup.GET(
+				"/:user_id/avatar",
+				h.avatarFile,
+			)
+
+			usersGroup.GET(
+				"/:user_id/avatar/thumbnail",
+				h.avatarThumbnailFile,
+			)
 		}
 	}
 }
@@ -78,7 +105,7 @@ func (h *Handler) register(c *gin.Context) {
 		return
 	}
 
-	user, err := h.services.Auth.Register(c.Request.Context(), dto)
+	user, err := h.services.UserManager.Register(c.Request.Context(), dto)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -96,7 +123,7 @@ func (h *Handler) login(c *gin.Context) {
 		return
 	}
 
-	tokens, err := h.services.Auth.Login(c.Request.Context(), dto)
+	tokens, err := h.services.UserManager.Login(c.Request.Context(), dto)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -136,7 +163,7 @@ func (h *Handler) getMyInfo(c *gin.Context) {
 }
 
 func (h *Handler) users(c *gin.Context) {
-	users, err := h.services.Auth.Users(c.Request.Context())
+	users, err := h.services.UserManager.Users(c.Request.Context())
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -154,7 +181,7 @@ func (h *Handler) changeAdminPermission(c *gin.Context) {
 		return
 	}
 
-	user, err := h.services.Auth.UpdateUser(c.Request.Context(), dto)
+	user, err := h.services.UserManager.UpdateUser(c.Request.Context(), dto)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -164,7 +191,7 @@ func (h *Handler) changeAdminPermission(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-func (h *Handler) changeUserPass(c *gin.Context) {
+func (h *Handler) updateProfile(c *gin.Context) {
 	dto, err := gin_helpers.GetValueFromGinCtx[domain.UpdateUserDTO](c, domain.DtoCtxKey)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -172,7 +199,7 @@ func (h *Handler) changeUserPass(c *gin.Context) {
 		return
 	}
 
-	user, err := h.services.Auth.UpdateUser(c.Request.Context(), dto)
+	user, err := h.services.UserManager.UpdateUser(c.Request.Context(), dto)
 	if err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
@@ -180,4 +207,66 @@ func (h *Handler) changeUserPass(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
+}
+
+func (h *Handler) uploadAvatar(c *gin.Context) {
+	dto, err := gin_helpers.GetValueFromGinCtx[domain.UploadUserAvatarDTO](c, domain.DtoCtxKey)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	thumbnailPath, err := h.services.UserManager.UploadUserAvatar(c.Request.Context(), dto)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	c.File(thumbnailPath)
+}
+
+func (h *Handler) deleteAvatar(c *gin.Context) {
+	dto, err := gin_helpers.GetValueFromGinCtx[domain.DeleteUserAvatarDTO](c, domain.DtoCtxKey)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	err = h.services.UserManager.DeleteUserAvatar(c.Request.Context(), dto)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, "ok")
+}
+
+func (h *Handler) avatarFile(c *gin.Context) {
+	p, err := h.services.UserManager.AvatarPath(c.Request.Context(), c.Param("user_id"))
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	c.Header("Cache-Control", "no-cache")
+
+	c.File(p)
+}
+
+func (h *Handler) avatarThumbnailFile(c *gin.Context) {
+	p, err := h.services.UserManager.AvatarThumbnailPath(c.Request.Context(), c.Param("user_id"))
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	c.Header("Cache-Control", "no-cache")
+
+	c.File(p)
 }

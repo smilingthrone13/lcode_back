@@ -1,8 +1,16 @@
 package domain
 
+import (
+	"io"
+)
+
 const (
 	UserCtxKey = "user"
 	DtoCtxKey  = "dto"
+
+	UsersFolder     = "users"
+	AvatarFolder    = "avatar"
+	ThumbnailFolder = "thumbnail"
 )
 
 type (
@@ -58,6 +66,19 @@ type (
 	LoginDTO struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
+	}
+
+	UploadUserAvatarDTO struct {
+		Media        io.Reader
+		FullFileName string
+		Name         string
+		Extension    string
+		MediaType    string
+		User         User
+	}
+
+	DeleteUserAvatarDTO struct {
+		User User
 	}
 
 	RefreshTokenDTO struct {

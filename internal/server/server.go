@@ -91,6 +91,7 @@ func NewServer(
 	h.HTTP.Auth.Register(
 		&auth.Middlewares{
 			Access: middlewares.Access,
+			Auth:   middlewares.Auth,
 		},
 		router,
 	)

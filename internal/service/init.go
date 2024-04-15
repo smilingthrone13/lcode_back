@@ -11,6 +11,8 @@ import (
 	"lcode/internal/service/task"
 	taskTemplate "lcode/internal/service/task_template"
 	testCase "lcode/internal/service/test_case"
+	"lcode/internal/service/thumbnails"
+	"lcode/internal/service/user_fs"
 	userProgress "lcode/internal/service/user_progress"
 	"lcode/pkg/postgres"
 	"log/slog"
@@ -24,6 +26,8 @@ type (
 	}
 
 	Services struct {
+		UserFS         user_fs.UserFS
+		Thumbnails     thumbnails.Thumbnails
 		Auth           auth.Authorization
 		Task           task.Task
 		TaskTemplate   taskTemplate.TaskTemplate
@@ -46,8 +50,14 @@ func New(p *InitParams, repos *repository.Repositories) *Services {
 	userProgressService := userProgress.New(p.Logger, repos.UserProgress)
 	articleService := article.New(p.Logger, p.TransactionManager, repos.Article)
 	commentService := comment.New(p.Logger, p.TransactionManager, repos.Comment)
+	thumbnailsService := thumbnails.New(p.Config, p.Logger)
+	userFsService := user_fs.New(p.Config, p.Logger, &user_fs.Services{
+		Thumbnails: thumbnailsService,
+	})
 
 	return &Services{
+		Thumbnails:     thumbnailsService,
+		UserFS:         userFsService,
 		Auth:           authService,
 		Task:           taskService,
 		TaskTemplate:   taskTemplateService,

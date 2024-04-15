@@ -40,7 +40,8 @@ func New(p *InitParams, services *service.Services, managers *manager.Managers) 
 		p.Config,
 		p.Logger,
 		&authH.Services{
-			Auth: services.Auth,
+			Auth:        services.Auth,
+			UserManager: managers.UserManager,
 		},
 	)
 
