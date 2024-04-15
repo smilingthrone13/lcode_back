@@ -9,6 +9,7 @@ import (
 	taskTemplateServ "lcode/internal/service/task_template"
 	testCaseServ "lcode/internal/service/test_case"
 	"lcode/pkg/postgres"
+	"log"
 	"log/slog"
 )
 
@@ -17,6 +18,7 @@ type (
 		TaskService         taskServ.Task
 		TaskTemplateService taskTemplateServ.TaskTemplate
 		TestCaseService     testCaseServ.TestCase
+		Judge               Judge
 	}
 
 	Manager struct {
@@ -24,6 +26,8 @@ type (
 		logger             *slog.Logger
 		transactionManager *postgres.TransactionProvider
 		services           *Services
+
+		availableLanguages []domain.JudgeLanguageInfo
 	}
 )
 
@@ -33,11 +37,18 @@ func New(
 	transactionManager *postgres.TransactionProvider,
 	services *Services,
 ) *Manager {
+
+	languages, err := services.Judge.GetAvailableLanguages(context.Background())
+	if err != nil {
+		log.Fatal("can not access judge api:", err.Error())
+	}
+
 	return &Manager{
 		cfg:                cfg,
 		logger:             logger,
 		transactionManager: transactionManager,
 		services:           services,
+		availableLanguages: languages,
 	}
 }
 
@@ -317,4 +328,9 @@ func (m *Manager) GetAvailableTaskAttributes(ctx context.Context) (domain.TaskAt
 	}
 
 	return ta, nil
+}
+
+func (m *Manager) GetAvailableTaskLanguages() ([]domain.JudgeLanguageInfo, error) {
+	return m.availableLanguages, nil
+
 }

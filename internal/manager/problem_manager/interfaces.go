@@ -22,4 +22,9 @@ type ProblemManager interface {
 	TaskListByParams(ctx context.Context, dto domain.TaskParams) (domain.TaskList, error)
 
 	GetAvailableTaskAttributes(ctx context.Context) (domain.TaskAttributes, error)
+	GetAvailableTaskLanguages() ([]domain.JudgeLanguageInfo, error)
+}
+
+type Judge interface {
+	GetAvailableLanguages(ctx context.Context) ([]domain.JudgeLanguageInfo, error)
 }

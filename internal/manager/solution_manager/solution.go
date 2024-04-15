@@ -9,6 +9,7 @@ import (
 	"lcode/internal/service/solution"
 	solutionResult "lcode/internal/service/solution_result"
 	"lcode/pkg/postgres"
+	"log"
 	"log/slog"
 	"slices"
 	"time"
@@ -33,6 +34,8 @@ type (
 		services           *Services
 		solutionQueue      *solutionQueue
 		workerCh           chan workerItem
+
+		availableStatuses []domain.JudgeStatusInfo
 	}
 )
 
@@ -42,6 +45,10 @@ func New(
 	transactionManager *postgres.TransactionProvider,
 	services *Services,
 ) *Manager {
+	statuses, err := services.Judge.GetAvailableStatuses(context.Background())
+	if err != nil {
+		log.Fatal("can not access judge api:", err.Error())
+	}
 
 	m := &Manager{
 		cfg:                cfg,
@@ -50,6 +57,7 @@ func New(
 		services:           services,
 		solutionQueue:      newSolutionQueue(1000),
 		workerCh:           make(chan workerItem, workersCount), // todo: config value
+		availableStatuses:  statuses,
 	}
 
 	go m.runWorkerManager()
@@ -276,4 +284,8 @@ func (m *Manager) CreateSolution(
 	}
 
 	return sol, nil
+}
+
+func (m *Manager) GetAvailableSolutionStatuses() ([]domain.JudgeStatusInfo, error) {
+	return m.availableStatuses, nil
 }

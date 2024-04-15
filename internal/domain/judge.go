@@ -24,11 +24,11 @@ const (
 type LanguageType int
 
 const (
-	TypeScript_3_7_4 LanguageType = 74
-	NodeJS_12_14_0   LanguageType = 63
+	NodeJS     LanguageType = 1
+	TypeScript LanguageType = 2
 )
 
-var AvailableLanguageIds = []LanguageType{TypeScript_3_7_4, NodeJS_12_14_0}
+var AvailableLanguageIds = []LanguageType{TypeScript, NodeJS}
 
 type CreateJudgeSubmission struct {
 	SourceCode     string       `json:"source_code"`
@@ -47,6 +47,18 @@ type JudgeSubmissionInfo struct {
 	Memory int         `json:"memory"`
 	Status JudgeStatus `json:"status"`
 }
+
+type (
+	JudgeLanguageInfo struct {
+		ID   LanguageType `json:"id"`
+		Name string       `json:"name"`
+	}
+
+	JudgeStatusInfo struct {
+		ID          JudgeStatus `json:"id"`
+		Description string      `json:"description"`
+	}
+)
 
 // errors
 type JudgeQueueIsFullError struct {

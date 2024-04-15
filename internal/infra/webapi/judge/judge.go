@@ -92,3 +92,69 @@ func (a *API) CreateSubmission(
 
 	return info, nil
 }
+
+func (a *API) GetAvailableLanguages(ctx context.Context) ([]domain.JudgeLanguageInfo, error) {
+	var languages []domain.JudgeLanguageInfo
+
+	req, err := http.NewRequest("GET", a.addr+"/languages", nil)
+	if err != nil {
+		return languages, errors.Wrap(err, "GetAvailableLanguages judge api")
+	}
+
+	resp, err := a.client.Do(req.WithContext(ctx))
+	if err != nil {
+		err = struct_errors.NewBaseErr("Code solving system is unavailable", err)
+
+		return languages, errors.Wrap(err, "GetAvailableLanguages judge api")
+	}
+
+	d := json.NewDecoder(resp.Body)
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		err = d.Decode(&languages)
+	default:
+		err = struct_errors.NewInternalErr(
+			fmt.Errorf("bad request to judge api with status code: %d", resp.StatusCode),
+		)
+	}
+
+	if err != nil {
+		return languages, errors.Wrap(err, "GetAvailableLanguages judge api")
+	}
+
+	return languages, nil
+}
+
+func (a *API) GetAvailableStatuses(ctx context.Context) ([]domain.JudgeStatusInfo, error) {
+	var statuses []domain.JudgeStatusInfo
+
+	req, err := http.NewRequest("GET", a.addr+"/statuses", nil)
+	if err != nil {
+		return statuses, errors.Wrap(err, "GetAvailableStatuses judge api")
+	}
+
+	resp, err := a.client.Do(req.WithContext(ctx))
+	if err != nil {
+		err = struct_errors.NewBaseErr("Code solving system is unavailable", err)
+
+		return statuses, errors.Wrap(err, "GetAvailableStatuses judge api")
+	}
+
+	d := json.NewDecoder(resp.Body)
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		err = d.Decode(&statuses)
+	default:
+		err = struct_errors.NewInternalErr(
+			fmt.Errorf("bad request to judge api with status code: %d", resp.StatusCode),
+		)
+	}
+
+	if err != nil {
+		return statuses, errors.Wrap(err, "GetAvailableStatuses judge api")
+	}
+
+	return statuses, nil
+}

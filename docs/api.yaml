@@ -630,6 +630,66 @@ paths:
                     type: array
                     items:
                       type: string
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /problems/available_languages:
+    get:
+      tags: [ Problems ]
+      summary: Get available languages
+      description: Authenticated users only. Get available programming languages list.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                      description: Programming language ID
+                    name:
+                      type: string
+                      example: JavaScript (Node.js 20.12.2)
+                      description: Programming language name
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
 
   /problems/list:
     get:
@@ -1157,6 +1217,48 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         403:
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /solutions/available_statuses:
+    get:
+      tags: [ Solutions ]
+      summary: Get available statuses
+      description: Authenticated users only. Get available solution statuses.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 3
+                      description: Status ID
+                    "description":
+                      type: string
+                      example: Accepted
+                      description: Solution description
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
           content:
             application/json:
               schema:

@@ -59,6 +59,10 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 			"/available_attributes",
 			h.getAvailableTaskAttributes,
 		)
+		problemGroup.GET(
+			"/available_languages",
+			h.getAvailableLanguages,
+		)
 
 		taskGroup := problemGroup.Group("", middlewares.Auth.CheckAdminAccess)
 		{
@@ -334,4 +338,15 @@ func (h *Handler) getAvailableTaskAttributes(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, ta)
+}
+
+func (h *Handler) getAvailableLanguages(c *gin.Context) {
+	ls, err := h.managers.Problem.GetAvailableTaskLanguages()
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, ls)
 }

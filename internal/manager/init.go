@@ -32,6 +32,7 @@ func New(p *InitParams, services *service.Services, apis *webapi.APIs) *Managers
 			TaskService:         services.Task,
 			TaskTemplateService: services.TaskTemplate,
 			TestCaseService:     services.TestCase,
+			Judge:               apis.Judge,
 		},
 	)
 

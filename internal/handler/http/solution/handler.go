@@ -45,13 +45,15 @@ func New(cfg *config.Config, logger *slog.Logger, services *Services) *Handler {
 func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 	solutionsGroup := httpServer.Group("/solutions", middlewares.Access.UserIdentity)
 	{
-
+		solutionsGroup.GET(
+			"/available_statuses",
+			h.getAvailableSolutionStatuses,
+		)
 		solutionsGroup.POST(
 			"/",
 			middlewares.Solution.ValidateCreateSolutionInput,
 			h.createSolution,
 		)
-
 		solutionsGroup.GET("/task/:task_id",
 			middlewares.Solution.ValidateGetSolutionsInput,
 			h.solutions,
@@ -148,4 +150,15 @@ func (h *Handler) solutionCode(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, sol.Code)
+}
+
+func (h *Handler) getAvailableSolutionStatuses(c *gin.Context) {
+	ss, err := h.services.SolutionManager.GetAvailableSolutionStatuses()
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	c.JSON(http.StatusOK, ss)
 }
