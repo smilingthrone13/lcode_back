@@ -74,9 +74,8 @@ services:
       - judge-server
     volumes:
       - ./config:/config:ro
-      - ./App.env:/App.env:ro
-      - docs-data:/docs
       - ./files:/files
+      - docs-data:/docs
     environment:
       - PATH_DB=postgres://postgres:postgres@lcode-db:5432/lcode
     ports:

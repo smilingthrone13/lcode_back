@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"lcode/pkg/digit"
+	"os"
 	"time"
 )
 
@@ -170,6 +171,13 @@ func parseYml(configDir string, cfg *Config) error {
 }
 
 func parseEnv(configDir string, cfg *Config) error {
+	path_db, ok := os.LookupEnv("PATH_DB")
+	if ok {
+		cfg.DBConfig.Path = path_db
+
+		return nil
+	}
+
 	if err := parseConfigFile(configDir, "env"); err != nil {
 		return err
 	}
