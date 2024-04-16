@@ -469,6 +469,184 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
+
+  /solutions/:
+    post:
+      tags: [ Solutions ]
+      summary: Create solution
+      description: Create solution for task and language
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSolutionInput'
+
+      responses:
+        200:
+          description: Solution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /solutions/task/:task_id:
+    get:
+      tags: [ Solutions ]
+      summary: Get solutions by task_id
+      description: Get solutions by task_id
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          example: f0b0d3a3-7a3e-4d4b-a0d3-a3d4b0d3a3d
+      responses:
+        200:
+          description: Solution
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Solution'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /solutions/{id}/code:
+    get:
+      tags: [ Solutions ]
+      summary: Get solution code
+      description: Get solution code
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: solution id
+          example: f0b0d3a3-7a3e-4d4b-a0d3-a3d4b0d3a3d
+      responses:
+        200:
+          description: Solution
+          content:
+            application/json:
+              schema:
+                type: string
+                example: console.log("Hello World")
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /solutions/{id}/results:
+    get:
+      tags: [ Solutions ]
+      summary: Get solution results
+      description: Get solution results
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: solution id
+          example: f0b0d3a3-7a3e-4d4b-a0d3-a3d4b0d3a3d
+      responses:
+        200:
+          description: Solution
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolutionResult'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
   /articles/practice:
     get:
       tags: [ Article (Practice) ]
@@ -1482,7 +1660,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [category, difficulty]
+            enum: [ category, difficulty ]
             description: Data type to base statistics on
       responses:
         200:
@@ -1661,7 +1839,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [ article, problem]
+            enum: [ article, problem ]
           description: Comment origin type
         - in: path
           name: entity_id
@@ -1765,6 +1943,81 @@ components:
           type: string
           minLength: 5
           maxLength: 50
+
+    CreateSolutionInput:
+      type: object
+      required:
+        - task_id
+        - language_id
+        - code
+      properties:
+        task_id:
+          type: string
+        language_id:
+          type: string
+        code:
+          type: string
+
+    SolutionResult:
+      type: object
+      required:
+        - solution_id
+        - test_case_id
+        - submission_token
+        - status
+        - runtime
+        - memory
+      properties:
+        solution_id:
+          type: string
+        test_case_id:
+          type: string
+        status:
+          type: string
+          enum: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 ]
+        runtime:
+          type: number
+          format: float
+          example: 1.23456789
+        memory:
+          type: integer
+          example: 123456
+        stdout:
+          type: string
+          example: "standard output"
+        stderr:
+          type: string
+          example: "standard error"
+
+    Solution:
+      type: object
+      required:
+        - id
+        - user_id
+        - task_id
+        - language_id
+        - code
+        - status
+        - runtime
+        - memory
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        task_id:
+          type: string
+        language_id:
+          type: string
+        code:
+          type: string
+        status:
+          type: string
+        runtime:
+          type: number
+          format: float
+        memory:
+          type: integer
 
 
     User:
@@ -2204,7 +2457,7 @@ components:
     CreateCommentInput:
       type: object
       allOf:
-        -  $ref: '#/components/schemas/UpdateCommentInput'
+        - $ref: '#/components/schemas/UpdateCommentInput'
       required:
         - entity_id
         - comment_text

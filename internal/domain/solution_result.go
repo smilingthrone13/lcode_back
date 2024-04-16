@@ -3,7 +3,7 @@ package domain
 type SolutionResult struct {
 	SolutionID      string      `json:"solution_id" db:"solution_id"`
 	TestCaseID      string      `json:"test_case_id" db:"test_case_id"`
-	SubmissionToken string      `json:"submission_token" db:"submission_token"`
+	SubmissionToken string      `json:"-" db:"submission_token"`
 	Status          JudgeStatus `json:"status" db:"status"`
 	Runtime         float64     `json:"runtime" db:"runtime"`
 	Memory          int         `json:"memory" db:"memory"`
