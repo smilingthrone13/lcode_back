@@ -10,6 +10,10 @@ x-logging:
 services:
   judge-server:
     image: smilingthrone13/judge0-custom:v1
+    links:
+      - db
+      - redis
+      - judge-worker
     command: ["./scripts/server"]
     volumes:
       - ./config/judge0.conf:/judge0.conf:ro
@@ -21,6 +25,9 @@ services:
 
   judge-worker:
     image: smilingthrone13/judge0-custom:v1
+    links:
+      - db
+      - redis
     command: ["./scripts/workers"]
     volumes:
       - ./config/judge0.conf:/judge0.conf:ro
@@ -62,6 +69,9 @@ services:
 
   lcode:
     image: smilingthrone13/lcode_back:v1
+    links:
+      - lcode-db
+      - judge-server
     volumes:
       - ./config:/config:ro
       - ./App.env:/App.env:ro
@@ -69,8 +79,6 @@ services:
       - ./files:/files
     environment:
       - PATH_DB=postgres://postgres:postgres@lcode-db:5432/lcode
-    links:
-      - lcode-db
     ports:
       - "5000:5000"
     privileged: true
@@ -79,14 +87,16 @@ services:
 
   swagger-ui:
     image: swaggerapi/swagger-ui:latest
+    links:
+      - lcode
     ports:
       - "8082:8080"
     volumes:
       - docs-data:/docs
-    links:
-      - lcode
     environment:
       SWAGGER_JSON: /docs/api.yaml
+    <<: *default-logging
+    restart: always
 
 volumes:
   judge-postgres-data:
