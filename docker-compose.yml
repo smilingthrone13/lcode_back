@@ -28,7 +28,7 @@ services:
     <<: *default-logging
     restart: always
 
-  judge-db:
+  db:
     image: postgres:13.0
     env_file: config/judge0.conf
     volumes:
@@ -36,7 +36,7 @@ services:
     <<: *default-logging
     restart: always
 
-  judge-redis:
+  redis:
     image: redis:6.0
     command: [
       "bash", "-c",
@@ -57,8 +57,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: lcode
-    ports:
-      - ":5433"
     <<: *default-logging
     restart: always
 
@@ -66,12 +64,15 @@ services:
     image: smilingthrone13/lcode_back:v1
     volumes:
       - ./config/config.yaml:/config/config.yaml:ro
+      - ./config/judge0.conf:/config/judge0.conf:ro
+      - ./App.env:/App.env:ro
     environment:
-      - PATH_DB="postgres://postgres:postgres@lcode-db:5433/lcode"
+      - PATH_DB=postgres://postgres:postgres@lcode-db:5432/lcode
     links:
       - lcode-db
     ports:
       - "5000:5000"
+    privileged: true
     <<: *default-logging
     restart: always
 
