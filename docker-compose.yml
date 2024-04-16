@@ -1,0 +1,81 @@
+version: "2"
+
+x-logging:
+  &default-logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 100M
+
+services:
+  judge-server:
+    image: smilingthrone13/judge0-custom:v1
+    command: ["./scripts/server"]
+    volumes:
+      - ./config/judge0.conf:/judge0.conf:ro
+    ports:
+      - ":2358"
+    privileged: true
+    <<: *default-logging
+    restart: always
+
+  judge-worker:
+    image: smilingthrone13/judge0-custom:v1
+    command: ["./scripts/workers"]
+    volumes:
+      - ./config/judge0.conf:/judge0.conf:ro
+    privileged: true
+    <<: *default-logging
+    restart: always
+
+  judge-db:
+    image: postgres:13.0
+    env_file: config/judge0.conf
+    volumes:
+      - judge-postgres-data:/var/lib/postgresql/data/
+    <<: *default-logging
+    restart: always
+
+  judge-redis:
+    image: redis:6.0
+    command: [
+      "bash", "-c",
+      'docker-entrypoint.sh --appendonly yes --requirepass "$$REDIS_PASSWORD"'
+    ]
+    env_file: config/judge0.conf
+    volumes:
+      - judge-redis-data:/data
+    <<: *default-logging
+    restart: always
+
+
+  lcode-db:
+    image: postgres:16-alpine
+    volumes:
+      - lcode-postgres-data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lcode
+    ports:
+      - ":5433"
+    <<: *default-logging
+    restart: always
+
+  lcode:
+    image: smilingthrone13/lcode_back:v1
+    volumes:
+      - ./config/config.yaml:/config/config.yaml:ro
+    environment:
+      - PATH_DB="postgres://postgres:postgres@lcode-db:5433/lcode"
+    links:
+      - lcode-db
+    ports:
+      - "5000:5000"
+    <<: *default-logging
+    restart: always
+
+volumes:
+  judge-postgres-data:
+  judge-redis-data:
+  lcode-postgres-data:
