@@ -106,6 +106,13 @@ func (h *Handler) updateArticle(c *gin.Context) {
 
 	a, err := h.services.Article.Update(c.Request.Context(), dto.Input)
 	if err != nil {
+		var errExist *struct_errors.ErrExist
+		if errors.As(err, &errExist) {
+			http_helper.NewErrorResponse(c, http.StatusConflict, errExist.Msg)
+
+			return
+		}
+
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
 		return

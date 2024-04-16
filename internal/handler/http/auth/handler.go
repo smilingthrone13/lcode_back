@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"lcode/config"
 	"lcode/internal/domain"
@@ -10,6 +11,7 @@ import (
 	"lcode/internal/service/auth"
 	"lcode/pkg/gin_helpers"
 	"lcode/pkg/http_lib/http_helper"
+	"lcode/pkg/struct_errors"
 	"log/slog"
 	"net/http"
 )
@@ -107,6 +109,13 @@ func (h *Handler) register(c *gin.Context) {
 
 	user, err := h.services.UserManager.Register(c.Request.Context(), dto)
 	if err != nil {
+		var errExist *struct_errors.ErrExist
+		if errors.As(err, &errExist) {
+			http_helper.NewErrorResponse(c, http.StatusConflict, errExist.Msg)
+
+			return
+		}
+
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
 		return
@@ -201,6 +210,13 @@ func (h *Handler) updateProfile(c *gin.Context) {
 
 	user, err := h.services.UserManager.UpdateUser(c.Request.Context(), dto)
 	if err != nil {
+		var errExist *struct_errors.ErrExist
+		if errors.As(err, &errExist) {
+			http_helper.NewErrorResponse(c, http.StatusConflict, errExist.Msg)
+
+			return
+		}
+
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
 		return

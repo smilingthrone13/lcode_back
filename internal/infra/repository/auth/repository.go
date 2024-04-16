@@ -3,10 +3,12 @@ package auth
 import (
 	"context"
 	"github.com/georgysavva/scany/v2/pgxscan"
+	"github.com/jackc/pgx/v5/pgconn"
 	sql_query_maker "github.com/m-a-r-a-t/sql-query-maker"
 	"github.com/pkg/errors"
 	"lcode/internal/domain"
 	"lcode/pkg/postgres"
+	"lcode/pkg/struct_errors"
 )
 
 func New(db *postgres.DbManager) *Repository {
@@ -35,6 +37,16 @@ func (r *Repository) CreateUser(ctx context.Context, dto domain.CreateUserEntity
 
 	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &user, query, args...)
 	if err != nil {
+		var pgError *pgconn.PgError
+		if ok := errors.As(err, &pgError); !ok {
+			return domain.User{}, errors.Wrap(err, "CreateUser auth repo:")
+		}
+
+		switch pgError.Code {
+		case postgres.ERRCODE_UNIQUE_VIOLATION:
+			err = &struct_errors.ErrExist{Err: err, Msg: "Username or email already exist"}
+		}
+
 		return domain.User{}, errors.Wrap(err, "CreateUser auth repo")
 	}
 
@@ -77,6 +89,16 @@ func (r *Repository) UpdateUser(ctx context.Context, dto domain.UpdateUserEntity
 
 	err = pgxscan.Get(ctx, r.db.TxOrDB(ctx), &user, query, args...)
 	if err != nil {
+		var pgError *pgconn.PgError
+		if ok := errors.As(err, &pgError); !ok {
+			return domain.User{}, errors.Wrap(err, "UpdateUser auth repo:")
+		}
+
+		switch pgError.Code {
+		case postgres.ERRCODE_UNIQUE_VIOLATION:
+			err = &struct_errors.ErrExist{Err: err, Msg: "Username or email already exist"}
+		}
+
 		return domain.User{}, errors.Wrap(err, "UpdateUser auth repo")
 	}
 
