@@ -68,7 +68,7 @@ services:
     restart: always
 
   lcode:
-    image: smilingthrone13/lcode_back:v1
+    image: smilingthrone13/lcode_back:latest
     links:
       - lcode-db
       - judge-server
