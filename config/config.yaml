@@ -22,4 +22,4 @@ judge:
   defaultTimeLimitSec: 5.0
 files:
   mainFolder: .\files
-  userAvatarMaxSize: 5242880 # 5MB
+  userAvatarMaxSize: 5MB # 5MB

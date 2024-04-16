@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"lcode/pkg/digit"
 	"time"
 )
 
@@ -96,6 +97,32 @@ func Init(configsDir string) (*Config, error) {
 	return &cfg, nil
 }
 
+func parseFiles(cfg *Config) error {
+	var f struct {
+		MainFolder        string
+		UserAvatarMaxSize string
+	}
+
+	if err := viper.UnmarshalKey("files.mainFolder", &f.MainFolder); err != nil {
+		return err
+	}
+
+	cfg.Files.MainFolder = f.MainFolder
+
+	if err := viper.UnmarshalKey("files.userAvatarMaxSize", &f.UserAvatarMaxSize); err != nil {
+		return err
+	}
+
+	size, err := digit.ParseSize(f.UserAvatarMaxSize)
+	if err != nil {
+		return err
+	}
+
+	cfg.Files.UserAvatarMaxSize = size
+
+	return nil
+}
+
 func parseYml(configDir string, cfg *Config) error {
 	if err := parseConfigFile(configDir+"config", "yaml"); err != nil {
 		fmt.Print(err.Error())
@@ -123,7 +150,7 @@ func parseYml(configDir string, cfg *Config) error {
 		return err
 	}
 
-	if err := viper.UnmarshalKey("files", &cfg.Files); err != nil {
+	if err := parseFiles(cfg); err != nil {
 		return err
 	}
 
