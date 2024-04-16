@@ -63,10 +63,10 @@ services:
   lcode:
     image: smilingthrone13/lcode_back:v1
     volumes:
-      - ./config/config.yaml:/config/config.yaml:ro
-      - ./config/judge0.conf:/config/judge0.conf:ro
+      - ./config:/config:ro
       - ./App.env:/App.env:ro
       - docs-data:/docs
+      - ./files:/files
     environment:
       - PATH_DB=postgres://postgres:postgres@lcode-db:5432/lcode
     links:
@@ -83,6 +83,8 @@ services:
       - "8082:8080"
     volumes:
       - docs-data:/docs
+    links:
+      - lcode
     environment:
       SWAGGER_JSON: /docs/api.yaml
 
