@@ -66,6 +66,7 @@ services:
       - ./config/config.yaml:/config/config.yaml:ro
       - ./config/judge0.conf:/config/judge0.conf:ro
       - ./App.env:/App.env:ro
+      - docs-data:/docs
     environment:
       - PATH_DB=postgres://postgres:postgres@lcode-db:5432/lcode
     links:
@@ -76,7 +77,17 @@ services:
     <<: *default-logging
     restart: always
 
+  swagger-ui:
+    image: swaggerapi/swagger-ui:latest
+    ports:
+      - "8082:8080"
+    volumes:
+      - docs-data:/docs
+    environment:
+      SWAGGER_JSON: /docs/api.yaml
+
 volumes:
   judge-postgres-data:
   judge-redis-data:
   lcode-postgres-data:
+  docs-data:

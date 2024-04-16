@@ -22,6 +22,8 @@ WORKDIR /
 
 COPY --from=build-stage /app/cmd/lcode /go/bin/goose ./
 
+COPY --from=build-stage /app/docs ./docs
+
 COPY --from=build-stage /app/internal/infra/database/migrations ./migrations
 
 ENV GOOSE_MIGRATION_DIR=/migrations
