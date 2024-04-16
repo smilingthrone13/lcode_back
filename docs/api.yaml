@@ -144,7 +144,7 @@ paths:
     get:
       tags: [ Authorization ]
       summary: Get all users
-      description: Admin only. Get list of users.
+      description: Get list of users.
       responses:
         200:
           description: Successful operation
@@ -179,11 +179,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
-  /auth/user/{user_id}/change_password:
+  /auth/users/{user_id}/update_profile:
     patch:
-      tags: [ Authorization ]
-      summary: Change password
-      description: Admin only. Change user password.
+      tags: [ Authorization, Admin ]
+      summary: Update user profile data
+      description: Update user profile data
       parameters:
         - in: path
           name: user_id
@@ -197,16 +197,8 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - id
-                - password
-              properties:
-                id:
-                  type: string
-                  format: uuid
-                password:
-                  type: string
+              $ref: '#/components/schemas/UpdateUserInput'
+
       responses:
         200:
           description: Successful operation
@@ -241,7 +233,7 @@ paths:
 
   /auth/user/{user_id}/change_admin_permission:
     patch:
-      tags: [ Authorization ]
+      tags: [ Authorization, Admin ]
       summary: Change user permissions
       description: Admin only. Set/revoke user admin permission.
       parameters:
@@ -259,12 +251,8 @@ paths:
             schema:
               type: object
               required:
-                - id
                 - is_admin
               properties:
-                id:
-                  type: string
-                  format: uuid
                 is_admin:
                   type: boolean
       responses:
@@ -274,6 +262,188 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /auth/users/upload_avatar/{file_name}:
+    post:
+      tags: [ Authorization ]
+      summary: Upload avatar
+      description: Upload avatar for your account
+      parameters:
+        - in: path
+          name: file_name
+          required: true
+          schema:
+            type: string
+            example: avatar.png
+      requestBody:
+        required: true
+        content:
+          image/*:
+            schema:
+              type: string
+              format: binary
+      responses:
+        200:
+          description: Avatar thumbnail
+          content:
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /auth/users/delete_avatar:
+    delete:
+      tags: [ Authorization ]
+      summary: Delete avatar
+      description: Delete avatar for your account
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+                example: ok
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /auth/users/{user_id}/avatar:
+    get:
+      tags: [ Authorization ]
+      summary: Get user avatar
+      description: Get original user avatar
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: 8df7d0a3-647a-4770-a3f7-85b67154572b
+      responses:
+        200:
+          description: Successful operation
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /auth/users/{user_id}/avatar/thumbnail:
+    get:
+      tags: [ Authorization ]
+      summary: Get user avatar thumbnail
+      description: Get user avatar thumbnail
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: 8df7d0a3-647a-4770-a3f7-85b67154572b
+      responses:
+        200:
+          description: Successful operation
+          content:
+            image/webp:
+              schema:
+                type: string
+                format: binary
         400:
           description: Bad request
           content:
@@ -1547,9 +1717,9 @@ components:
       required:
         - email
         - username
-        - password
         - first_name
         - last_name
+        - password
       properties:
         email:
           type: string
@@ -1559,9 +1729,29 @@ components:
           type: string
           minLength: 3
           maxLength: 50
+        first_name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        last_name:
+          type: string
+          minLength: 2
+          maxLength: 50
         password:
           type: string
           minLength: 5
+          maxLength: 50
+
+    UpdateUserInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 100
+        username:
+          type: string
+          minLength: 3
           maxLength: 50
         first_name:
           type: string
@@ -1571,6 +1761,11 @@ components:
           type: string
           minLength: 2
           maxLength: 50
+        password:
+          type: string
+          minLength: 5
+          maxLength: 50
+
 
     User:
       type: object
@@ -1585,11 +1780,11 @@ components:
         id:
           type: string
           format: uuid
-        username:
-          type: string
         email:
           type: string
           format: email
+        username:
+          type: string
         first_name:
           type: string
         last_name:
