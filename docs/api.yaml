@@ -1,12 +1,16 @@
 openapi: 3.0.3
 info:
   title: LeetCode Clone API
-  description: TODO
-  version: 0.1.0
+  description: |-
+    - All "Authenticated only" or "Admin only" requests are require "Authorization" header with bearer token
+  version: 1.0.0
 servers:
   - url: http://localhost:5000
-  - url: http://192.168.7.38:5000
-  - url: http://192.168.7.47:5000
+    description: Development server
+  - url: http://lcode:5000
+    description: Production server run in Docker
+  - url: https://lcode:5000
+    description: Production server run in Docker with TLS
 
 paths:
   /auth/register:
@@ -181,7 +185,7 @@ paths:
 
   /auth/users/{user_id}/update_profile:
     patch:
-      tags: [ Authorization, Admin ]
+      tags: [ Authorization ]
       summary: Update user profile data
       description: Update user profile data
       parameters:
@@ -233,7 +237,7 @@ paths:
 
   /auth/user/{user_id}/change_admin_permission:
     patch:
-      tags: [ Authorization, Admin ]
+      tags: [ Authorization ]
       summary: Change user permissions
       description: Admin only. Set/revoke user admin permission.
       parameters:
@@ -444,493 +448,6 @@ paths:
               schema:
                 type: string
                 format: binary
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        403:
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-
-  /solutions/:
-    post:
-      tags: [ Solutions ]
-      summary: Create solution
-      description: Create solution for task and language
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateSolutionInput'
-
-      responses:
-        200:
-          description: Solution
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Solution'
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        403:
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-  /solutions/task/:task_id:
-    get:
-      tags: [ Solutions ]
-      summary: Get solutions by task_id
-      description: Get solutions by task_id
-      parameters:
-        - in: path
-          name: task_id
-          required: true
-          example: f0b0d3a3-7a3e-4d4b-a0d3-a3d4b0d3a3d
-      responses:
-        200:
-          description: Solution
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Solution'
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        403:
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-  /solutions/{id}/code:
-    get:
-      tags: [ Solutions ]
-      summary: Get solution code
-      description: Get solution code
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: solution id
-          example: f0b0d3a3-7a3e-4d4b-a0d3-a3d4b0d3a3d
-      responses:
-        200:
-          description: Solution
-          content:
-            application/json:
-              schema:
-                type: string
-                example: console.log("Hello World")
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        403:
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-  /solutions/{id}/results:
-    get:
-      tags: [ Solutions ]
-      summary: Get solution results
-      description: Get solution results
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: solution id
-          example: f0b0d3a3-7a3e-4d4b-a0d3-a3d4b0d3a3d
-      responses:
-        200:
-          description: Solution
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SolutionResult'
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        403:
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-  /articles/practice:
-    get:
-      tags: [ Article (Practice) ]
-      summary: Get practice article
-      description: No authentication required. Get practice article.
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Article'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-    patch:
-      tags: [ Article (Practice) ]
-      summary: Update practice article
-      description: No authentication required. Update practice article.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ArticleUpdateInput'
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Article'
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-    delete:
-      tags: [ Article (Practice) ]
-      summary: Delete practice article
-      description: No authentication required. Mock delete practice article.
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-  /articles/available_attributes:
-    get:
-      tags: [ Article ]
-      summary: Get available article attributes
-      description: Authenticated users only. Get available article attributes that have been created already. <br> Does not include Practice article attributes.
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                required: [ categories ]
-                properties:
-                  categories:
-                    type: array
-                    items:
-                      type: string
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-  /articles/list:
-    get:
-      tags: [ Article ]
-      summary: Get articles list
-      description: Authenticated users only. Get articles list (sorted and/or filtered) with pagination. <br> Articles here are returned with empty content field. When you want to display article content, use GET /articles/{id} instead. <br> List does not include Practice article.
-      parameters:
-        - in: query
-          name: search
-          schema:
-            type: string
-          description: Search query string
-        - in: query
-          name: categories
-          schema:
-            type: array
-            items:
-              type: string
-          description: List of categories separated by comma
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ArticleListParams'
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - articles
-                  - pagination
-                properties:
-                  articles:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Article'
-                  pagination:
-                    $ref: '#/components/schemas/Pagination'
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-  /articles/:
-    post:
-      tags: [ Article ]
-      summary: Create article
-      description: Admin only. Create article.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ArticleCreateInput'
-      responses:
-        201:
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Article'
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        403:
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-  /articles/{article_id}:
-    parameters:
-      - in: path
-        name: article_id
-        required: true
-        schema:
-          type: string
-          format: uuid
-          example: 8df7d0a3-647a-4770-a3f7-85b67154572b
-
-    get:
-      tags: [ Article ]
-      summary: Get article
-      description: Authenticated users only. Get article by ID.
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Article'
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-    patch:
-      tags: [ Article ]
-      summary: Update article by ID
-      description: Admin only. Update article by ID.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ArticleUpdateInput'
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Article'
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        403:
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-    delete:
-      tags: [ Article ]
-      summary: Delete article by ID
-      description: Admin only. Delete article by ID.
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
         400:
           description: Bad request
           content:
@@ -1576,6 +1093,183 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
+  /solutions/:
+    post:
+      tags: [ Solutions ]
+      summary: Create solution
+      description: Create solution for task and language
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSolutionInput'
+
+      responses:
+        200:
+          description: Solution
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solution'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /solutions/task/:task_id:
+    get:
+      tags: [ Solutions ]
+      summary: Get solutions by task_id
+      description: Get solutions by task_id
+      parameters:
+        - in: path
+          name: task_id
+          required: true
+          example: f0b0d3a3-7a3e-4d4b-a0d3-a3d4b0d3a3d
+      responses:
+        200:
+          description: Solution
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Solution'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /solutions/{id}/code:
+    get:
+      tags: [ Solutions ]
+      summary: Get solution code
+      description: Get solution code
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: solution id
+          example: f0b0d3a3-7a3e-4d4b-a0d3-a3d4b0d3a3d
+      responses:
+        200:
+          description: Solution
+          content:
+            application/json:
+              schema:
+                type: string
+                example: console.log("Hello World")
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /solutions/{id}/results:
+    get:
+      tags: [ Solutions ]
+      summary: Get solution results
+      description: Get solution results
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: solution id
+          example: f0b0d3a3-7a3e-4d4b-a0d3-a3d4b0d3a3d
+      responses:
+        200:
+          description: Solution
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolutionResult'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
   /solutions/available_statuses:
     get:
       tags: [ Solutions ]
@@ -1677,6 +1371,315 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         401:
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /articles/practice:
+    get:
+      tags: [ Article (Practice) ]
+      summary: Get practice article
+      description: No authentication required. Get practice article.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    patch:
+      tags: [ Article (Practice) ]
+      summary: Update practice article
+      description: No authentication required. Update practice article.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleUpdateInput'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    delete:
+      tags: [ Article (Practice) ]
+      summary: Delete practice article
+      description: No authentication required. Mock delete practice article.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /articles/available_attributes:
+    get:
+      tags: [ Articles ]
+      summary: Get available article attributes
+      description: Authenticated users only. Get available article attributes that have been created already. <br> Does not include Practice article attributes.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ categories ]
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: string
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /articles/list:
+    get:
+      tags: [ Articles ]
+      summary: Get articles list
+      description: Authenticated users only. Get articles list (sorted and/or filtered) with pagination. <br> Articles here are returned with empty content field. When you want to display article content, use GET /articles/{id} instead. <br> List does not include Practice article.
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search query string
+        - in: query
+          name: categories
+          schema:
+            type: array
+            items:
+              type: string
+          description: List of categories separated by comma
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleListParams'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - articles
+                  - pagination
+                properties:
+                  articles:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Article'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /articles/:
+    post:
+      tags: [ Articles ]
+      summary: Create article
+      description: Admin only. Create article.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleCreateInput'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+  /articles/{article_id}:
+    parameters:
+      - in: path
+        name: article_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: 8df7d0a3-647a-4770-a3f7-85b67154572b
+
+    get:
+      tags: [ Articles ]
+      summary: Get article
+      description: Authenticated users only. Get article by ID.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    patch:
+      tags: [ Articles ]
+      summary: Update article by ID
+      description: Admin only. Update article by ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleUpdateInput'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+
+    delete:
+      tags: [ Articles ]
+      summary: Delete article by ID
+      description: Admin only. Delete article by ID.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        403:
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -2580,6 +2583,7 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
+      bearerFormat: JWT
 
 security:
   - BearerAuth: [ ]
