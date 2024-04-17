@@ -43,7 +43,7 @@ func (h *Handler) Register(middlewares *Middlewares, httpServer *gin.Engine) {
 	{
 		commentGroup.GET("/:entity_id", middlewares.Comment.ValidateThreadsListByParamsInput, h.getThreadList)
 
-		commentGroup.POST("/", middlewares.Comment.ValidateCreateCommentInput, h.createComment)
+		commentGroup.POST("/:entity_id", middlewares.Comment.ValidateCreateCommentInput, h.createComment)
 
 		commentGroup.PATCH("/:comment_id", middlewares.Comment.ValidateUpdateCommentInput, h.updateComment)
 

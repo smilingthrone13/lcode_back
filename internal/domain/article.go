@@ -33,7 +33,7 @@ type (
 	}
 
 	ArticleSort struct {
-		ByDate db.SortType `json:"date"`
+		ByDate db.SortType
 	}
 
 	ArticleAttributes struct {
@@ -57,8 +57,8 @@ type (
 	}
 
 	ArticleParamsInput struct {
-		Sort       ArticleSort        `json:"sort"`
-		Pagination IdPaginationParams `json:"pagination"`
+		Sort       ArticleSort
+		Pagination IdPaginationParams
 	}
 )
 

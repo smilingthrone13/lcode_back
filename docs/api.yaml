@@ -581,11 +581,26 @@ paths:
             items:
               type: string
           description: List of difficulties
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TaskListParams'
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: asc
+          description: Sorting by task number order
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 30
+            description: Number of problems to return
+        - in: query
+          name: after_id
+          schema:
+            type: string
+            format: uuid
+            description: ID of the last received problem
+
       responses:
         200:
           description: Successful operation
@@ -1137,7 +1152,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
-  /solutions/task/:task_id:
+  /solutions/task/{task_id}:
     get:
       tags: [ Solutions ]
       summary: Get solutions by task_id
@@ -1491,11 +1506,25 @@ paths:
             items:
               type: string
           description: List of categories separated by comma
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ArticleListParams'
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+          description: Sorting by article creation date order
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 30
+            description: Number of articles to return
+        - in: query
+          name: after_id
+          schema:
+            type: string
+            format: uuid
+          description: ID of the last received article
       responses:
         200:
           description: Successful operation
@@ -1691,7 +1720,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
-  /comments/{origin_type}/:
+  /comments/{origin_type}/{entity_id}:
     parameters:
       - in: path
         name: origin_type
@@ -1700,6 +1729,63 @@ paths:
           type: string
           enum: [ article, problem ]
         description: Comment origin type
+      - in: path
+        name: entity_id
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: e0c6c0e6-f3e9-4a4d-9d8c-e6e8c0e6f3e9
+        description: Article ID or problem ID
+    get:
+      tags: [ Comments ]
+      summary: Get comment threads
+      description: Authenticated users only. Get comment threads with pagination for existing problem/article.
+      parameters:
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [ asc, desc ]
+            default: desc
+          description: Sorting by comment thread creation date order
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 30
+            description: Number of comment threads to return
+        - in: query
+          name: after_id
+          schema:
+            type: string
+            format: uuid
+          description: ID of the last received comment thread
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadList'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
     post:
       tags: [ Comments ]
       summary: Add comment
@@ -1820,58 +1906,6 @@ paths:
                 $ref: '#/components/schemas/StatusResponse'
         403:
           description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-
-  /comments/{origin_type}/{entity_id}:
-    get:
-      tags: [ Comments ]
-      summary: Get comment threads
-      description: Authenticated users only. Get comment threads with pagination for existing problem/article.
-      parameters:
-        - in: path
-          name: origin_type
-          required: true
-          schema:
-            type: string
-            enum: [ article, problem ]
-          description: Comment origin type
-        - in: path
-          name: entity_id
-          required: true
-          schema:
-            type: string
-            format: uuid
-            example: e0c6c0e6-f3e9-4a4d-9d8c-e6e8c0e6f3e9
-          description: Article ID or problem ID
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ThreadListParams'
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ThreadList'
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StatusResponse'
-        401:
-          description: Unauthorized
           content:
             application/json:
               schema:
@@ -2022,7 +2056,6 @@ components:
         memory:
           type: integer
 
-
     User:
       type: object
       required:
@@ -2146,12 +2179,12 @@ components:
       properties:
         template:
           type: string
-          description: Task template in given programming language. If provided, must not me an empty string.
-          example: TODO
+          description: Task template in given programming language. If provided, must not be an empty string.
+          example: "function sum(a, b) {\nreturn\n}"
         wrapper:
           type: string
           description: Task wrapper in given programming language. If provided, must not me an empty string.
-          example: TODO
+          example: "const readline = require('readline');\n\nconst rl = readline.createInterface({\n    input: process.stdin,\n    output: process.stdout,\n    terminal: false\n});\n\n\nrl.on('line', (line) => {\n    const [a, b] = line.split(' ').map(Number);\n    let res = sum(a,b)\n    process.stdout.write(String(res))\n    process.exit(0)\n});"
 
     TaskTemplate:
       type: object
@@ -2184,11 +2217,11 @@ components:
         input:
           type: string
           description: Test case input as string. Must not me an empty string.
-          example: TODO
+          example: "1 2"
         output:
           type: string
           description: Test case output as string. Must not me an empty string.
-          example: TODO
+          example: "3"
 
     UpdateTestCaseInput:
       type: object
@@ -2238,35 +2271,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TaskTestCase'
-
-    TaskListParams:
-      type: object
-      properties:
-        sort:
-          type: object
-          required:
-            - "number"
-          properties:
-            "number":
-              type: string
-              enum: [ asc, desc ]
-          default: desc
-          description: Sort by task index
-        pagination:
-          type: object
-          required:
-            - limit
-          properties:
-            limit:
-              type: integer
-              example: 15
-              default: 30
-              description: Number of tasks per page
-            after_id:
-              type: string
-              format: uuid
-              description: ID of the last received task
-              example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
 
     Author:
       type: object
@@ -2330,35 +2334,6 @@ components:
         author:
           $ref: '#/components/schemas/Author'
 
-    ArticleListParams:
-      type: object
-      properties:
-        sort:
-          type: object
-          required:
-            - "date"
-          properties:
-            "date":
-              type: string
-              enum: [ asc, desc ]
-          default: desc
-          description: Sort by articles creation date
-        pagination:
-          type: object
-          required:
-            - limit
-          properties:
-            limit:
-              type: integer
-              example: 15
-              default: 30
-              description: Number of articles per page
-            after_id:
-              type: string
-              format: uuid
-              description: ID of the last received article
-              example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
-
     ArticleCreateInput:
       type: object
       required:
@@ -2368,7 +2343,7 @@ components:
         title:
           type: string
           description: Article title
-          example: Example Article
+          example: "Bubble Sort: An easy task"
         content:
           type: string
           description: Article content (text). Markdown supported.
@@ -2451,6 +2426,8 @@ components:
 
     UpdateCommentInput:
       type: object
+      required:
+        - comment_text
       properties:
         comment_text:
           type: string
@@ -2462,18 +2439,12 @@ components:
       allOf:
         - $ref: '#/components/schemas/UpdateCommentInput'
       required:
-        - entity_id
         - comment_text
       properties:
         parent_id:
           type: string
           format: uuid
           description: Parent comment ID (if any)
-          example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
-        entity_id:
-          type: string
-          format: uuid
-          description: Entity ID (article or problem) that comment belongs to
           example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
 
     Comment:
@@ -2549,35 +2520,6 @@ components:
             $ref: '#/components/schemas/Thread'
         pagination:
           $ref: '#/components/schemas/Pagination'
-
-    ThreadListParams:
-      type: object
-      properties:
-        sort:
-          type: object
-          required:
-            - "date"
-          properties:
-            "date":
-              type: string
-              enum: [ asc, desc ]
-          default: desc
-          description: Sort by comments creation date
-        pagination:
-          type: object
-          required:
-            - limit
-          properties:
-            limit:
-              type: integer
-              example: 15
-              default: 30
-              description: Number of comment threads per page
-            after_id:
-              type: string
-              format: uuid
-              description: ID of the last received comment thread
-              example: c6d0c29e-aa2d-45c5-b203-bbf9ecf41384
 
   securitySchemes:
     BearerAuth:

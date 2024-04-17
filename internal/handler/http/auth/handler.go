@@ -168,6 +168,13 @@ func (h *Handler) getMyInfo(c *gin.Context) {
 		return
 	}
 
+	user, err = h.services.UserManager.UserByID(c.Request.Context(), user.ID)
+	if err != nil {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+
+		return
+	}
+
 	c.JSON(http.StatusOK, user)
 }
 

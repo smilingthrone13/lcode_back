@@ -32,20 +32,20 @@ type (
 
 type (
 	CommentParamsInput struct {
-		Sort       CommentSort        `json:"sort"`
-		Pagination IdPaginationParams `json:"pagination"`
+		Sort       CommentSort
+		Pagination IdPaginationParams
 	}
 
 	CommentSort struct {
-		ByDate db.SortType `json:"date"`
+		ByDate db.SortType
 	}
 )
 
 type (
 	CommentCreateInput struct {
 		AuthorID string  `json:"-"`
+		EntityID string  `json:"-"`
 		ParentID *string `json:"parent_id"`
-		EntityID string  `json:"entity_id"`
 		Text     string  `json:"comment_text"`
 	}
 

@@ -7,9 +7,16 @@ import (
 	"time"
 )
 
-type IdPagination struct {
-	AfterID string `json:"after_id"`
-}
+type (
+	IdPagination struct {
+		AfterID string `json:"after_id"`
+	}
+
+	IdPaginationParams struct {
+		Limit   int
+		AfterID *string
+	}
+)
 
 type IntTime time.Time
 

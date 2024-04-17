@@ -5,9 +5,11 @@ import (
 	"lcode/config"
 	"lcode/internal/domain"
 	"lcode/internal/manager/problem_manager"
+	"lcode/pkg/db"
 	"lcode/pkg/http_lib/http_helper"
 	"log/slog"
 	"net/http"
+	"strconv"
 )
 
 type (
@@ -247,10 +249,23 @@ func (m *Middleware) ValidateFullProblemByTaskIDInput(c *gin.Context) {
 func (m *Middleware) ValidateTaskListByParamsInput(c *gin.Context) {
 	var inp domain.TaskParamsInput
 
-	if err := c.ShouldBindJSON(&inp); err != nil {
-		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+	inp.Sort.ByNumber = db.SortType(c.Query("sort"))
 
-		return
+	pAfterID, ok := c.GetQuery("after_id")
+	if ok {
+		inp.Pagination.AfterID = &pAfterID
+	}
+
+	pLimitStr, ok := c.GetQuery("limit")
+	if !ok {
+		inp.Pagination.Limit = m.cfg.QueryParams.Limit
+	} else {
+		pLimit, err := strconv.Atoi(pLimitStr)
+		if err == nil {
+			inp.Pagination.Limit = pLimit
+		} else {
+			inp.Pagination.Limit = m.cfg.QueryParams.Limit
+		}
 	}
 
 	categories, ok := c.GetQueryArray("category")

@@ -34,13 +34,8 @@ type (
 	}
 
 	TaskSort struct {
-		ByNumber db.SortType `json:"number"`
+		ByNumber db.SortType
 		// todo: ByDifficulty - за деньги да
-	}
-
-	IdPaginationParams struct {
-		Limit   int     `json:"limit"`
-		AfterID *string `json:"after_id"`
 	}
 
 	TaskAttributes struct {
@@ -69,8 +64,8 @@ type (
 	}
 
 	TaskParamsInput struct {
-		Sort       TaskSort           `json:"sort"`
-		Pagination IdPaginationParams `json:"pagination"`
+		Sort       TaskSort
+		Pagination IdPaginationParams
 	}
 )
 

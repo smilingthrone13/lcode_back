@@ -4,10 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"lcode/config"
 	"lcode/internal/domain"
+	"lcode/pkg/db"
 	"lcode/pkg/gin_helpers"
 	"lcode/pkg/http_lib/http_helper"
 	"log/slog"
 	"net/http"
+	"strconv"
 )
 
 const (
@@ -44,14 +46,22 @@ func (m *Middleware) ValidateCreateCommentInput(c *gin.Context) {
 		return
 	}
 
+	entityID := c.Query("entity_id")
+	if entityID == "" {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Entity ID is required")
+
+		return
+	}
+	dto.Input.EntityID = entityID
+
 	if err := c.ShouldBindJSON(&dto.Input); err != nil {
 		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
 
 		return
 	}
 
-	if dto.Input.EntityID == "" || dto.Input.Text == "" {
-		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Entity ID and comment text are required")
+	if dto.Input.Text == "" {
+		http_helper.NewErrorResponse(c, http.StatusBadRequest, "Comment text is required")
 
 		return
 	}
@@ -171,10 +181,23 @@ func (m *Middleware) ValidateThreadsListByParamsInput(c *gin.Context) {
 		return
 	}
 
-	if err := c.ShouldBindJSON(&dto.Input); err != nil {
-		http_helper.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+	dto.Input.Sort.ByDate = db.SortType(c.Query("sort"))
 
-		return
+	pAfterID, ok := c.GetQuery("after_id")
+	if ok {
+		dto.Input.Pagination.AfterID = &pAfterID
+	}
+
+	pLimitStr, ok := c.GetQuery("limit")
+	if !ok {
+		dto.Input.Pagination.Limit = m.cfg.QueryParams.Limit
+	} else {
+		pLimit, err := strconv.Atoi(pLimitStr)
+		if err == nil {
+			dto.Input.Pagination.Limit = pLimit
+		} else {
+			dto.Input.Pagination.Limit = m.cfg.QueryParams.Limit
+		}
 	}
 
 	c.Set(domain.DtoCtxKey, dto)
