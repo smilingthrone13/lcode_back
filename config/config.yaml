@@ -8,8 +8,8 @@ http:
   writeTimeout: 600s
 tls:
   enabled: false
-  cert: C:\Users\l.konstantin\Documents\Projects\!ssl_certs\cert.pem
-  key: C:\Users\l.konstantin\Documents\Projects\!ssl_certs\key.pem
+  cert: C:\Users\l.konstantin\Documents\Projects\!ssl_certs\cert.pem # path to cert.pem
+  key: C:\Users\l.konstantin\Documents\Projects\!ssl_certs\key.pem # path to key.pem
 searchCoefficient: 0.25
 auth:
   accessTokenExpTime: 300s  # seconds
@@ -22,4 +22,4 @@ judge:
   defaultTimeLimitSec: 5.0
 files:
   mainFolder: .\files
-  userAvatarMaxSize: 5MB # 5MB
+  userAvatarMaxSize: 5MB

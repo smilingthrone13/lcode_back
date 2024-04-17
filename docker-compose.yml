@@ -9,6 +9,7 @@ x-logging:
 
 services:
   judge-server:
+    container_name: sandbox-server
     image: smilingthrone13/judge0-custom:v1
     links:
       - db
@@ -17,13 +18,12 @@ services:
     command: ["./scripts/server"]
     volumes:
       - ./config/judge0.conf:/judge0.conf:ro
-    ports:
-      - ":2358"
     privileged: true
     <<: *default-logging
     restart: always
 
   judge-worker:
+    container_name: sandbox-worker
     image: smilingthrone13/judge0-custom:v1
     links:
       - db
@@ -36,6 +36,7 @@ services:
     restart: always
 
   db:
+    container_name: sandbox-db
     image: postgres:13.0
     env_file: config/judge0.conf
     volumes:
@@ -44,6 +45,7 @@ services:
     restart: always
 
   redis:
+    container_name: sandbox-redis
     image: redis:6.0
     command: [
       "bash", "-c",
@@ -57,6 +59,7 @@ services:
 
 
   lcode-db:
+    container_name: backend-db
     image: postgres:16-alpine
     volumes:
       - lcode-postgres-data:/var/lib/postgresql/data/
@@ -68,6 +71,7 @@ services:
     restart: always
 
   lcode:
+    container_name: backend-server
     image: smilingthrone13/lcode_back:latest
     links:
       - lcode-db
@@ -85,6 +89,7 @@ services:
     restart: always
 
   swagger-ui:
+    container_name: swagger
     image: swaggerapi/swagger-ui:latest
     links:
       - lcode
