@@ -1990,10 +1990,14 @@ components:
       properties:
         task_id:
           type: string
+          format: uuid
+          example: 8ddb071e-a777-42c8-ab24-1b160a09576b
         language_id:
-          type: string
+          type: integer
+          example: 1
         code:
           type: string
+          example: "function sum(a, b) {\n    return a + b \n}"
 
     SolutionResult:
       type: object
@@ -2040,12 +2044,16 @@ components:
       properties:
         id:
           type: string
+          format: uuid
         user_id:
           type: string
+          format: uuid
         task_id:
           type: string
+          format: uuid
         language_id:
-          type: string
+          type: integer
+          example: 1
         code:
           type: string
         status:
@@ -2170,9 +2178,9 @@ components:
       properties:
         language_id:
           type: integer
-          description: Programming language ID. 63 for JS, 74 for TS
-          enum: [ 63, 74 ]
-          example: 74
+          description: Programming language ID. 1 for JS, 2 for TS
+          enum: [ 1, 2 ]
+          example: 1
 
     UpdateTaskTemplateInput:
       type: object
