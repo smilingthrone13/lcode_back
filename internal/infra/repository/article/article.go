@@ -23,6 +23,34 @@ func New(cfg *config.Config, db *postgres.DbManager) *Repository {
 	return &Repository{cfg: cfg, db: db}
 }
 
+func (r *Repository) CreateDefault(ctx context.Context, user domain.User) error {
+	aText := "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.\nSuspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.\nCras elementum ultrices diam. Maecenas ligula massa, varius a, semper sagittis, dapibus gravida, tellus.\nNulla vitae elit. Nulla facilisi. Ut fringilla. Suspendisse eu ligula. Etiam porta sem."
+	aTitle := "Practice Article"
+	aCategories := []string{"Practice"}
+	sq := sql_query_maker.NewQueryMaker(5)
+
+	sq.Add(
+		`
+	INSERT INTO article (id, author_id, title, content, categories)
+	VALUES (?, ?, ?, ?, ?)
+	ON CONFLICT ON CONSTRAINT articles_pk DO UPDATE SET author_id = excluded.author_id, 
+	                          title = excluded.title, 
+	                          content = excluded.content, 
+	                          categories = excluded.categories
+	`,
+		domain.PracticeArticleID, user.ID, aTitle, aText, aCategories,
+	)
+
+	query, args := sq.Make()
+
+	_, err := r.db.TxOrDB(ctx).Exec(ctx, query, args...)
+	if err != nil {
+		return errors.Wrap(err, "CreateDefault Article repo:")
+	}
+
+	return nil
+}
+
 func (r *Repository) Create(ctx context.Context, inp domain.ArticleCreateInput) (a domain.Article, err error) {
 	var id string
 	sq := sql_query_maker.NewQueryMaker(4)

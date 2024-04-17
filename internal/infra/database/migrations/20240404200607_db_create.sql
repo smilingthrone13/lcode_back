@@ -7,7 +7,7 @@ create table "user"
     id            uuid    default gen_random_uuid() not null
         constraint user_pk
             primary key,
-    email         varchar(100)                       not null unique,
+    email         varchar(100)                      not null unique,
     first_name    varchar(50)                       not null,
     last_name     varchar(50)                       not null,
     username      varchar(50)                       not null unique,
@@ -15,17 +15,12 @@ create table "user"
     is_admin      boolean default false             not null
 );
 
-INSERT INTO "user" ("email","first_name", "last_name", "username", "password_hash", "is_admin")
-VALUES ('admin@admin','Admin', 'Admin', 'admin', '$2a$14$NRd0YacLcLfK6.yOmUUpXeGzzgGsWWYOaXkXZg3DK.9GqF0GEZ/Rq', true);
-
 create table task
 (
     id            uuid      default gen_random_uuid()            not null
         constraint task_pk
             primary key,
-    name          text                                           not null
-        constraint task_pk_2
-            unique,
+    name          text                                           not null unique,
     number        bigint                                         not null,
     description   text                                           not null,
     difficulty    text                                           not null,
@@ -141,22 +136,10 @@ create table article
         constraint articles_user_id_fk
             references "user",
     created_at timestamp default timezone('utc'::text, now()) not null,
-    title      varchar(150)                                   not null
-        constraint articles_pk_2
-            unique,
+    title      varchar(150)                                   not null unique,
     content    text                                           not null,
     categories text array                                     not null
 );
-
-INSERT INTO article (id, author_id, title, content, categories)
-VALUES ('00000000-0000-0000-0000-000000000000',
-        (SELECT id FROM "user" WHERE username = 'admin'),
-        'Practice Article',
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
- Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.
- Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper sagittis, dapibus gravida, tellus.
- Nulla vitae elit. Nulla facilisi. Ut fringilla. Suspendisse eu ligula. Etiam porta sem.',
-        '{"Practice"}');
 -- +goose StatementEnd
 
 -- +goose Down

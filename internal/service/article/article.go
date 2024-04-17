@@ -22,6 +22,26 @@ func New(
 	return &Service{logger: logger, transactionManager: transactionManager, repository: repository}
 }
 
+func (s *Service) CreateDefault(ctx context.Context, user domain.User) error {
+	tx, err := s.transactionManager.NewTx(ctx, nil)
+	if err != nil {
+		return errors.Wrap(err, "Article Service CreateDefault:")
+	}
+	ctx = context.WithValue(ctx, postgres.TxKey{}, tx)
+	defer tx.Rollback(ctx)
+
+	err = s.repository.CreateDefault(ctx, user)
+	if err != nil {
+		return errors.Wrap(err, "Article Service CreateDefault:")
+	}
+
+	if err = tx.Commit(ctx); err != nil {
+		return errors.Wrap(err, "Article Service CreateDefault:")
+	}
+
+	return nil
+}
+
 func (s *Service) Create(ctx context.Context, dto domain.ArticleCreateInput) (a domain.Article, err error) {
 	tx, err := s.transactionManager.NewTx(ctx, nil)
 	if err != nil {

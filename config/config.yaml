@@ -16,7 +16,7 @@ auth:
   refreshTokenExpTime: 720h # hours 720h
   secret: test-secret # any string
 judge:
-  host: judge-server
+  host: localhost
   port: 2358
   defaultMemoryLimitKB: 128000
   defaultTimeLimitSec: 5.0

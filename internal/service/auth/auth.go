@@ -178,3 +178,12 @@ func (s *Service) UpdateUser(ctx context.Context, dto domain.UpdateUserDTO) (use
 
 	return user, nil
 }
+
+func (s *Service) UserByUsername(ctx context.Context, username string) (user domain.User, err error) {
+	user, err = s.repository.UserByUsername(ctx, username)
+	if err != nil {
+		return domain.User{}, errors.Wrap(err, "UserByUsername auth service")
+	}
+
+	return user, nil
+}

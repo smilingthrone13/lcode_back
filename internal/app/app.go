@@ -1,8 +1,11 @@
 package app
 
 import (
+	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"lcode/config"
+	"lcode/internal/domain"
 	"lcode/internal/handler"
 	"lcode/internal/handler/middleware"
 	"lcode/internal/infra/database"
@@ -13,6 +16,7 @@ import (
 	"lcode/internal/service"
 	"lcode/pkg/logger"
 	"lcode/pkg/postgres"
+	"lcode/pkg/struct_errors"
 	"log"
 	"log/slog"
 	"os"
@@ -79,6 +83,11 @@ func Init(cfg *config.Config) *App {
 		apis,
 	)
 
+	err = setDefaultData(services, managers)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	handlers := handler.New(
 		&handler.InitParams{
 			Config:             cfg,
@@ -115,4 +124,47 @@ func (a *App) Run() {
 	if err != nil {
 		a.l.Error("failed run app: ", slog.String("err", err.Error()))
 	}
+}
+
+func setDefaultData(s *service.Services, m *manager.Managers) error {
+	// create default Admin user
+	uCreateInput := domain.CreateUserDTO{
+		Email:     "admin@admin",
+		Username:  "admin",
+		FirstName: "Admin",
+		LastName:  "Admin",
+		Password:  "admin",
+	}
+
+	u, err := m.UserManager.Register(context.Background(), uCreateInput)
+	if err != nil {
+		var errExist *struct_errors.ErrExist
+		if ok := errors.As(err, &errExist); !ok {
+			return errors.Wrap(err, "setDefaultData app init:")
+		}
+
+		u, err = s.Auth.UserByUsername(context.Background(), uCreateInput.Username)
+		if err != nil {
+			return errors.Wrap(err, "setDefaultData app init:")
+		}
+	}
+
+	isAdmin := true
+	uUpdateInput := domain.UpdateUserDTO{
+		UserID:  u.ID,
+		IsAdmin: &isAdmin,
+	}
+
+	u, err = m.UserManager.UpdateUser(context.Background(), uUpdateInput)
+	if err != nil {
+		return errors.Wrap(err, "setDefaultData app init:")
+	}
+
+	// create default practice article
+	err = s.Article.CreateDefault(context.Background(), u)
+	if err != nil {
+		return errors.Wrap(err, "setDefaultData app init:")
+	}
+
+	return nil
 }

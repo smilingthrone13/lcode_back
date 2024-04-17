@@ -182,7 +182,8 @@ func (r *Repository) GetAvailableAttributes(ctx context.Context) (ta domain.Task
 
 	sq.Add(
 		`
-	SELECT array_agg(DISTINCT category) AS categories, array_agg(DISTINCT difficulty) AS difficulties
+	SELECT coalesce(array_agg(DISTINCT category), '{}') AS categories,
+	       coalesce(array_agg(DISTINCT difficulty), '{}') AS difficulties
 	FROM task t
 	`,
 	)
